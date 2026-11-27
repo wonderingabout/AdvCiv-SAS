@@ -2,7 +2,7 @@
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 #
 # <!-- custom: SASPilotUI: screens, tabs and buttons by name, as a click would use them, without coordinates, hotkeys or screenshots (the user's idea, 2026-11-20).
-# SASPilotCommands.py loads this file from disk, like itself, and adds its cmd_ functions and help; 'pilot' in this module's namespace is that command module.
+# SASPilotCommands.py loads this file from disk, like itself, and adds its cmd_ functions and help; 'saspilot' in this module's namespace is that command module.
 # Screens cannot list their widgets, so the recorder below notes each one as a screen creates it; 'uipress' then hands the screen the input a click on it sends. (Claude code Opus 5.5) -->
 
 # <!-- custom: CvScreensInterface holds the screen objects and handleInput; CvScreenEnums names the screen IDs. (Claude code Opus 5.5) -->
@@ -23,6 +23,9 @@ import SASVisualUtils
 import SASTextScale
 
 gc = CyGlobalContext()
+
+# <!-- custom: The loader binds the command module before installing any UI hooks. (GPT-6.2-Sol) -->
+saspilot = None
 
 
 # <!-- custom: Recorder (Claude code Opus 5.5) -->
@@ -73,7 +76,7 @@ class _BoundRecorded(object):
 		try:
 			_note(self.screen, self.recorded.szMethod, args)
 		except Exception:
-			pilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
+			saspilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
 		return result
 
 
@@ -89,7 +92,7 @@ class _TabRecorder(object):
 		try:
 			_noteTabs(args[0], args[1], args[2])
 		except Exception:
-			pilot._state["uiRecordError"] = "drawAdvisorFooterTabRows: %s" % sys.exc_info()[1]
+			saspilot._state["uiRecordError"] = "drawAdvisorFooterTabRows: %s" % sys.exc_info()[1]
 		return result
 
 
@@ -97,26 +100,26 @@ def _noteTabs(screen, aTabRows, iActivePageID):
 	iScreen = screen.getPythonFileID()
 	_beginPressScreenRecord(iScreen)
 	tabs = [{"widget": row[0], "label": row[1], "page": row[3]} for row in aTabRows]
-	pilot._state.setdefault("uiTabs", {})[iScreen] = {"tabs": tabs, "active": iActivePageID}
+	saspilot._state.setdefault("uiTabs", {})[iScreen] = {"tabs": tabs, "active": iActivePageID}
 
 
 def _installTabs():
 	# <!-- custom: The original is kept in the loader's state, so a reload of this file wraps it again rather than wrapping the previous wrapper. (Claude code Opus 5.5) -->
-	original = pilot._state.get("uiTabOriginal")
+	original = saspilot._state.get("uiTabOriginal")
 	if original is None:
 		original = SASUtils.drawAdvisorFooterTabRows
-		pilot._state["uiTabOriginal"] = original
+		saspilot._state["uiTabOriginal"] = original
 	SASUtils.drawAdvisorFooterTabRows = _TabRecorder(original)
 
 
 def _registry():
-	return pilot._state.setdefault("uiWidgets", {})
+	return saspilot._state.setdefault("uiWidgets", {})
 
 
 def _clearScreenRecord(iScreen):
 	_registry().pop(iScreen, None)
-	pilot._state.get("uiTabs", {}).pop(iScreen, None)
-	listed = pilot._state.get("uiItemsListed", {})
+	saspilot._state.get("uiTabs", {}).pop(iScreen, None)
+	listed = saspilot._state.get("uiItemsListed", {})
 	for key in listed.keys():
 		if key[0] == iScreen:
 			del listed[key]
@@ -126,7 +129,7 @@ def _clearScreenRecord(iScreen):
 # Start a fresh record on its first draw, since a persistent screen's last recorded tab can differ from what this press opens.
 # Already open screens keep their records for incremental updates. (GPT-6.2-Sol) -->
 def _beginPressScreenRecord(iScreen):
-	seen = pilot._state.get("uiPressScreens")
+	seen = saspilot._state.get("uiPressScreens")
 	if seen is not None and iScreen not in seen:
 		seen.add(iScreen)
 		_clearScreenRecord(iScreen)
@@ -135,7 +138,7 @@ def _beginPressScreenRecord(iScreen):
 def _note(screen, szMethod, args):
 	iScreen = screen.getPythonFileID()
 	# <!-- custom: The main interface redraws often and is not a screen SASPilotUI opens, so it is recorded only during 'uimain', which redraws it whole once. (Claude code Opus 5.5) -->
-	if iScreen == CvScreenEnums.MAIN_INTERFACE and not pilot._state.get("uiRecordMain"):
+	if iScreen == CvScreenEnums.MAIN_INTERFACE and not saspilot._state.get("uiRecordMain"):
 		return
 	_beginPressScreenRecord(iScreen)
 	widgets = _registry().setdefault(iScreen, {})
@@ -152,9 +155,11 @@ def _note(screen, szMethod, args):
 	# <!-- custom: Advisors hide a tab's widgets rather than delete them: the Battles table stayed listed after a press on the Composition tab in the first test. (Claude code Opus 5.5) -->
 	if szMethod in ("hide", "show"):
 		if args and widgets.has_key(args[0]):
+			# <!-- custom: sas-ci-string-compare-exemption: The recorder receives engine widget method names. (GPT-6.2-Sol) -->
 			widgets[args[0]]["hidden"] = (szMethod == "hide")
 		return
 	# <!-- custom: A disabled widget cannot be clicked in the window, so 'uipress' refuses it (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: sas-ci-string-compare-exemption: The recorder receives engine widget method names. (GPT-6.2-Sol) -->
 	if szMethod == "enable":
 		if len(args) > 1 and widgets.has_key(args[0]):
 			widgets[args[0]]["disabled"] = not args[1]
@@ -251,7 +256,7 @@ def _note(screen, szMethod, args):
 
 def _install():
 	# <!-- custom: The originals are kept in the loader's state, which outlives reloads of this file, so a reload wraps them again rather than wrapping the wrapper. (Claude code Opus 5.5) -->
-	originals = pilot._state.setdefault("uiOriginals", {})
+	originals = saspilot._state.setdefault("uiOriginals", {})
 	# <!-- custom: Only methods not yet kept: the class attribute of one already wrapped is the wrapper. (Claude code Opus 5.5) -->
 	for szMethod in dir(CyGInterfaceScreen):
 		if not originals.has_key(szMethod) and (_isCreator(szMethod) or _isCell(szMethod) or szMethod in _STATE_METHODS):
@@ -265,7 +270,7 @@ def _install():
 	except Exception:
 		_uninstall()
 		raise
-	pilot._state["uiInstalled"] = True
+	saspilot._state["uiInstalled"] = True
 	return len(originals)
 
 
@@ -297,28 +302,28 @@ def _forget(iScreen):
 
 
 def _uninstall():
-	originals = pilot._state.get("uiOriginals", {})
+	originals = saspilot._state.get("uiOriginals", {})
 	for szMethod in originals.keys():
 		setattr(CyGInterfaceScreen, szMethod, originals[szMethod])
-	pilot._state["uiInstalled"] = False
+	saspilot._state["uiInstalled"] = False
 
 
 # <!-- custom: The recorder follows screens that 'uiopen' or 'uipress' opens.
 # The bridge tick removes it when the watched screen closes; a permanent install added about 8 ms to a full HUD redraw in the 2026-11-20 test. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def _tick():
-	if not pilot._state.get("uiInstalled") or pilot._state.get("uiAlways") or pilot._state.get("uiPressScreens") is not None:
+	if not saspilot._state.get("uiInstalled") or saspilot._state.get("uiAlways") or saspilot._state.get("uiPressScreens") is not None:
 		return
-	iWatched = pilot._state.get("uiWatched")
+	iWatched = saspilot._state.get("uiWatched")
 	if iWatched is None or not CyGInterfaceScreen("", iWatched).isActive():
 		_uninstall()
 		if iWatched is not None:
 			_forget(iWatched)
-		pilot._state["uiWatched"] = None
+		saspilot._state["uiWatched"] = None
 
 
 def _reloaded():
 	# <!-- custom: After this file reloads, the class still holds the previous version's wrappers, so they are replaced by this version's, or removed. (Claude code Opus 5.5) -->
-	if pilot._state.get("uiInstalled") or pilot._state.get("uiAlways"):
+	if saspilot._state.get("uiInstalled") or saspilot._state.get("uiAlways"):
 		_install()
 	else:
 		_uninstall()
@@ -392,7 +397,7 @@ def cmd_uiscreens(args):
 			continue
 		result.append({"screen": names.get(iScreen, str(iScreen)), "id": iScreen, "open": _isOpen(iScreen), "widgets": len(_registry().get(iScreen, {}))})
 	result.sort(lambda a, b: cmp(a["screen"], b["screen"]))
-	return {"screens": result, "open": [szShort for (szShort, szShow) in _OPENERS], "recorderMethods": len(pilot._state.get("uiOriginals", {})), "recorder": cmd_uirecord({}), "recorderError": pilot._state.get("uiRecordError")}
+	return {"screens": result, "open": [szShort for (szShort, szShow) in _OPENERS], "recorderMethods": len(saspilot._state.get("uiOriginals", {})), "recorder": cmd_uirecord({}), "recorderError": saspilot._state.get("uiRecordError")}
 
 
 _HELP["uirecord"] = "The widget recorder: installed (now recording), always, the screen opened by 'uiopen' or 'uipress' that keeps it installed, and startRecord, the widgets recorded when the main interface was built at game start (0 if the client started with SASPilot off). By default it records only while that screen is up, so screens a person opens are not recorded; on=1 keeps it installed for good (each main interface redraw then costs more), on=0 goes back to the default and removes it. args: on."
@@ -400,19 +405,19 @@ _HELP["uirecord"] = "The widget recorder: installed (now recording), always, the
 
 def cmd_uirecord(args):
 	if args.get("on") is not None:
-		pilot._state["uiAlways"] = bool(args["on"])
+		saspilot._state["uiAlways"] = bool(args["on"])
 		if args["on"]:
 			_install()
 		else:
 			_uninstall()
-			pilot._state["uiWatched"] = None
+			saspilot._state["uiWatched"] = None
 	# <!-- custom: startRecord, the widgets recorded while the main interface was built at game start (0 when the client started with SASPilot off), was read with 'py' while testing that record (2026-11-20). (Claude code Opus 5.5) -->
-	return {"installed": bool(pilot._state.get("uiInstalled")), "always": bool(pilot._state.get("uiAlways")), "watched": _screenNames().get(pilot._state.get("uiWatched")), "startRecord": len(pilot._state.get("uiMainStatic", {}))}
+	return {"installed": bool(saspilot._state.get("uiInstalled")), "always": bool(saspilot._state.get("uiAlways")), "watched": _screenNames().get(saspilot._state.get("uiWatched")), "startRecord": len(saspilot._state.get("uiMainStatic", {}))}
 
 
 def _screenIdsFor(szShow):
 	# <!-- custom: The screens a show function may open, from the screen objects HandleInputMap maps; unknown until opened once, then the record of a closed one is dropped before it is drawn again. (Claude code Opus 5.5) -->
-	return [iScreen for iScreen in pilot._state.get("uiOpenedBy", {}).get(szShow, [])]
+	return [iScreen for iScreen in saspilot._state.get("uiOpenedBy", {}).get(szShow, [])]
 
 
 # <!-- custom: The Tech Chooser keeps its cached tree across opens.
@@ -421,14 +426,53 @@ def _prepareTechOpen():
 	CyInterface().setDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT, True)
 
 
-_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its recorded widget count. Without a name lists the screen shortcuts. args: name."
+_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its recorded widget count. Without a name lists the screen shortcuts. With tab=, switches to that footer tab by registry key, label (any case), or widget name, as 'uitabs' lists them. args: name, tab."
 
 
 def cmd_uiopen(args):
 	# <!-- custom: Listing shortcuts is a successful read; invalid names still fail in _openScreen. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if args.get("name") is None:
+		if args.get("tab") is not None:
+			raise ValueError("tab= needs name=<screen>")
 		return {"open": [szShort for szShort, _ in _OPENERS]}
-	return _openScreen(args["name"], True)
+	if args.get("tab") is not None:
+		_requireHudInput()
+	result = _openScreen(args["name"], True)
+	# <!-- custom: tab= switches to a footer tab by its label (or widget name) in the same call: reading the Victory screen's Members tab at the turn-305 U.N. election (2026-11-22) took uiopen, uitabs and uipress, three round trips, and the user recalled agents guessing tab numbers before uitabs existed. (Claude code Opus 5.5) -->
+	if args.get("tab") is not None:
+		szTab = unicode(args["tab"]).lower()
+		# <!-- custom: A registry key (CvScreenEnums.ADVISOR_TABS, such as TOP_CITIES for "TOP 5 CITIES / WONDERS") is taken too, turned into its label. See KI#1110. (Claude code Opus 5.5) -->
+		szName = args["name"]
+		szRegistryAdvisor = {"religion": "policy", "corporation": "policy", "espionage": "foreigndiplomacy"}.get(szName, szName)
+		szScreen = result["screen"]
+		for (szAdvisor, iAdvisorScreen, szControl, tabsDefined) in CvScreenEnums.ADVISOR_TABS:
+			if szAdvisor != szRegistryAdvisor:
+				continue
+			# <!-- custom: A failed control can leave some other advisor open.
+			# Resolve tabs on the requested advisor, using the registry screen ID. See KI#1110. (GPT-6.2-Sol) -->
+			if not _isOpen(iAdvisorScreen):
+				raise ValueError("%s did not open a screen; read 'uistate'" % szName)
+			szScreen = _screenNames()[iAdvisorScreen]
+			for (szKey, szTextKey, szOption) in tabsDefined:
+				if szKey.lower() == szTab:
+					szTab = _registryTabLabel(szTextKey).lower()
+					break
+			break
+		if szScreen is None:
+			raise ValueError("%s did not open a screen; read 'uistate'" % args["name"])
+		tabs = cmd_uitabs({"screen": szScreen})["tabs"]
+		matches = [tab for tab in tabs if tab["label"].lower() == szTab or tab["widget"].lower() == szTab]
+		if not matches:
+			raise ValueError("no tab %s on %s; its tabs: %s" % (args["tab"], result.get("screen"), ", ".join([tab["label"] for tab in tabs]) or "none recorded"))
+		if not matches[0]["active"]:
+			cmd_uipress({"widget": matches[0]["widget"], "screen": szScreen})
+			active = [tab["label"] for tab in cmd_uitabs({"screen": szScreen})["tabs"] if tab["active"]]
+			if active != [matches[0]["label"]]:
+				raise ValueError("%s did not switch to the %s tab" % (szScreen, matches[0]["label"]))
+		result["screen"] = szScreen
+		result["tab"] = matches[0]["label"]
+		result["widgets"] = len(_registry().get(_screenId(szScreen), {}))
+	return result
 
 
 def _openScreen(szName, bRecord):
@@ -440,7 +484,8 @@ def _openScreen(szName, bRecord):
 			szShow = szCandidate
 	if szShow is None:
 		raise ValueError("unknown screen %s; one of %s" % (args["name"], ", ".join([szShort for (szShort, szShow) in _OPENERS])))
-	pilot._checkRole("screen", {"name": szShow})
+	saspilot._checkRole("screen", {"name": szShow})
+	# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 	if szName == "tech":
 		_prepareTechOpen()
 		if bRecord:
@@ -457,21 +502,21 @@ def _openScreen(szName, bRecord):
 	if szControl is not None:
 		gc.getGame().doControl(getattr(ControlTypes, szControl))
 	else:
-		pilot.cmd_screen({"name": szShow})
+		saspilot.cmd_screen({"name": szShow})
 	after = _activeScreens()
 	opened = [iScreen for iScreen in after if iScreen not in before]
 	for iScreen in opened:
-		known = pilot._state.setdefault("uiOpenedBy", {}).setdefault(szShow, [])
+		known = saspilot._state.setdefault("uiOpenedBy", {}).setdefault(szShow, [])
 		if iScreen not in known:
 			known.append(iScreen)
 	# <!-- custom: An already open screen did not redraw from scratch, so its record is kept; a newly opened one was just drawn whole. (Claude code Opus 5.5) -->
 	if opened:
-		pilot._state["uiWatched"] = opened[0]
+		saspilot._state["uiWatched"] = opened[0]
 	elif len(after) == 1:
-		pilot._state["uiWatched"] = after[0]
+		saspilot._state["uiWatched"] = after[0]
 	else:
-		pilot._state["uiWatched"] = None
-	iWatched = pilot._state["uiWatched"]
+		saspilot._state["uiWatched"] = None
+	iWatched = saspilot._state["uiWatched"]
 	result = {"opened": args["name"], "called": szShow, "control": szControl, "screen": _screenNames().get(iWatched)}
 	if bRecord:
 		result["widgets"] = len(_registry().get(iWatched, {}))
@@ -513,16 +558,19 @@ def cmd_uisplash(args):
 		if szItem is None or not str(szItem).startswith(szPrefix + "_"):
 			raise ValueError("%s takes item=%s_..." % (szName, szPrefix))
 		iNum = getattr(gc, "getNum%sInfos" % szInfo)()
-		iItem = pilot._typedIndex(str(szItem), szPrefix, iNum, getattr(gc, "get%sInfo" % szInfo))
+		iItem = saspilot._typedIndex(str(szItem), szPrefix, iNum, getattr(gc, "get%sInfo" % szInfo))
 	_clearScreenRecord(iScreen)
-	bWasRecording = pilot._state.get("uiInstalled")
+	bWasRecording = saspilot._state.get("uiInstalled")
 	if not bWasRecording:
 		_install()
 	try:
+		# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 		if szName == "era":
 			CvScreensInterface.eraMovie.interfaceScreen(iItem)
+		# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 		elif szName == "dawnofman":
 			CvScreensInterface.dawnOfMan.interfaceScreen(True)
+		# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 		elif szName == "techsplash":
 			if CvScreensInterface.techSplashScreen is None:
 				CvScreensInterface.createTechSplash()
@@ -536,7 +584,7 @@ def cmd_uisplash(args):
 	# The close button is returned, as 'uipress widgettype=WIDGET_CLOSE_SCREEN' without a widget name does not reach these screens. (Claude code Opus 5.5) -->
 	widgets = _registry().get(iScreen, {})
 	if widgets:
-		pilot._state["uiWatched"] = iScreen
+		saspilot._state["uiWatched"] = iScreen
 	result = {"shown": None, "screen": szScreen, "widgets": len(widgets), "close": [szWidget for szWidget in widgets.keys() if widgets[szWidget].get("widget") == int(WidgetTypes.WIDGET_CLOSE_SCREEN)]}
 	if not widgets:
 		# <!-- custom: The screen returned before drawing: No Movies for the movie screens, or the tech splash's own option. (Claude code Opus 5.5) -->
@@ -562,7 +610,7 @@ def cmd_uiwidgets(args):
 	widgets.sort(lambda a, b: cmp(a["order"], b["order"]))
 	result = []
 	bHidden = bool(args.get("hidden"))
-	if bHidden and pilot._state.get("role") not in (None, "all"):
+	if bHidden and saspilot._state.get("role") not in (None, "all"):
 		raise ValueError("hidden=1 lists widgets the window does not show; the all role allows it")
 	byName = _registry().get(iScreen, {})
 	for entry in widgets:
@@ -572,25 +620,99 @@ def cmd_uiwidgets(args):
 			continue
 		item = {}
 		for (szKey, value) in entry.items():
+			# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 			if szKey == "cells":
 				item["cellWidgets"] = len(value)
+			# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 			elif szKey == "items":
 				item["items"] = len(value)
 			elif szKey not in ("order", "unnamedChildren"):
 				item[szKey] = value
 		if entry.has_key("widget"):
-			item["widgetType"] = pilot._enumName(WidgetTypes, entry["widget"])
+			item["widgetType"] = saspilot._enumName(WidgetTypes, entry["widget"])
 		result.append(item)
 	return {"screen": _screenNames().get(iScreen, str(iScreen)), "widgets": result}
 
 
-_HELP["uitabs"] = "The footer tabs of an open advisor (Domestic, Military, Foreign, Info, Policy, Victory, World), as the screen last drew them: each tab's widget name for 'uipress widget=', its label as plain text and whether it is the active one. Recorded from SAS's shared footer tab drawing whatever the recorder's state; a screen without footer tabs, such as the Tech Chooser, has none. args: screen (default the open one)."
+_HELP["uitabs"] = "The footer tabs of an open advisor (Domestic, Military, Foreign, Info, Policy, Victory, World), as the screen last drew them: each tab's widget name for 'uipress widget=', its label as plain text and whether it is the active one. Recorded from SAS's shared footer tab drawing whatever the recorder's state; a screen without footer tabs, such as the Tech Chooser, has none. With all=1, every tabbed advisor and its tabs from CvScreenEnums.ADVISOR_TABS without opening a screen: key, label, whether it is shown with the current options, its required game option if any, and the command that gives the tab's facts (null where none does yet). args: screen (default the open one), all."
+
+
+# <!-- custom: The command that gives each tab's facts without the screen, keyed by CvScreenEnums.ADVISOR_TABS' advisor and tab keys; None where no command does yet, with what covers part of it.
+# From the 2026-11-22 audit, which opened every tab by name and compared it with the commands: the gaps show in 'uitabs all=1' itself, and a tab added to the registry without an entry here shows as "unmapped". (Claude code Opus 5.5) -->
+_TAB_COMMANDS = {
+	"domestic/OVERVIEW1": ("domestic", "26 fields per city against about 90 columns across the four overviews"),
+	"domestic/OVERVIEW2": ("domestic", None),
+	"domestic/OVERVIEW3": ("domestic", None),
+	"domestic/OVERVIEW4": ("domestic", None),
+	"domestic/FINANCE": ("finance", None),
+	"policy/CIVICS": ("civics", None),
+	"policy/RELIGIONS": ("religion", None),
+	"policy/CORPORATIONS": (None, "world lists corporations, not this tab's per-city detail"),
+	"foreigndiplomacy/RELATIONS": ("relations", None),
+	"foreigndiplomacy/GLANCE": ("relations", "viewsOf"),
+	"foreigndiplomacy/INFO": ("players", "civics of each met, living leader"),
+	"foreigndiplomacy/ESPIONAGE": ("espionage", None),
+	"foreigntrade/ACTIVE_TRADE": ("deals", None),
+	"foreigntrade/BONUS": ("bonustrade", None),
+	"foreigntrade/TECH": ("techs", None),
+	"foreigntrade/CITIES": ("rivalcities", "seen rival cities near ours"),
+	"military/SUMMARY": ("military", None),
+	"military/MAP": ("units", None),
+	"military/BATTLES": ("battles", None),
+	"military/COMPOSITION": (None, "countable from 'units'"),
+	"world/BFC1": (None, "'workers' and 'citizens' cover parts"),
+	"world/BFC2": (None, "'workers' and 'citizens' cover parts"),
+	"world/TERRITORY": (None, "'geography' covers parts"),
+	"world/ENVIRONMENT": (None, "global warming and pollution"),
+	"world/CHANGES": (None, "Advanced Start and WorldBuilder changes"),
+	"info/GRAPH": ("graph", None),
+	"info/SCORE": ("scores", None),
+	"info/TIMELINE": ("timeline", None),
+	"info/DEMOGRAPHICS": ("demographics", None),
+	"info/TOP_CITIES": ("world", None),
+	"info/STATISTICS": (None, "time played, units built, killed and lost, buildings"),
+	"victory/VICTORIES": ("victory", None),
+	"victory/SETTINGS": ("settings", None),
+	"victory/RESOLUTIONS": ("world", "voteSources resolutions"),
+	"victory/MEMBERS": ("world", "voteSources members"),
+	"victory/RISE_FALL_SCORE": (None, "Rise and Fall games only"),
+}
+
+
+def _registryTabLabel(szTextKey):
+	return CyTranslator().getText(szTextKey, ()).upper()
 
 
 def cmd_uitabs(args):
+	# <!-- custom: all=1 lists every tabbed advisor and its tabs from CvScreenEnums.ADVISOR_TABS, the registry the screens draw their tabs from, without opening a screen; each tab with its label, the game option it needs and the command that gives its facts (_TAB_COMMANDS).
+	# The first version (2026-11-22) opened each advisor and read what it drew, as each screen then kept its own list; the registry came the same day at the user's suggestion, so reading it is the same as reading the screens. See KI#1110. (Claude code Opus 5.5) -->
+	if args.get("all"):
+		result = []
+		for (szAdvisor, iAdvisorScreen, szControl, tabs) in CvScreenEnums.ADVISOR_TABS:
+			# <!-- custom: The BUG replacements share SAS screen IDs but draw no SAS footer tabs.
+			# Read the same live BUG options as the screen factories so the sweep expects the right tabs. See KI#1110. (GPT-6.2-Sol) -->
+			# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
+			bUsesRegistry = not ((szAdvisor == "domestic" and CvScreensInterface.CustDomAdvOpt.isEnabled()) or (szAdvisor == "military" and CvScreensInterface.AdvisorOpt.isBUG_MA()))
+			rows = []
+			for (szKey, szTextKey, szOption) in tabs:
+				entry = _TAB_COMMANDS.get("%s/%s" % (szAdvisor, szKey))
+				row = {"key": szKey, "label": _registryTabLabel(szTextKey), "shown": bUsesRegistry}
+				if szOption is not None:
+					row["option"] = szOption
+					# <!-- custom: Whether this game shows the tab: the audit tried the Victory screen's Rise and Fall tab in a game without the option and failed (2026-11-22). (Claude code Opus 5.5) -->
+					row["shown"] = bUsesRegistry and bool(gc.getGame().isOption(getattr(GameOptionTypes, szOption)))
+				if entry is None:
+					row["command"] = "unmapped"
+				else:
+					row["command"] = entry[0]
+					if entry[1]:
+						row["note"] = entry[1]
+				rows.append(row)
+			result.append({"advisor": szAdvisor, "control": szControl, "tabs": rows})
+		return {"advisors": result, "open": "uiopen name=<advisor> tab=<key or label>"}
 	iScreen = _screenId(args.get("screen"))
 	_requirePlayable(iScreen, False)
-	record = pilot._state.get("uiTabs", {}).get(iScreen)
+	record = saspilot._state.get("uiTabs", {}).get(iScreen)
 	tabs = []
 	if record is not None:
 		for tab in record["tabs"]:
@@ -653,7 +775,7 @@ _NOT_PLAY_SCREENS = ("WORLDBUILDER", "WORLD_BUILDER", "DEBUG")
 def _requirePlayable(iScreen, bClick):
 	# <!-- custom: Under a role other than all, only what is on display: a closed screen's record can be stale, and a click on it cannot happen (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	szName = _screenNames().get(iScreen, str(iScreen))
-	if pilot._state.get("role") in (None, "all"):
+	if saspilot._state.get("role") in (None, "all"):
 		if bClick and not _isOpen(iScreen):
 			raise ValueError("%s is not open; 'uiopen' opens it" % szName)
 		return
@@ -706,7 +828,7 @@ def _target(iScreen, args, bPress):
 		if bPress and item.get("disabled"):
 			raise ValueError("item %d of %s is disabled in the window" % (iItem, szWidget))
 		# <!-- custom: The list may have changed since 'uiitems' numbered it, so the same item= would press another action or build (Codex's review); a press checks the item is still the one listed. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		listed = pilot._state.get("uiItemsListed", {}).get((iScreen, szWidget))
+		listed = saspilot._state.get("uiItemsListed", {}).get((iScreen, szWidget))
 		if bPress and args.get("item") is not None and listed is not None and (iItem >= len(listed) or listed[iItem] != _itemKey(item)):
 			raise ValueError("item %d of %s changed since 'uiitems' listed it; list it again" % (iItem, szWidget))
 		target["about"] = _itemAbout(item)
@@ -742,7 +864,7 @@ def _target(iScreen, args, bPress):
 		(iWidget, iCellData1, iCellData2) = cell
 		entry = {"data1": iCellData1, "data2": iCellData2}
 	if args.get("widgettype") is not None:
-		iWidget = int(pilot._enum(WidgetTypes, args["widgettype"]))
+		iWidget = int(saspilot._enum(WidgetTypes, args["widgettype"]))
 	if args.get("option") is not None:
 		bOption = bool(args["option"])
 	target.update({"widget": iWidget, "data1": int(args.get("data1", entry.get("data1", 0))), "data2": int(args.get("data2", entry.get("data2", 0))), "option": bOption, "notify": eNotify, "flags": iFlags, "data": iData, "mouseX": iMouseX, "mouseY": iMouseY})
@@ -765,7 +887,7 @@ def cmd_uipress(args):
 	iData = target["data"]
 	iMouseX = target["mouseX"]
 	iMouseY = target["mouseY"]
-	result = {"pressed": szWidget, "widget": pilot._enumName(WidgetTypes, iWidget), "data1": iData1, "data2": iData2}
+	result = {"pressed": szWidget, "widget": saspilot._enumName(WidgetTypes, iWidget), "data1": iData1, "data2": iData2}
 	if target.get("about") is not None:
 		result["about"] = target["about"]
 	# <!-- custom: The EXE closes a screen on its own for this widget, without a Python or DLL handler: executeAction has no case for it. (Claude code Opus 5.5) -->
@@ -784,20 +906,20 @@ def cmd_uipress(args):
 	# <!-- custom: Wrap the dispatch itself so a press from the HUD or another advisor captures the destination as it opens.
 	# A press that stays on the same screen keeps its previous watch. (GPT-6.2-Sol) -->
 	before = set(_activeScreens())
-	if not pilot._state.get("uiInstalled"):
+	if not saspilot._state.get("uiInstalled"):
 		_install()
-	pilot._state["uiPressScreens"] = before | set((CvScreenEnums.MAIN_INTERFACE,))
+	saspilot._state["uiPressScreens"] = before | set((CvScreenEnums.MAIN_INTERFACE,))
 	try:
 		_dispatchPress(iScreen, szWidget, argsList, target, bRight, result)
 	finally:
-		seen = pilot._state.pop("uiPressScreens")
+		seen = saspilot._state.pop("uiPressScreens")
 		opened = [iOpened for iOpened in _activeScreens() if iOpened not in before]
 		for iOpened in opened:
 			if iOpened not in seen:
 				# <!-- custom: A persistent screen may reopen without emitting any widget calls, so a screen this press opened but drew nothing for loses its stale record. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 				_clearScreenRecord(iOpened)
 		if opened:
-			pilot._state["uiWatched"] = opened[0]
+			saspilot._state["uiWatched"] = opened[0]
 			result["openedScreens"] = [_screenNames().get(iOpened, str(iOpened)) for iOpened in opened]
 		_tick()
 	return result
@@ -822,14 +944,14 @@ def _dispatchPress(iScreen, szWidget, argsList, target, bRight, result):
 		# Only a left click on the control can open it through executeAction. (GPT-6.2-Sol) -->
 		if not bRight and iWidget == int(WidgetTypes.WIDGET_ACTION) and target["data1"] == gc.getControlInfo(ControlTypes.CONTROL_TECH_CHOOSER).getActionInfoIndex() and not _isOpen(CvScreenEnums.TECH_CHOOSER):
 			_prepareTechOpen()
-		result["dllHandled"] = bool(pilot._pilotGame("executeSASPilotWidget").executeSASPilotWidget(iWidget, target["data1"], target["data2"], target["option"], bRight))
+		result["dllHandled"] = bool(saspilot._pilotGame("executeSASPilotWidget").executeSASPilotWidget(iWidget, target["data1"], target["data2"], target["option"], bRight))
 
 
 _HELP["uiread"] = "Read a table of an open screen as rows of cell text, or a recorded widget's text, as plain text: font tags and the advisors' invisible sort keys removed, game-font icons named such as [YIELD_FOOD]; raw=1 gives the text as the screen set it. text= names the widget by what it shows instead of widget=, such as text=Augustus for his scoreboard row: an exact match, else the one widget containing it, without case; several are listed. args: widget, text, screen (default the open one), raw, cells (1 to include recorded table cell actions)."
 
 
 # <!-- custom: The Battles table's icon cells read as ten invisible characters each, such as u"\u200b\u200b...", which the user noticed as wasted space (2026-11-20): SASUtils.getAdvisorIconSortKey writes a base-5 sort key in U+200B to U+200F so icon-only cells sort, invisible in the window.
-# Removed for the agent, with the font tags; pilot._plainText names the game-font icons. (Claude code Opus 5.5) -->
+# Removed for the agent, with the font tags; saspilot._plainText names the game-font icons. (Claude code Opus 5.5) -->
 _SORT_KEY_CHARS = (u"\u200b", u"\u200c", u"\u200d", u"\u200e", u"\u200f")
 
 
@@ -879,7 +1001,7 @@ def _plainCell(text, bRaw):
 	for ch in _SORT_KEY_CHARS:
 		text = text.replace(ch, u"")
 	# <!-- custom: Hover texts escape markup characters, so the Technology Advisor's read "&lt;F6>" (2026-11-20); unescaped after the tags are gone, &amp; last. (Claude code Opus 5.5) -->
-	return pilot._plainText(text).replace(u"&lt;", u"<").replace(u"&gt;", u">").replace(u"&amp;", u"&")
+	return saspilot._plainText(text).replace(u"&lt;", u"<").replace(u"&gt;", u">").replace(u"&amp;", u"&")
 
 
 def cmd_uiread(args):
@@ -887,7 +1009,7 @@ def cmd_uiread(args):
 	_requirePlayable(iScreen, False)
 	szWidget = _widgetArg(iScreen, args)
 	entry = _registry().get(iScreen, {}).get(szWidget)
-	if entry is not None and pilot._state.get("role") not in (None, "all") and not _isShown(_registry().get(iScreen, {}), entry):
+	if entry is not None and saspilot._state.get("role") not in (None, "all") and not _isShown(_registry().get(iScreen, {}), entry):
 		raise ValueError("%s is hidden on %s" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
 	if entry is not None and entry["method"].find("Table") >= 0:
 		screen = CyGInterfaceScreen("", iScreen)
@@ -912,7 +1034,7 @@ def _tableCellActions(entry, iRows, iColumns):
 		iColumn, iRow = [int(iIndex) for iIndex in szPosition.split(",")]
 		if 0 <= iRow < iRows and 0 <= iColumn < iColumns:
 			if iType not in names:
-				names[iType] = pilot._enumName(WidgetTypes, iType)
+				names[iType] = saspilot._enumName(WidgetTypes, iType)
 			cells.append({"row": iRow, "column": iColumn, "widgetType": names[iType], "data1": iData1, "data2": iData2})
 	cells.sort(key=lambda cell: (cell["row"], cell["column"]))
 	return cells
@@ -927,17 +1049,17 @@ def cmd_uibench(args):
 	iRepeat = int(args.get("repeat", 3))
 	bits = [getattr(InterfaceDirtyBits, szBit) for szBit in dir(InterfaceDirtyBits) if szBit.endswith("_DIRTY_BIT")]
 	result = {"screen": szName, "off": {"screenMs": [], "mainRedrawMs": []}, "on": {"screenMs": [], "mainRedrawMs": []}}
-	bAlways = pilot._state.get("uiAlways")
-	bInstalled = pilot._state.get("uiInstalled")
-	iWatched = pilot._state.get("uiWatched")
-	pilot._state["uiAlways"] = True
+	bAlways = saspilot._state.get("uiAlways")
+	bInstalled = saspilot._state.get("uiInstalled")
+	iWatched = saspilot._state.get("uiWatched")
+	saspilot._state["uiAlways"] = True
 	# <!-- custom: Restored in finally, so a draw that fails does not leave the recorder installed for good; all three values, as restoring only uiAlways dropped the watch on a screen 'uiopen' had opened (Codex's reviews). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	try:
 		_benchRuns(szName, iRepeat, bits, result)
 	finally:
-		pilot._state["uiAlways"] = bAlways
-		pilot._state["uiInstalled"] = bInstalled
-		pilot._state["uiWatched"] = iWatched
+		saspilot._state["uiAlways"] = bAlways
+		saspilot._state["uiInstalled"] = bInstalled
+		saspilot._state["uiWatched"] = iWatched
 		_reloaded()
 	return result
 
@@ -950,11 +1072,13 @@ def _benchRuns(szName, iRepeat, bits, result):
 		if i % 2:
 			order = ("on", "off")
 		for szKey in order:
+			# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 			if szKey == "on":
 				_install()
 			else:
 				_uninstall()
 			fStart = time.clock()
+			# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 			_openScreen(szName, szKey == "on")
 			result[szKey]["screenMs"].append(round((time.clock() - fStart) * 1000.0, 1))
 			iScreen = _screenId(None)
@@ -973,13 +1097,13 @@ _HELP["uiprobe"] = "Log what real clicks in the window send the screens: with on
 def _probeHandleInput(argsList):
 	# <!-- custom: A plain function, as the EXE calls only that: the first 'uiprobe' installed an instance of a class with __call__, which 'uipress' reached, but real clicks and hovers in the window never did, while the 'py' probe before it, a function, logged them all (2026-11-20).
 	# The original is read from the bridge's state rather than kept in a closure, as AGENTS.md asks. (Claude code Opus 5.5) -->
-	returned = pilot._state["uiProbeOriginal"](argsList)
+	returned = saspilot._state["uiProbeOriginal"](argsList)
 	try:
-		log = pilot._state.setdefault("uiProbeLog", [])
-		log.append({"turn": gc.getGame().getGameTurn(), "notify": pilot._enumName(NotifyCode, argsList[0]), "data": argsList[1], "flags": argsList[2], "id": argsList[3], "screen": _screenNames().get(argsList[4], str(argsList[4])), "function": argsList[5], "mouseX": argsList[9], "mouseY": argsList[10], "widget": pilot._enumName(WidgetTypes, argsList[11]), "data1": argsList[12], "data2": argsList[13], "option": argsList[14], "returned": returned})
+		log = saspilot._state.setdefault("uiProbeLog", [])
+		log.append({"turn": gc.getGame().getGameTurn(), "notify": saspilot._enumName(NotifyCode, argsList[0]), "data": argsList[1], "flags": argsList[2], "id": argsList[3], "screen": _screenNames().get(argsList[4], str(argsList[4])), "function": argsList[5], "mouseX": argsList[9], "mouseY": argsList[10], "widget": saspilot._enumName(WidgetTypes, argsList[11]), "data1": argsList[12], "data2": argsList[13], "option": argsList[14], "returned": returned})
 		del log[:-200]
 	except Exception:
-		pilot._state["uiRecordError"] = "uiprobe: %s" % sys.exc_info()[1]
+		saspilot._state["uiRecordError"] = "uiprobe: %s" % sys.exc_info()[1]
 	return returned
 
 
@@ -990,22 +1114,22 @@ def _probeOn():
 def cmd_uiprobe(args):
 	# <!-- custom: Was a 'py' snippet on 2026-11-20 that settled how the EXE dispatches a click (screen first, then the DLL action whatever the screen returned); the user asked that it become a command for the next widget to map. (Claude code Opus 5.5) -->
 	if args.get("clear"):
-		pilot._state["uiProbeLog"] = []
+		saspilot._state["uiProbeLog"] = []
 	if args.get("on") is not None:
 		if args["on"] and not _probeOn():
-			pilot._state["uiProbeOriginal"] = CvScreensInterface.handleInput
+			saspilot._state["uiProbeOriginal"] = CvScreensInterface.handleInput
 			CvScreensInterface.handleInput = _probeHandleInput
 		elif not args["on"] and _probeOn():
-			CvScreensInterface.handleInput = pilot._state["uiProbeOriginal"]
+			CvScreensInterface.handleInput = saspilot._state["uiProbeOriginal"]
 	bOn = _probeOn()
-	return {"on": bOn, "log": pilot._state.get("uiProbeLog", [])}
+	return {"on": bOn, "log": saspilot._state.get("uiProbeLog", [])}
 
 
 _HELP["uimain"] = "Record the main interface, which the recorder otherwise skips for its cost: its record is cleared, every dirty bit set and the main interface redrawn once with recording on, so its widgets (advisor buttons, research, sliders, unit actions, and the city screen while one is open) can then be listed, read and pressed with screen=MAIN_INTERFACE. Run it again after the view changes, such as a city screen opened or a unit selected. The buttons made only when the game starts (advisors, minimap, globe, scoreboard toggles, event log) come from SASPilot's record of that build, so a client must have started with SASPilot on. Returns the number of widgets recorded."
 
 
 def cmd_uimain(args):
-	pilot._state["uiMainKey"] = None
+	saspilot._state["uiMainKey"] = None
 	_mainRecord(False)
 	return {"screen": "MAIN_INTERFACE", "widgets": len(_registry().get(CvScreenEnums.MAIN_INTERFACE, {})), "cityScreen": bool(CyInterface().isCityScreenUp())}
 
@@ -1025,7 +1149,7 @@ def cmd_uifont(args):
 			raise ValueError("return to the map before changing the font preview")
 		SASTextScale.setUIFontPreview(dSizes, bReset)
 		CvScreensInterface.mainInterface.setCommerceAdjustRects()
-		pilot._state["uiMainKey"] = None
+		saspilot._state["uiMainKey"] = None
 		CyInterface().makeInterfaceDirty()
 		CvScreensInterface.forceScreenRedraw([CvScreenEnums.MAIN_INTERFACE])
 	return SASTextScale.getUIFontSizes()
@@ -1033,13 +1157,13 @@ def cmd_uifont(args):
 
 # <!-- custom: While diplomacy or a displayed popup owns input, no click reaches the main interface or the map; shared by the main interface's record and 'uiplot' (Codex's review found 'uiplot' without it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 def _requireHudInput():
-	if pilot._diploState()["open"] or pilot._pendingContact() is not None:
+	if saspilot._diploState()["open"] or saspilot._pendingContact() is not None:
 		raise ValueError("the diplomacy screen owns input; 'diplo' reads it")
 	# <!-- custom: BUG's options dialog is modal, and not a screen _activeScreens lists (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if _optionsOpen():
 		raise ValueError("BUG's options dialog owns input; 'uioptions close=1' closes it")
 	if hasattr(gc.getGame(), "getSASPilotPopups"):
-		for popup in pilot._popups():
+		for popup in saspilot._popups():
 			if popup["state"] == "DISPLAYED":
 				raise ValueError("a %s popup on display owns input; 'popups' lists it" % popup["type"])
 
@@ -1050,46 +1174,46 @@ def _mainRecord(bPress):
 	_requireHudInput()
 	key = (_selectionKey(), gc.getGame().getGameTurn())
 	# <!-- custom: A press always records anew: Codex's next review saw that a manual toggle or a change within the selected group leaves this key unchanged while the controls change, so a press could act on an old record; the item check then compares the listing with the fresh record. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	if bPress or pilot._state.get("uiMainKey") != key or pilot._state.get("uiMainPressed"):
+	if bPress or saspilot._state.get("uiMainKey") != key or saspilot._state.get("uiMainPressed"):
 		_refreshMain()
-		pilot._state["uiMainKey"] = key
-		pilot._state["uiMainPressed"] = False
+		saspilot._state["uiMainKey"] = key
+		saspilot._state["uiMainPressed"] = False
 	if bPress:
-		pilot._state["uiMainPressed"] = True
+		saspilot._state["uiMainPressed"] = True
 
 
 def _refreshMain():
 	# <!-- custom: The main interface holds most of the buttons a player uses, but recording it on every redraw cost about 8 ms per full redraw (2026-11-20), so it is recorded on demand: by 'uimain', and by every ui command on the main interface first, as each press can change it (a toggle hid the scoreboard button) and the agent repeated 'uimain' before each press (the user, 2026-11-20). (Claude code Opus 5.5) -->
-	bInstalled = pilot._state.get("uiInstalled")
+	bInstalled = saspilot._state.get("uiInstalled")
 	iMain = CvScreenEnums.MAIN_INTERFACE
 	# <!-- custom: Starts from the record of the main interface's build at game start, as those buttons are not drawn again; a 'full=1' that reran the build blanked the minimap (2026-11-20). (Claude code Opus 5.5) -->
-	_registry()[iMain] = copy.deepcopy(pilot._state.get("uiMainStatic", {}))
+	_registry()[iMain] = copy.deepcopy(saspilot._state.get("uiMainStatic", {}))
 	_install()
-	pilot._state["uiRecordMain"] = True
+	saspilot._state["uiRecordMain"] = True
 	try:
 		# <!-- custom: The first version set every dirty bit itself, and on Babylon's city screen the scoreboard was then drawn over the city screen's right panel (2026-11-20), which a city screen opened normally did not show, so it was not a regression in the main interface.
 		# A hand-picked list of bits was the next fix; the user asked for what the game itself runs instead, so this is the game's own full refresh, makeInterfaceDirty, which the DLL calls when the active player changes (CvPlayer.cpp), followed by the redraw the EXE calls (forceScreenRedraw). (Claude code Opus 5.5) -->
 		CyInterface().makeInterfaceDirty()
 		CvScreensInterface.forceScreenRedraw([CvScreenEnums.MAIN_INTERFACE])
 	finally:
-		pilot._state["uiRecordMain"] = False
+		saspilot._state["uiRecordMain"] = False
 		if not bInstalled:
 			_uninstall()
-	pilot._state["uiMainSelection"] = _selectionKey()
+	saspilot._state["uiMainSelection"] = _selectionKey()
 
 
 def _aroundMainBuild(bBefore):
 	# <!-- custom: The main interface's build at game start, recorded as its static part: SASPilot.py calls this around CvMainInterface.interfaceScreen. (Claude code Opus 5.5) -->
 	iMain = CvScreenEnums.MAIN_INTERFACE
 	if bBefore:
-		pilot._state["uiMainBuildInstalled"] = pilot._state.get("uiInstalled")
+		saspilot._state["uiMainBuildInstalled"] = saspilot._state.get("uiInstalled")
 		_registry()[iMain] = {}
 		_install()
-		pilot._state["uiRecordMain"] = True
+		saspilot._state["uiRecordMain"] = True
 		return
-	pilot._state["uiRecordMain"] = False
-	pilot._state["uiMainStatic"] = copy.deepcopy(_registry().get(iMain, {}))
-	if not pilot._state.get("uiMainBuildInstalled") and not pilot._state.get("uiAlways"):
+	saspilot._state["uiRecordMain"] = False
+	saspilot._state["uiMainStatic"] = copy.deepcopy(_registry().get(iMain, {}))
+	if not saspilot._state.get("uiMainBuildInstalled") and not saspilot._state.get("uiAlways"):
 		_uninstall()
 
 
@@ -1118,13 +1242,13 @@ def cmd_uiitems(args):
 	entry = _registry().get(iScreen, {}).get(szWidget)
 	if entry is None:
 		raise ValueError("no widget %s on %s; 'uiwidgets' lists them" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
-	if pilot._state.get("role") not in (None, "all") and not _isShown(_registry().get(iScreen, {}), entry):
+	if saspilot._state.get("role") not in (None, "all") and not _isShown(_registry().get(iScreen, {}), entry):
 		raise ValueError("%s is hidden on %s" % (szWidget, _screenNames().get(iScreen, str(iScreen))))
 	result = []
-	pilot._state.setdefault("uiItemsListed", {})[(iScreen, szWidget)] = [_itemKey(item) for item in entry.get("items", [])]
+	saspilot._state.setdefault("uiItemsListed", {})[(iScreen, szWidget)] = [_itemKey(item) for item in entry.get("items", [])]
 	for i in range(len(entry.get("items", []))):
 		item = entry["items"][i]
-		row = {"item": i, "row": item["row"], "widget": pilot._enumName(WidgetTypes, item["widget"]), "data1": item["data1"], "data2": item["data2"]}
+		row = {"item": i, "row": item["row"], "widget": saspilot._enumName(WidgetTypes, item["widget"]), "data1": item["data1"], "data2": item["data2"]}
 		if item.get("disabled"):
 			row["disabled"] = True
 		szAbout = _itemAbout(item)
@@ -1151,22 +1275,22 @@ _ITEM_INFOS = (("WIDGET_ACTION", "getActionInfo", "getNumActionInfos"), ("WIDGET
 def _actionAbout(info):
 	# <!-- custom: CvActionInfo has no getType in Python (the first version called a getHotKeyDescription that does not exist); an action is one of a mission, command, automation, interface mode or control, so it is named by that, with a Build's type for MISSION_BUILD. (Claude code Opus 5.5) -->
 	if info.getMissionType() >= 0:
-		szName = pilot._enumName(MissionTypes, info.getMissionType())
+		szName = saspilot._enumName(MissionTypes, info.getMissionType())
 		if info.getMissionType() == int(MissionTypes.MISSION_BUILD) and info.getMissionData() >= 0:
 			return "%s %s" % (szName, gc.getBuildInfo(info.getMissionData()).getType())
 		return szName
 	if info.getCommandType() >= 0:
-		szName = pilot._enumName(CommandTypes, info.getCommandType())
+		szName = saspilot._enumName(CommandTypes, info.getCommandType())
 		# <!-- custom: The three Worker automations all read COMMAND_AUTOMATE; their command data is the AutomateTypes. (Claude code Opus 5.5) -->
 		if info.getCommandType() == int(CommandTypes.COMMAND_AUTOMATE) and info.getCommandData() >= 0:
-			return "%s %s" % (szName, pilot._enumName(AutomateTypes, info.getCommandData()))
+			return "%s %s" % (szName, saspilot._enumName(AutomateTypes, info.getCommandData()))
 		return szName
 	if info.getAutomateType() >= 0:
-		return pilot._enumName(AutomateTypes, info.getAutomateType())
+		return saspilot._enumName(AutomateTypes, info.getAutomateType())
 	if info.getInterfaceModeType() >= 0:
-		return pilot._enumName(InterfaceModeTypes, info.getInterfaceModeType())
+		return saspilot._enumName(InterfaceModeTypes, info.getInterfaceModeType())
 	if info.getControlType() >= 0:
-		return pilot._enumName(ControlTypes, info.getControlType())
+		return saspilot._enumName(ControlTypes, info.getControlType())
 	return None
 
 
@@ -1232,9 +1356,9 @@ def _itemAbout(item):
 	# <!-- custom: A build button's data1 is a unit or building class, which doTrain and doConstruct turn into the active civ's own unit or building: labelled first as a unit index, item 3 read UNIT_SCOUT, and pressing it queued a Spy, class 10 (2026-11-20). (Claude code Opus 5.5) -->
 	civ = gc.getCivilizationInfo(gc.getGame().getActiveCivilizationType())
 	if item["widget"] == int(WidgetTypes.WIDGET_TRAIN) and 0 <= item["data1"] < gc.getNumUnitClassInfos():
-		return pilot._typeOrNone(gc.getUnitInfo, civ.getCivilizationUnits(item["data1"]))
+		return saspilot._typeOrNone(gc.getUnitInfo, civ.getCivilizationUnits(item["data1"]))
 	if item["widget"] == int(WidgetTypes.WIDGET_CONSTRUCT) and 0 <= item["data1"] < gc.getNumBuildingClassInfos():
-		return pilot._typeOrNone(gc.getBuildingInfo, civ.getCivilizationBuildings(item["data1"]))
+		return saspilot._typeOrNone(gc.getBuildingInfo, civ.getCivilizationBuildings(item["data1"]))
 	for (szWidget, szGetter, szCount) in _ITEM_INFOS:
 		if item["widget"] == int(getattr(WidgetTypes, szWidget)) and 0 <= item["data1"] < getattr(gc, szCount)():
 			info = getattr(gc, szGetter)(item["data1"])
@@ -1250,14 +1374,14 @@ _HELP["uiselect"] = "Select as a click on the map does: unit= selects that unit 
 def cmd_uiselect(args):
 	# <!-- custom: A unit's actions and a city's builds appear in the main interface only for the selection, which in the window is a map click; this makes that step by name. (Claude code Opus 5.5) -->
 	# <!-- custom: Our own player only outside the all role: the shared player= check allows a teammate, whom a player cannot select (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	if pilot._state.get("role") not in (None, "all") and args.get("player") is not None and int(args["player"]) != gc.getGame().getActivePlayer():
+	if saspilot._state.get("role") not in (None, "all") and args.get("player") is not None and int(args["player"]) != gc.getGame().getActivePlayer():
 		raise ValueError("only our own units and cities can be selected; the all role allows player=")
 	if args.get("unit") is not None:
-		unit = pilot._unit(args)
+		unit = saspilot._unit(args)
 		CyInterface().selectUnit(unit, True, False, False)
 		return {"selected": unit.getID(), "type": gc.getUnitInfo(unit.getUnitType()).getType(), "x": unit.getX(), "y": unit.getY()}
 	if args.get("city") is not None:
-		city = pilot._city(args)
+		city = saspilot._city(args)
 		CyInterface().selectCity(city, True)
 		return {"selected": city.getName(), "cityScreen": bool(CyInterface().isCityScreenUp())}
 	# <!-- custom: The city screen's exit arrow is the EXE's, so the recorder never sees it, and CONTROL_ENDTURN did nothing while the screen was open, as in the window (the 2026-11-20 ui-only turn); Esc clears the selected city, which this does. (Claude code Opus 5.5) -->
@@ -1279,15 +1403,15 @@ def cmd_uistate(args):
 	if iPlayer >= 0:
 		player = gc.getPlayer(iPlayer)
 		result["team"] = player.getTeam()
-		result["civ"] = pilot._typeOrNone(gc.getCivilizationInfo, player.getCivilizationType())
-		result["leader"] = pilot._typeOrNone(gc.getLeaderHeadInfo, player.getLeaderType())
+		result["civ"] = saspilot._typeOrNone(gc.getCivilizationInfo, player.getCivilizationType())
+		result["leader"] = saspilot._typeOrNone(gc.getLeaderHeadInfo, player.getLeaderType())
 		result["turnActive"] = bool(player.isTurnActive())
 	ui = CyInterface()
-	result["interfaceMode"] = pilot._enumName(InterfaceModeTypes, ui.getInterfaceMode())
+	result["interfaceMode"] = saspilot._enumName(InterfaceModeTypes, ui.getInterfaceMode())
 	result["selectedUnit"] = None
 	unit = ui.getHeadSelectedUnit()
 	# <!-- custom: Another player's selected unit (a debug selection) is named, but not its group, outside the all role (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	if unit is not None and not unit.isNone() and unit.getOwner() != iPlayer and pilot._state.get("role") not in (None, "all"):
+	if unit is not None and not unit.isNone() and unit.getOwner() != iPlayer and saspilot._state.get("role") not in (None, "all"):
 		result["selectedUnit"] = {"owner": unit.getOwner(), "type": gc.getUnitInfo(unit.getUnitType()).getType()}
 		unit = None
 	if unit is not None and not unit.isNone():
@@ -1312,7 +1436,7 @@ def cmd_uistate(args):
 	result["map"] = {"grid": bool(profile.getGrid()), "yields": bool(profile.getYields()), "bareMap": bool(profile.getMap())}
 	result["globeView"] = bool(CyEngine().isGlobeviewUp())
 	if iPlayer >= 0:
-		result["commercePercent"] = dict([(pilot._enumName(CommerceTypes, i), gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes(i))) for i in range(CommerceTypes.NUM_COMMERCE_TYPES)])
+		result["commercePercent"] = dict([(saspilot._enumName(CommerceTypes, i), gc.getPlayer(iPlayer).getCommercePercent(CommerceTypes(i))) for i in range(CommerceTypes.NUM_COMMERCE_TYPES)])
 	result["openScreens"] = [_screenNames().get(iScreen, str(iScreen)) for iScreen in _activeScreens()]
 	# <!-- custom: The Sevopedia's page: category (its SevoScreenEnums name) and item, as the screen holds them, so a press can be checked to have opened the page it aimed at (Codex's review of SASPilotUISweep.py, 2026-11-20).
 	# Read from iCategory and iItem: SAS_lastPediaJump, read first, stayed at PEDIA_MAIN for the index, the hints and the charts, which do not go through pediaJump. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -1320,7 +1444,7 @@ def cmd_uistate(args):
 	if pedia is not None and _isOpen(CvScreenEnums.SevoScreenEnums.PEDIA_MAIN):
 		result["pedia"] = {"category": _screenNames().get(pedia.iCategory, str(pedia.iCategory)), "item": pedia.iItem}
 	# <!-- custom: Diplomacy is the EXE's own screen, not a Python one, so openScreens left it out after a scoreboard press opened it (2026-11-20); its partner comes from the state 'diplo' reads. (Claude code Opus 5.5) -->
-	diplo = pilot._diploState()
+	diplo = saspilot._diploState()
 	if diplo["open"]:
 		result["diplomacy"] = {"who": diplo["who"], "whoName": gc.getPlayer(diplo["who"]).getName()}
 	result["bugOptions"] = _optionsOpen()
@@ -1384,10 +1508,10 @@ def cmd_uitype(args):
 
 
 def _screenTakesKeys(iScreen):
-	if not CyGInterfaceScreen("", iScreen).isActive() or pilot._diploState()["open"]:
+	if not CyGInterfaceScreen("", iScreen).isActive() or saspilot._diploState()["open"]:
 		return False
 	if hasattr(gc.getGame(), "getSASPilotPopups"):
-		for popup in pilot._popups():
+		for popup in saspilot._popups():
 			if popup["state"] == "DISPLAYED":
 				return False
 	return True
@@ -1402,7 +1526,7 @@ def cmd_uiplot(args):
 	_requirePlayable(CvScreenEnums.MAIN_INTERFACE, True)
 	_requireHudInput()
 	eMode = CyInterface().getInterfaceMode()
-	szMode = pilot._enumName(InterfaceModeTypes, int(eMode))
+	szMode = saspilot._enumName(InterfaceModeTypes, int(eMode))
 	info = gc.getInterfaceModeInfo(int(eMode))
 	# <!-- custom: After a refused plot the window still waits in the mode, with the unit's action list hidden (2026-11-20); Esc leaves any mode in the window, cancel=1 here, so it comes before the check for a mission (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if args.get("cancel"):
@@ -1414,7 +1538,7 @@ def cmd_uiplot(args):
 	if unit is None or unit.isNone():
 		raise ValueError("no unit is selected for %s" % szMode)
 	# <!-- custom: The selection is our own outside the all role, as for 'uiselect': 'mission' and 'targets' were called with the unit's owner, which skipped the player= check (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	if pilot._state.get("role") not in (None, "all") and unit.getOwner() != gc.getGame().getActivePlayer():
+	if saspilot._state.get("role") not in (None, "all") and unit.getOwner() != gc.getGame().getActivePlayer():
 		raise ValueError("the selected unit is player %d's, not ours; the all role allows it" % unit.getOwner())
 	szMission = gc.getMissionInfo(info.getMissionType()).getType()
 	# <!-- custom: The selection can change while a mode waits, so the group must still be able to use it, as 'targets' checks first; canDoInterfaceModeAt accepts any plot for the ground modes, so it does not catch this (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -1424,12 +1548,12 @@ def cmd_uiplot(args):
 		# <!-- custom: CvSelectionGroup::canDoInterfaceModeAt checks the plot only for these modes and accepts any other, so for Go To the list held all 16,632 plots of the SAS48 map (2026-11-20); the mission then decides on arrival. (Claude code Opus 5.5) -->
 		if szMode not in _PLOT_CHECKED_MODES:
 			return {"mode": szMode, "mission": szMission, "plots": "any plot; the mission checks the path when given"}
-		return pilot.cmd_targets({"unit": unit.getID(), "player": unit.getOwner(), "mode": szMode})
+		return saspilot.cmd_targets({"unit": unit.getID(), "player": unit.getOwner(), "mode": szMode})
 	plot = CyMap().plot(int(args["x"]), int(args["y"]))
 	if plot is None or plot.isNone():
 		raise ValueError("no plot %s,%s on the map" % (args["x"], args["y"]))
 	# <!-- custom: Under fog, a plot-checked mode answers only for plots our team has seen, as 'targets' lists them: whether a paradrop or air strike takes an unseen plot would tell what is there (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	iFogTeam = pilot._fogTeam(args)
+	iFogTeam = saspilot._fogTeam(args)
 	if iFogTeam >= 0 and szMode in _PLOT_CHECKED_MODES and not plot.isRevealed(iFogTeam, False):
 		raise ValueError("plot %d,%d is unrevealed to our team; with fog on, %s takes only revealed plots" % (plot.getX(), plot.getY(), szMode))
 	if not unit.getGroup().canDoInterfaceModeAt(eMode, plot):
@@ -1438,12 +1562,12 @@ def cmd_uiplot(args):
 	# By mode, not mission: Air Strike and Rebase also give MISSION_MOVE_TO, but fly straight, and GroupPathFinder asserts against air units (Codex's review).
 	# An appended move starts where the queue ends, which this path from the unit does not see, so the mission checks it. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if szMode in _GROUND_MOVE_MODES and not (args.get("append") and unit.getGroup().getLengthMissionQueue() > 0):
-		path = pilot.fromJson(pilot._pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
+		path = saspilot.fromJson(saspilot._pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
 		if not path.get("found"):
 			raise ValueError("unit %d has no path to %d,%d, so the click would do nothing" % (unit.getID(), plot.getX(), plot.getY()))
 	# <!-- custom: Go To Type and Go To All move more than the selected group: their XML sets bSelectType or bSelectAll, and pressing them already joined two Modern Infantry of separate groups into one (2026-11-20), so the mission goes to that group.
 	# A first version also joined them here, through 'group', which Codex's review found could leave units regrouped when the mission was then refused. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	reply = pilot.cmd_mission({"unit": unit.getID(), "player": unit.getOwner(), "mission": szMission, "data1": plot.getX(), "data2": plot.getY(), "append": bool(args.get("append"))})
+	reply = saspilot.cmd_mission({"unit": unit.getID(), "player": unit.getOwner(), "mission": szMission, "data1": plot.getX(), "data2": plot.getY(), "append": bool(args.get("append"))})
 	CyInterface().setInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION)
 	return {"mode": szMode, "mission": szMission, "x": plot.getX(), "y": plot.getY(), "result": reply}
 
@@ -1469,7 +1593,7 @@ class _BoundOptionRecorded(object):
 		try:
 			_noteOption(self.recorded.szMethod, args)
 		except Exception:
-			pilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
+			saspilot._state["uiRecordError"] = "%s: %s" % (self.recorded.szMethod, sys.exc_info()[1])
 		return result
 
 
@@ -1478,7 +1602,7 @@ _OPTION_KINDS = {"attachCheckBox": ("checkbox", 3), "attachRadioButton": ("radio
 
 
 def _noteOption(szMethod, args):
-	record = pilot._state["uiOptions"]
+	record = saspilot._state["uiOptions"]
 	if szMethod == "attachTabItem":
 		record["tabs"].append({"name": args[0], "label": args[1]})
 		return
@@ -1494,6 +1618,7 @@ def _noteOption(szMethod, args):
 			szTab = record["tabs"][-1]["label"]
 		record["controls"][args[1]] = {"control": args[1], "kind": szKind, "module": args[iCallback], "function": args[iCallback + 1], "id": args[iCallback + 2], "order": len(record["controls"]), "enabled": True, "tab": szTab}
 		# <!-- custom: A slider's bounds follow its option ID: attachHSlider(parent, name, module, function, id, min, max, value). (Claude code Opus 5.5) -->
+		# <!-- custom: sas-ci-string-compare-exemption: The recorder uses stable BUG option kind keys. (GPT-6.2-Sol) -->
 		if szKind == "slider" and len(args) > iCallback + 4:
 			record["controls"][args[1]]["min"] = args[iCallback + 3]
 			record["controls"][args[1]]["max"] = args[iCallback + 4]
@@ -1511,7 +1636,7 @@ def _optionsOpen():
 
 
 def _optionsRecord():
-	record = pilot._state.get("uiOptions")
+	record = saspilot._state.get("uiOptions")
 	if record is None or not record["controls"] or record.get("ctrl") is not _optionsScreen().pTabControl:
 		raise ValueError("this options dialog was not opened through SASPilot; close it ('uioptions close=1') and open it with open=1")
 	return record
@@ -1527,6 +1652,7 @@ def _optionDescribe(record, control):
 	if option is None:
 		return row
 	row["title"] = _plainCell(option.getTitle(), False)
+	# <!-- custom: sas-ci-string-compare-exemption: The recorder uses stable BUG option kind keys. (GPT-6.2-Sol) -->
 	if control["kind"] == "dropdown":
 		row["value"] = option.getIndex()
 		row["choices"] = [_plainCell(unicode(value), False) for value in option.getDisplayValues()]
@@ -1544,7 +1670,7 @@ def cmd_uioptions(args):
 			raise ValueError("BUG's options screen is already open")
 		# <!-- custom: Not over the diplomacy screen or a popup on display, as its button cannot be reached then (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		_requireHudInput()
-		pilot._state["uiOptions"] = {"tabs": [], "controls": {}}
+		saspilot._state["uiOptions"] = {"tabs": [], "controls": {}}
 		originals = {}
 		for szMethod in dir(CyGTabCtrl):
 			if szMethod.startswith("attach") or szMethod == "setEnabled":
@@ -1561,14 +1687,14 @@ def cmd_uioptions(args):
 			for szMethod in replaced:
 				setattr(CyGTabCtrl, szMethod, originals[szMethod])
 		# <!-- custom: The recording belongs to this dialog: closed and reopened by hand, a new dialog has other controls and callbacks, and the old record would have served it (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		pilot._state["uiOptions"]["ctrl"] = _optionsScreen().pTabControl
+		saspilot._state["uiOptions"]["ctrl"] = _optionsScreen().pTabControl
 	if not _optionsOpen():
 		raise ValueError("BUG's options screen is not open; open=1 opens it")
 	if args.get("close"):
 		# <!-- custom: BugOptionsScreen's Exit handler closes the dialog and writes the options, as its Exit button does. (Claude code Opus 5.5) -->
 		import BugOptionsScreen
 		BugOptionsScreen.handleBugExitButtonInput([""])
-		pilot._state["uiOptions"] = None
+		saspilot._state["uiOptions"] = None
 		return {"closed": True}
 	record = _optionsRecord()
 	controls = record["controls"].values()
@@ -1604,6 +1730,7 @@ def cmd_uioption(args):
 	if isinstance(value, bool) or not (isinstance(value, int) or (isinstance(value, str) and value.lstrip("-").isdigit())):
 		raise ValueError("value must be a whole number, not %r" % (value,))
 	value = int(value)
+	# <!-- custom: sas-ci-string-compare-exemption: The recorder uses stable BUG option kind keys. (GPT-6.2-Sol) -->
 	if control["kind"] == "checkbox":
 		if value not in (0, 1):
 			raise ValueError("a checkbox takes 1 or 0, not %d" % value)
@@ -1611,8 +1738,10 @@ def cmd_uioption(args):
 	before = _optionDescribe(record, control)
 	# <!-- custom: Only what the control offers: the first test set a three-choice dropdown to 9, which BUG stored.
 	# A slider keeps the bounds it was built with. (Claude code Opus 5.5) -->
+	# <!-- custom: sas-ci-string-compare-exemption: The recorder uses stable BUG option kind keys. (GPT-6.2-Sol) -->
 	if control["kind"] == "dropdown" and not 0 <= value < len(before.get("choices", [])):
 		raise ValueError("%s has %d choices, 0 to %d" % (args["id"], len(before.get("choices", [])), len(before.get("choices", [])) - 1))
+	# <!-- custom: sas-ci-string-compare-exemption: The recorder uses stable BUG option kind keys. (GPT-6.2-Sol) -->
 	if control["kind"] == "slider" and not control["min"] <= value <= control["max"]:
 		raise ValueError("%s takes %d to %d" % (args["id"], control["min"], control["max"]))
 	module = __import__(control["module"])
@@ -1628,9 +1757,9 @@ def cmd_uihover(args):
 	iScreen = _screenId(args.get("screen"))
 	_requirePlayable(iScreen, False)
 	target = _target(iScreen, args, False)
-	szHelp = pilot._pilotGame("getSASPilotWidgetHelp").getSASPilotWidgetHelp(target["widget"], target["data1"], target["data2"], target["option"])
+	szHelp = saspilot._pilotGame("getSASPilotWidgetHelp").getSASPilotWidgetHelp(target["widget"], target["data1"], target["data2"], target["option"])
 	# <!-- custom: Widgets BUG's WidgetUtil created, such as SAS's scoreboard style and lock buttons, have their tooltip in Python (WidgetUtil.setWidgetHelpFunction), so the DLL returned nothing for them (2026-11-20); asked there when the DLL has no text. (Claude code Opus 5.5) -->
 	if not szHelp:
 		import WidgetUtil
 		szHelp = WidgetUtil.getWidgetHelp((WidgetTypes(target["widget"]), target["data1"], target["data2"], target["option"])) or u""
-	return {"widget": target["name"], "type": pilot._enumName(WidgetTypes, target["widget"]), "data1": target["data1"], "data2": target["data2"], "help": _plainCell(szHelp, args.get("raw"))}
+	return {"widget": target["name"], "type": saspilot._enumName(WidgetTypes, target["widget"]), "data1": target["data1"], "data2": target["data2"], "help": _plainCell(szHelp, args.get("raw"))}

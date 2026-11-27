@@ -55,7 +55,7 @@ Each step came from what the previous measurement showed, not from a plan made u
 
 ### Would the DLL be faster?
 
-A C++ prototype (Claude Code Opus 5.5, 2026-11-13) answered this with numbers. It had two parts, switched on by a `native` pilot command:
+A C++ prototype (Claude Code Opus 5.5, 2026-11-13) answered this with numbers. It had two parts, switched on by a `native` SASPilot command:
 
 - `getSASPilotPlotsJson` wrote the same plots as the Python `plots` command, in C++. Its output was byte-identical to Python's for the 441 plots.
 - A mailbox served entirely in C++ (`nreq_<id>.txt` requests, `bench --native`), from the five update functions the EXE calls on the DLL, each counted.
@@ -73,7 +73,7 @@ A C++ prototype (Claude Code Opus 5.5, 2026-11-13) answered this with numbers. I
 - Codex (GPT-6.1-Sol) reviewed the prototype and suggested keeping it on a side branch, as it would mean two writers to keep identical. The user preferred the long-term speed ("a house of iron rather than of wood"), so the plot reads moved to C++ for good, with the Python writer removed so there is one writer only:
   - `plot` and `plots` now return the C++ JSON as it is, through `RawJson` in `SASPilotCommands.py`; a new plot field goes in `appendSASPilotPlotJson` in [CvGameInterface.cpp](/CvGameCoreDLL/CvGameInterface.cpp) and needs a DLL build.
   - The C++ mailbox, its hook counters and the `native` command were dropped, since the mailbox was the slow part. They are kept as a diff in `Downloads/AdvCiv-SAS_diff_backups/saspilot_native_mailbox_prototype_*`, outside the repository.
-  - Codex's review also found that a pilot error in the screen update would skip the screen's own update, that the C++ radius needed bounds, and that the JSON key cache mixed up equal keys such as `1` and `True`; all three were fixed. It confirmed the ASCII fast path against all 256 byte values under Python 2.4.
+  - Codex's review also found that a SASPilot error in the screen update would skip the screen's own update, that the C++ radius needed bounds, and that the JSON key cache mixed up equal keys such as `1` and `True`; all three were fixed. It confirmed the ASCII fast path against all 256 byte values under Python 2.4.
 
 #### Which other commands to move
 
@@ -128,7 +128,7 @@ A Huge Pangaea autoplayed to turn 300 (876 units, 82 cities, 6,016 plots) showed
 | whole Huge map's plots, indented | 139 ms | 74 ms |
 | whole Huge map's plots, `--compact` | 83 ms | 72 ms |
 
-- What remains of a ping is mostly Python's start (15 ms) and `argparse` (11 ms). A script that imports `pilot` and calls `pilot.call` pays them once, so for many requests in a row it is the faster way.
+- What remains of a ping is mostly Python's start (15 ms) and `argparse` (11 ms). A script that imports `saspilot` and calls `saspilot.call` pays them once, so for many requests in a row it is the faster way.
 
 ### How it was measured
 

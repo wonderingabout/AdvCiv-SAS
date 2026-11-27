@@ -26,8 +26,8 @@ for (cy, cx) in ((0, 0), (0, 4), (4, 0), (4, 4)):
 	CITY_KERNEL[cy, cx] = 0
 
 
-def pilot(command, **args):
-	# <!-- custom: One pilot request; an error reply ends the run with SASPilot's message. (Claude code Opus 5.5) -->
+def saspilot(command, **args):
+	# <!-- custom: One SASPilot request; an error reply ends the run with SASPilot's message. (Claude code Opus 5.5) -->
 	reply = request(PID, command, args)
 	if not reply["ok"]:
 		raise PilotError("%s: %s" % (command, reply["error"]))
@@ -93,7 +93,7 @@ def anchor(args):
 	if args.city is not None:
 		return {"city": args.city}
 	if args.bonus:
-		found = [r for r in pilot("resources")["resources"] if r["bonus"] == args.bonus]
+		found = [r for r in saspilot("resources")["resources"] if r["bonus"] == args.bonus]
 		if len(found) < args.nth:
 			raise PilotError("%d %s known; --nth %d is past them" % (len(found), args.bonus, args.nth))
 		return {"x": found[args.nth - 1]["x"], "y": found[args.nth - 1]["y"]}
@@ -108,10 +108,10 @@ def fetch_square(center, radius):
 	query["radius"] = 0
 	query["edge"] = 0
 	query["network"] = 0
-	where = pilot("grid", **query)
+	where = saspilot("grid", **query)
 	area = Area(where["box"][0], where["box"][1], radius, where["width"], where["height"], where["wrapX"], where["wrapY"])
 	query = {"x": area.cx, "y": area.cy, "radius": radius}
-	for tile in pilot("plots", **query):
+	for tile in saspilot("plots", **query):
 		if not area.inside(tile["x"], tile["y"]):
 			continue
 		r, c = area.at(tile["x"], tile["y"])
@@ -124,7 +124,7 @@ def fetch_square(center, radius):
 		area.bonus[r, c] = tile["bonus"] or ""
 	area.options = {}
 	if radius <= 15:
-		for tile in pilot("potential", **query):
+		for tile in saspilot("potential", **query):
 			if area.inside(tile["x"], tile["y"]):
 				r, c = area.at(tile["x"], tile["y"])
 				area.yields[:, r, c] = tile["yields"]

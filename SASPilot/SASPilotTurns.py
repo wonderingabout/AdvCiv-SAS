@@ -17,7 +17,8 @@ PID = None
 DEFAULT_CHECKS = "cities,rivalMoods,sharedBonuses,staleMarks,waterScouting,unimproved,idleImprovements"
 
 
-def pilot(command, **args):
+# <!-- custom: Named saspilot, not pilot, so the name says which tool it is, as everywhere SASPilot is meant (the user, 2026-11-27). (Claude code Opus 5.5) -->
+def saspilot(command, **args):
 	reply = request(PID, command, args)
 	if not reply["ok"]:
 		raise PilotError("%s: %s" % (command, reply["error"]))
@@ -32,20 +33,20 @@ def reject_stale_offer(todo):
 	diplomacy = todo.get("diplomacy")
 	if not diplomacy or diplomacy.get("aiComment") != "AI_DIPLOCOMMENT_OFFER_DEAL":
 		return False
-	screen = pilot("diplo")
+	screen = saspilot("diplo")
 	theirs = screen.get("theyOffer") or []
 	if not theirs or [item for item in theirs if item["item"] != "TRADE_TECHNOLOGIES"]:
 		return False
-	ours = pilot("py", code="[t for t in %r if gc.getTeam(gc.getPlayer(gc.getGame().getActivePlayer()).getTeam()).isHasTech(gc.getInfoTypeForString(t))]" % [item["what"] for item in theirs])["result"]
+	ours = saspilot("py", code="[t for t in %r if gc.getTeam(gc.getPlayer(gc.getGame().getActivePlayer()).getTeam()).isHasTech(gc.getInfoTypeForString(t))]" % [item["what"] for item in theirs])["result"]
 	if len(ours) != len(theirs):
 		return False
 	for reply in screen["replies"]:
 		if reply["comment"] == "USER_DIPLOCOMMENT_REJECT_OFFER":
-			after = pilot("reply", n=reply["n"], screen=screen["screen"])
+			after = saspilot("reply", n=reply["n"], screen=screen["screen"])
 			print("  rejected %s's offer of %s, which we already have" % (diplomacy["whoName"], ", ".join(ours)))
 			for closing in after.get("replies", []):
 				if closing["comment"] == "USER_DIPLOCOMMENT_EXIT":
-					pilot("reply", n=closing["n"], screen=after["screen"])
+					saspilot("reply", n=closing["n"], screen=after["screen"])
 			return True
 	return False
 
@@ -55,17 +56,17 @@ def scout_step_by_step(explorers):
 	# Each explorer, every turn: ask 'seareach', take one 'step' toward its recommendation, ask again, until its moves are spent. (Claude code Opus 5.5) -->
 	for iUnit in explorers:
 		for i in range(6):
-			unit = pilot("unit", unit=iUnit)
+			unit = saspilot("unit", unit=iUnit)
 			# <!-- custom: Not while a move is still under way: the second step of a turn was refused ("cannot start MISSION_MOVE_TO now ... whose current mission is MISSION_MOVE_TO") and ended the run. (Claude code Opus 5.5) -->
 			if unit["movesLeft"] <= 0 or unit.get("missions"):
 				break
-			reach = pilot("seareach", unit=iUnit)
+			reach = saspilot("seareach", unit=iUnit)
 			recommend = reach.get("recommend")
 			if not recommend:
 				print("  boat %d: no reachable unknown coast; left for the agent" % iUnit)
 				break
 			try:
-				step = pilot("step", unit=iUnit, x=recommend["x"], y=recommend["y"])
+				step = saspilot("step", unit=iUnit, x=recommend["x"], y=recommend["y"])
 			except PilotError as error:
 				print("  boat %d: step refused (%s); left for the next turn" % (iUnit, error))
 				break
@@ -78,14 +79,14 @@ def answer_contact(todo):
 	diplomacy = todo.get("diplomacy")
 	if not diplomacy or diplomacy.get("aiComment") != "AI_DIPLOCOMMENT_FIRST_CONTACT":
 		return False
-	screen = pilot("diplo")
+	screen = saspilot("diplo")
 	for reply in screen["replies"]:
 		if reply["comment"] == "USER_DIPLOCOMMENT_PEACE":
-			after = pilot("reply", n=reply["n"], screen=screen["screen"])
+			after = saspilot("reply", n=reply["n"], screen=screen["screen"])
 			print("  first contact with %s: peace" % diplomacy["whoName"])
 			for closing in after.get("replies", []):
 				if closing["comment"] == "USER_DIPLOCOMMENT_EXIT":
-					pilot("reply", n=closing["n"], screen=after["screen"])
+					saspilot("reply", n=closing["n"], screen=after["screen"])
 			return True
 	return False
 
@@ -96,7 +97,7 @@ def refuse_recommendations(todo):
 	bAll = True
 	for popup in todo.get("heldPopups") or []:
 		if "REFUSE_RECOMMENDATION" in popup["buttons"]:
-			pilot("answer", id=popup["id"], button="REFUSE_RECOMMENDATION")
+			saspilot("answer", id=popup["id"], button="REFUSE_RECOMMENDATION")
 			print("  refused the advisor's %s for %s" % (popup.get("about", {}).get("build"), popup.get("about", {}).get("city")))
 		else:
 			bAll = False
@@ -106,13 +107,13 @@ def refuse_recommendations(todo):
 def report(checks, seen):
 	# <!-- custom: Only what is new since the previous turn: the first run printed every unimproved resource and the turn's messages again each turn, burying the one new line.
 	# seen holds what was printed. (Claude code Opus 5.5) -->
-	for entry in pilot("reminders")["reminders"]:
+	for entry in saspilot("reminders")["reminders"]:
 		if entry["check"] in checks:
 			szLine = "[%s] %s" % (entry["check"], entry["text"][:220])
 			if szLine not in seen:
 				seen.add(szLine)
 				print("  " + szLine)
-	for message in pilot("messages"):
+	for message in saspilot("messages"):
 		szLine = "(turn %d) %s" % (message["turn"], message["text"][:160])
 		if szLine not in seen:
 			seen.add(szLine)
@@ -136,32 +137,32 @@ def main():
 	try:
 		PID = pick_pid(args.pid)
 		for i in range(args.turns):
-			todo = pilot("todo")
+			todo = saspilot("todo")
 			if todo["blocking"]:
 				if args.peace_on_contact and answer_contact(todo):
-					todo = pilot("todo")
+					todo = saspilot("todo")
 				if reject_stale_offer(todo):
-					todo = pilot("todo")
+					todo = saspilot("todo")
 				if args.refuse_recommendations and todo.get("heldPopups") and refuse_recommendations(todo):
-					todo = pilot("todo")
+					todo = saspilot("todo")
 				if todo["blocking"] and todo["idleUnits"] and not todo["idleCities"] and not todo["needsResearch"] and not todo.get("heldPopups") and not todo.get("diplomacy"):
 					# <!-- custom: Idle explorers scout step by step too: the idle case first sent the whole path to 'seareach's recommendation at once. (Claude code Opus 5.5) -->
 					if not [unit for unit in todo["idleUnits"] if unit["id"] not in explorers]:
 						scout_step_by_step(explorers)
-						todo = pilot("todo")
+						todo = saspilot("todo")
 			if todo["blocking"]:
 				reasons = [name for name in ("idleCities", "idleUnits", "needsResearch", "heldPopups", "diplomacy", "freeTechOwed") if todo.get(name)]
 				print("turn %d (%d): stopped for %s" % (todo["turn"], todo["year"], ", ".join(reasons)))
 				return 0
 			if explorers:
 				scout_step_by_step(explorers)
-				todo = pilot("todo")
+				todo = saspilot("todo")
 				if todo["blocking"]:
 					continue
 			iBefore = todo["turn"]
 			# <!-- custom: The turn number from endturn's own reply: a 'todo' read right after it once still showed the old turn, and the next end of turn then ended two at once (77 to 79). (Claude code Opus 5.5) -->
-			ended = pilot("endturn")
-			todo = pilot("todo")
+			ended = saspilot("endturn")
+			todo = saspilot("todo")
 			todo["turn"] = ended.get("gameTurn", todo["turn"])
 			# <!-- custom: The turn is reported only when it advanced: a diplomacy screen opening during the end of turn left it at 69, and the first run printed turn 69 twice before stopping. (Claude code Opus 5.5) -->
 			if todo["turn"] != iBefore:

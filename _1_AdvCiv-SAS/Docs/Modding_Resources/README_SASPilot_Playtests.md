@@ -13,6 +13,7 @@ What agents learned by playing through SASPilot: games played as a person would,
 [Islands replay from turn 0](#islands-replay-from-turn-0)\
 [Ireland Continents replays, 2026-11-19](#ireland-continents-replays-2026-11-19)\
 &emsp;[Validation run, the agent alone](#validation-run-the-agent-alone)\
+[Late-game lessons, 2026-11-22](#late-game-lessons-2026-11-22)\
 [Where to take it](#where-to-take-it)\
 &emsp;[Modern baseline, 2026-11-14](#modern-baseline-2026-11-14)\
 &emsp;[Turn-0 game, 2026-11-14](#turn-0-game-2026-11-14)
@@ -49,7 +50,7 @@ SASPilot began as a debugging tool with full information. On 2026-11-13 the user
 
 ### A fog-on playthrough
 
-On 2026-11-13 Claude Code Opus 5.5 played a Small Pangaea game from turn 0 to 115 with `fog on=1`, using only pilot commands, to list what a person can do in the window that SASPilot could not. Each gap was fixed as it came up and retested in the same game; the code comments at each fix say what failed first.
+On 2026-11-13 Claude Code Opus 5.5 played a Small Pangaea game from turn 0 to 115 with `fog on=1`, using only SASPilot commands, to list what a person can do in the window that SASPilot could not. Each gap was fixed as it came up and retested in the same game; the code comments at each fix say what failed first.
 
 | Turn | What was missing | Now |
 | --- | --- | --- |
@@ -231,7 +232,7 @@ Claude Code Opus 5.5 then played that start three times on 2026-11-14 with the u
     - City 2 planned at 55,23 (Marble, Dye, Pig, Peat, fresh water; it keeps the grass hill at 54,22 as a worked plot), then a city toward the Gold at 52,21 before Madrid takes it. `SASPilotSites.py` ranks 55,23 first; the south and east were still being scouted before the Settler commits, the user's point.
     - Karakorum builds a Worker (the Rice farm, Agriculture in), then the Settler; research Masonry, Mining, Animal Husbandry.
     - Scouting with `SASPilotExplore.py`: the Archer east (`ccw`), the Warrior toward the unseen pocket at 51,26, the Scout back to the closer west, as the user found the south overcommitted. A Panther was near the Scout at 54,16.
-  - Codex's review of the day's pilot changes (round 38): fixed the same night, the P1 (`SASPilotExplore.py` read the new turn's events from the immediate `endturn` reply, which holds only the turn ended; it now checks `todo` first, waits for the turn and reads `turn`), hostiles by barbarian identity and war rather than slot number, and `mark` colours limited to `COLOR_` types. Still open:
+  - Codex's review of the day's SASPilot changes (round 38): fixed the same night, the P1 (`SASPilotExplore.py` read the new turn's events from the immediate `endturn` reply, which holds only the turn ended; it now checks `todo` first, waits for the turn and reads `turn`), hostiles by barbarian identity and war rather than slot number, and `mark` colours limited to `COLOR_` types. Still open:
     - P2: the hut branch of `SASPilotExplore.py` skips the health check and sends a multi-step hut route in one order, so a threat revealed on the way cannot stop it.
     - P3: `SASPilotSites.py` counts fresh water from any river edge of a neighbour, including a diagonal's far edge, and counts a lake as coast; the engine's own fresh-water and coastal answers would be exact where the team can know them.
     - The C++ `area` fix in `appendSASPilotPlotJson` needs a DLL build; the Python blanking in `_plotsJson` can go once it is installed.
@@ -370,7 +371,7 @@ The user then had SASPilot replay the same start (`WILLEM_VAN_T0000_SAS48_SAS_LA
   - Trades: Mysticism from Pacal for Seafaring (his offer), Calendar for Sailing, Construction from Pericles for Literature (only Mysticism in the first run, as we lacked Mysticism then), Polytheism from Suleiman for Literature. By turn 82 we had bought six techs and researched Literature and Bronze Working; research goes to Code of Laws then Currency, which no one can sell us.
   - The Settler went north-west for the Fur this time (Rotterdam at (95,28), turn 72), as the user argued that a happiness resource helps every city at once while water plots wait for boats; the Rice went to The Hague, and Cottages to the grassland and Amsterdam's hill, as gold sets the pace on an isolated island.
   - Rules the user gave, now in SASPilot: scout and move one plot at a time (`step`, and `move` refuses a longer path without `whole=1`); move the scouts before trading, as a new contact changes what a tech is worth; buy what rivals sell and research what nobody met has (a `research` reminder); techs lose value as they spread, so sell new ones fast.
-  - Pilot fixes on the way: a `work` click that only claims a plot is said so (`claimOnly`), as the game applies the click after the reply; AI offers of techs we already have are rejected by the turn helper; `buildable` gives happiness, health and culture; the Greatest Civilizations screen is detected, though its ranking is lost in a throwaway instance (a proposal is in `changes_new.md`).
+  - SASPilot fixes on the way: a `work` click that only claims a plot is said so (`claimOnly`), as the game applies the click after the reply; AI offers of techs we already have are rejected by the turn helper; `buildable` gives happiness, health and culture; the Greatest Civilizations screen is detected, though its ranking is lost in a throwaway instance (a proposal is in `changes_new.md`).
   - Saved as `sas_pilot_islands_replay2_t082`.
 
 ## Ireland Continents replays, 2026-11-19
@@ -505,6 +506,19 @@ Later the same day the agent replayed the map from turn 0 with the tools alone, 
   - Replies carry data only: `plansites` had repeated the same advice line in every reply, which the user flagged, so the reasoning moved into the help text, as did `tradeRoutes`' note.
   - Marks on our cities take `color=contrast`, magenta for Ireland's white and green, since white on white was hard to read; the SASPilot Guide has the colour legend.
 
+## Late-game lessons, 2026-11-22
+
+Charlemagne in the ASOKA turn-301 Huge Pangaea save, turns 302 to 307, at war with Shaka; played by Claude Code Opus 5.5 with the user's thoughts.
+
+- A happiness crash has several causes at once; measure one change at a time before blaming one.
+  - Wang Kon cancelled four luxury imports the same turn as I cut the culture slider from 20% to 10%, and 16 of 17 cities turned unhappy and starving. I blamed the slider first; measured alone, it cost about 20 happiness summed over the cities, while the lost luxuries cost about 68.
+  - The culture slider was the quick lever back: at 70% for a few turns, 3 cities stayed unhappy instead of 16, with research at 0.
+- Keep a starving city's food bar above zero until health and happiness recover, or it loses a citizen (the user's advice). Unhappy citizens work nothing, so happiness comes first; a city whose plots all lie in a rival's culture shrinks until that land is taken.
+- A weak, furious neighbour offering to capitulate is usually better taken than vassalized, as conquest gives its cities and resources at once (here Silver, Incense, Corn and Cow, which we lacked), unless it serves as a buffer or a tech partner (the user's thoughts).
+  - Counterweights: a civ refused as a vassal may capitulate to another power, which then defends it; and a vassal votes for its master in U.N. elections (`CvPlayerAI::AI_diploVote`), which matters when its votes would close the gap.
+- Before attacking from a stack, check the group's size and its path's turns: a unit moves its whole group, and the slowest unit sets the pace. Bomb a city's defenses to 0 first; Gunships win fights but cannot take the city.
+- Selling a tech to the one rival as strong as us was refused even for 355 gold, with the treasury positive again.
+
 ## Where to take it
 
 Before a commit: CI, and a Release DLL smoke-tested, as SASPilot added Python bindings. The user wants both left until the work has settled.
@@ -520,7 +534,7 @@ Hand back if the work is ready for final review or a step genuinely needs the us
   - Codex's round 15: `save overwrite=true` writes to an unused sibling name and keeps the old save aside until the new one is in place, and says where each file is if a rename fails; conversations are counted in `CvDiplomacy.py` as each begins, not when SASPilot sees a screen open; read tokens also compare `CyDiplomacy.getData()`, the join-war and embargo target, and refuse an offer longer than 64 items.
   - `fogplay_t148_trade_table.json` guards the trade table's 65-gold counter-offer; all four sequences replay clean.
   - `control_characters.py` allowed form feed, so it had passed the fourth session's four lost-backslash slips; it now rejects it (KI#38.7 update).
-  - From play: `endturn` refuses while a diplomacy screen waits (a war declaration stayed open over three turns) or a pilot contact is still queued; `hurry` without a type lists the choices with costs; `odds` suggests the combat limit when siege units cannot attack enemies already damaged to it, counting only units the player can see and none aboard ships (Codex's round 17).
+  - From play: `endturn` refuses while a diplomacy screen waits (a war declaration stayed open over three turns) or a SASPilot contact is still queued; `hurry` without a type lists the choices with costs; `odds` suggests the combat limit when siege units cannot attack enemies already damaged to it, counting only units the player can see and none aboard ships (Codex's round 17).
 - The game: turns 148 to 156 of the fog-on playthrough.
   - Peace with Zara Yaqob kept Gondar; a Maceman, a Catapult that withdrew and Longbowmen destroyed an Aztec landing party next to Gondar (a Longbowman and two Trebuchets, for one Catapult); Feudalism was swapped with Kublai Khan for Sacred Architecture.
   - Naval combat is not possible yet: Gondar lies on an 87-tile inland sea, where the Aztec Galleys are, while the Triremes from Carthage and Hippo sail the 1,419-tile ocean. A Trireme queued first in Gondar takes 23 turns, and gold cannot rush it: BtS needs Universal Suffrage for that, Slavery for population.
@@ -531,7 +545,7 @@ Hand back if the work is ready for final review or a step genuinely needs the us
 - Learned in this stretch:
   - Fog is the game-side session's switch and starts off in every new client, so the relaunch at turn 156 gave full sight for three turns until a reply showed `"fog": false`. `SASPilotClient.py start --fog` now switches it on at launch; use it for the playthrough.
   - `SASPilotClient.py --turns N --brief endturn` already ends turns until something waits, printing one line per message; this session first rebuilt it with shell loops before reading `--help`.
-  - `MISSION_FORTIFY` shows as `ACTIVITY_SLEEP`: stock BtS starts it that way, the fortify bonus grows each turn the unit stays, and K-Mod then refuses a second Fortify on a sleeping unit. Not a pilot bug.
+  - `MISSION_FORTIFY` shows as `ACTIVITY_SLEEP`: stock BtS starts it that way, the fortify bonus grows each turn the unit stays, and K-Mod then refuses a second Fortify on a sleeping unit. Not a SASPilot bug.
   - Codex's round 18: under fog, `odds` now refuses a `player=` naming another team's unit, as the game picks the defender with the attacker's own sight. Both round-17 fixes checked out. His idea for the CLI's mid-turn wait, a `diplomacyOpen` flag on `ping`, waits until a stall reproduces.
 - From the user's notes, turns 165 to 176: `look` for the camera (the user, watching, could not follow the action), `techs` for the tech market and `SASPilotClient.py price` for an AI's counter-offer, with `accept=1` to take it. Codex's round 19 made `techs` and `look` follow the Foreign Advisor's fog rules.
   - Trading by the market: Water Wheel for 130 gold and Machinery for 180, about 8 and 11 turns of research; Machinery became tradeable the turn after we had its prerequisite. Chivalry, which SAS's XML forbids trading, is researched instead: research what cannot be bought, buy what can.
@@ -547,7 +561,7 @@ Hand back if the work is ready for final review or a step genuinely needs the us
   - `desktop_windows.py dump --pid` presses Full Dump by its label and waits for the file; not yet met a real crash prompt.
   - The user asked why not move every command to C++. Timing them (see [Which other commands to move](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md#which-other-commands-to-move)) moved `trade`'s loop to C++ and had `techs` read it; [`checks/trade_items_parity.py`](/SASPilot/checks/trade_items_parity.py) compares the two for every pair of players.
 - Second fog-on run, saved as `sas_pilot_fresh_t134` with an AI offer open. The run verified selling tech for gold through `price`, founding Hippo through SASPilot and spreading Islam in Carthage. `unit` now lists religion and corporation spread missions with their required type. Religion spread was exercised live. A two-sided tech swap also exercised the new Complete Deal reply.
-- ChatGPT (web) reviewed the unfinished commit `f92958390` on 2026-11-14 from a light-source ZIP; its four concrete Pilot findings were fixed the same day and tested live:
+- ChatGPT (web) reviewed the unfinished commit `f92958390` on 2026-11-14 from a light-source ZIP; its four concrete SASPilot findings were fixed the same day and tested live:
   - `tickError` was kept only while empty and never cleared, so a recovered failure showed in `ping` for good and a different later one was never logged. A tick that runs through now clears it; `tickErrorCount` and `lastTickError` keep the history, and each distinct error is logged once (five forced failures gave one row).
   - A timeout could not tell a command never started from one already running, as the game deleted the request before running it.
     - The game now claims it by renaming `req_` to `run_`, and the client's timeout says whether it was withdrawn (safe to retry) or claimed, with its outcome unknown and the request ID named (check the game first), after one last look for a reply. A request that outlives its timeout still writes its reply, which nothing reads.
@@ -661,7 +675,7 @@ A new game played from turn 0 to learn Workers and settling by hand: England, Pa
     - Codex's round 36 findings (the last `price` probe, aircraft in `trainable`, `bonustrade` importers) were fixed at the end of the session.
   - At turn 125 (save `sas_pilot_turn0_t125_stack_at_hastings`) five Axemen and two Catapults wait at Hastings, with a third Catapult, a fourth from London and two new Axemen on their way; Louis cancelled the Wine deal that turn, after Open Borders at 117.
   - Next: the Orleans stack (five Axemen, three Catapults, Nottingham's Axeman) reaches Hastings around turn 125; check the odds with `odds` once at war, bombard, then attack; two more Catapults come from London. Currency is being researched.
-  - Pilot changes from these turns: `trainable`, `bonustrade`, the `unfinished` reminder (hammers a city keeps in a build it switched away from), the `power:` digest line, `mission` accepting orders for a unit with no moves left (the window does), `price` leaving by Never mind before Exit, and `leave` closing AI_DIPLOCOMMENT_STOP_DENIED.
+  - SASPilot changes from these turns: `trainable`, `bonustrade`, the `unfinished` reminder (hammers a city keeps in a build it switched away from), the `power:` digest line, `mission` accepting orders for a unit with no moves left (the window does), `price` leaving by Never mind before Exit, and `leave` closing AI_DIPLOCOMMENT_STOP_DENIED.
   - Follow-ups: the `play` role refuses `player=` naming another team even for reads under fog, such as `cities player=2`, which shows only what the map shows, so rival cities had to be found through `map`; a fog-safe allowlist of reads would serve play.
     - The user also suggested power per city, the Battles tab's hammer totals, and rivals' wonders (a builder is likely weaker) as further signs of strength.
 - Continued by session 748de630 (Claude Code Opus 5.5) after a context compaction, turns 125 to 139 (saves `sas_pilot_turn0_t129_war_on_louis`, `sas_pilot_turn0_t132_orleans_taken`, `sas_pilot_turn0_t139_orleans_held`):
@@ -698,7 +712,7 @@ A new game played from turn 0 to learn Workers and settling by hand: England, Pa
     - Gilgamesh demanded we stop trading with Mansa (agreed, +1 with him); Mansa later demanded we stop trading with Gilgamesh (refused, the user: Gilgamesh is the friend and neighbour).
       - Gilgamesh and Mansa made peace at turn 150, which frees Gilgamesh's army; the user: a pilot should notice when rivals' wars end, as they then look elsewhere. Kumbi Saleh (Mansa) is at 34,20 and Lagash (Gilgamesh) at 30,18, both near Nottingham.
     - The user's reading: the start was weak (27 techs against 29 to 37, economy 7th of 8 in the Demographics), so catching up is harder; enough military for now, Libraries and Markets next. Pericles leads the Victory screen (score 1033, 16% of the population, Sparta 1611 culture).
-    - Pilot changes: `scores` (the SAS Info screen's Score tab: score and its change, techs known, land share, power and power per city, religion, research), `city` with trade routes, defense and Great People, `techs` with `nobodyHas` and `maxGoldTrade`.
+    - SASPilot changes: `scores` (the SAS Info screen's Score tab: score and its change, techs known, land share, power and power per city, religion, research), `city` with trade routes, defense and Great People, `techs` with `nobodyHas` and `maxGoldTrade`.
       - Possible next: a `victory` command for the Victory screen, a reminder when a rival's war ends, and `willTalk` checking both sides as `canContact` does.
   - Turn 157 (save `sas_pilot_turn0_t157`): peace with Louis, peace for peace, as the user judged his cities too far to attack and the war's cost better spent on the economy; Orleans stays ours.
     - Mounted Combat came; research went to Civil Service (untradeable in SAS). London's Great Prophet joined it as a Great Priest. Research at 40% (-4 gold a turn, 246 in the treasury); unit upkeep is the largest cost (30 a turn).
@@ -724,7 +738,7 @@ A new game played from turn 0 to learn Workers and settling by hand: England, Pa
       - Anarchy charges no expenses, so `finance` reads 0 until it ends.
       - Compare the first `finance` after anarchy with the baseline before the switch (turn 157: unit cost 30, city maintenance 18, civic upkeep 19, total 67, -4 a turn at 40% research), and if worthwhile reload `sas_pilot_turn0_t161` to try each civic alone against all three.
     - The user noted the Lumbermill (keeps the forest and adds hammers) as an alternative to chopping every forest.
-  - Pilot follow-up the user asked for: attackability, a fact command giving per rival the path turns from our army or nearest city to each of its seen cities, with terrain, rivers and the defenders seen, so a war target's reach is known before declaring (Louis's cities turned out unseen and too far only after the war began).
+  - SASPilot follow-up the user asked for: attackability, a fact command giving per rival the path turns from our army or nearest city to each of its seen cities, with terrain, rivers and the defenders seen, so a war target's reach is known before declaring (Louis's cities turned out unseen and too far only after the war began).
   - End of this game (2026-11-14): the user judged it had taught what it could, beyond the basics, so it stopped at turn 161, saved as `sas_pilot_turn0_t161_final`, and its client was closed.
     - The next test is a fresh fog-on opening, Codex's `sas_pilot_scout_trial_t000` (Byzantium, Pangaea, Noble), played with `tech` before research choices and `SASPilotScout.py` before scouting moves, to compare turns 50 and 100 with this game.
   - Next (superseded at turn 157 by the peace): march the stack north when Louis's cities are found; heal first; keep York, London and Nottingham producing Axemen and Catapults; no peace with Louis while he is this weak, though his techs (Currency, Drama, Literature, Philosophy) could buy peace later.

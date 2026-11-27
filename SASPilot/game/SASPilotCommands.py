@@ -11,7 +11,7 @@
 # make a 'py' snippet a command once a later game would ask it again; build a new command on existing ones and shared helpers (targets calls relations and borders, settings and its possibleLeaders share _leaderFacts) rather than copying their code;
 # reuse a screen's own code where a player-visible screen already decides what is known (timeline calls CvInfoScreen.getTimelineRecords), so SASPilot and the screen cannot disagree; keep to what the player may know unless the command is meant to be omniscient.
 # Reuse data SAS already prepared for its screens too: settings ranks each leader's AI personality from the Sevopedia leader panel's predumped cache (SevoPediaLeaderCachePredumped, one of SAS's oldest additions, which CI keeps in step with the leader XML) rather than ranking the leaders again.
-# A suggestion, not a rule: what a player needs to see, SASPilot likely needs too, and the reverse. When SASPilot needed a unit's fortified state (islands replay, 2026-11-15), the player saw it only as an icon, so both may gain from showing it as text; an agent looking for a pilot field can ask whether a player screen deserves it as well, and a new screen feature whether SASPilot should read it.
+# A suggestion, not a rule: what a player needs to see, SASPilot likely needs too, and the reverse. When SASPilot needed a unit's fortified state (islands replay, 2026-11-15), the player saw it only as an icon, so both may gain from showing it as text; an agent looking for a SASPilot field can ask whether a player screen deserves it as well, and a new screen feature whether SASPilot should read it.
 # The AI's own ratings, such as found values or the city governor's picks, are a reference to weigh, not the answer: they follow the AI's general rules, which may not fit the game at hand. At turn 57 of the islands replay (2026-11-15) AI_foundValue rated only one site on our island and gave 0 to every coastal corner near our cities, while the user's plan for an isolated island, claiming the coast by settling its corners with overlap accepted, favours exactly those; 'plansites legal=1' shows them beside the AI's value so the agent can choose.
 # Measure before moving a command to C++: on 2026-11-15, with 48 players, most took 1 to 25 ms in game, and world dropped from 52 to 4 ms by finding its wonder buildings once rather than per city. (Claude code Opus 5.5) -->
 
@@ -27,6 +27,11 @@ import traceback
 import CvScreensInterface
 # <!-- custom: SASCurrentDefines reads the inherited defines the geography, deal and builds commands show, as main's python_define_reads_cached.py requires once it covered SASPilot/game (Codex's review of the 2026-11-27 merge); a leaf module, so no cycle. See KI#128.9. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 import SASCurrentDefines
+# <!-- custom: SASBattleHistory holds the Military Advisor's Battles tab rows, saved in the game through BugData; 'battles' reads them.
+# It is already loaded by the advisor's module, so importing it here runs no new code. (Claude code Opus 5.5) -->
+import SASBattleHistory
+# <!-- custom: Required types from game data use the shared strict lookup; optional tags and command input retain their own missing-tag handling. (GPT-6.2-Sol) -->
+from SASUtils import getInfoTypeOrFail
 
 gc = CyGlobalContext()
 
@@ -213,14 +218,19 @@ def poll(state, szReloadError):
 		# <!-- custom: Claimed by renaming req_ to run_ before it runs, and run_ removed only once the reply is written.
 		# The first version read and deleted the request first, so a client that timed out could not tell a command never started, which is safe to retry, from one already running, which a retry would repeat (ChatGPT's review, 2026-11-14).
 		# SASPilotClient.py's timeout now withdraws only a request still named req_. (Claude code Opus 5.5 + ChatGPT-5.6-Sol) -->
+		# <!-- custom: Read the atomically published request before claiming it.
+		# The first claim renamed, then read: a transient read error after the claim stranded the request under run_, where the poll never retries it, so the client waited out its timeout (the late-game Sevopedia sweep on the Hammurabi T403 save, 2026-11-27).
+		# If the client withdraws it before the rename, the rename fails and nothing runs. (GPT-6.2-Sol + Claude code Opus 5.5) -->
 		running = os.path.join(mailbox, "run_" + name[4:])
 		try:
+			handle = open(path, "rb")
+			try:
+				text = handle.read()
+			finally:
+				handle.close()
 			os.rename(path, running)
-			handle = open(running, "rb")
-			text = handle.read()
-			handle.close()
 		except (IOError, OSError):
-			continue  # <!-- custom: still being written or already taken; the next tick retries (Claude code Fable 5.2) -->
+			continue  # <!-- custom: still being written, withdrawn or already taken; the next tick retries (Claude code Fable 5.2) -->
 		reply = _serve(text)
 		state["served"] = state["served"] + 1
 		szReply = toJson(reply)
@@ -266,8 +276,8 @@ def _loadUI():
 	try:
 		module = imp.new_module(_UI_NAME)
 		module.__file__ = path
-		module.__dict__["pilot"] = sys.modules.get(__name__)
 		eval(compile(source + "\n", path, "exec"), module.__dict__)
+		module.saspilot = sys.modules[__name__]
 		# <!-- custom: Kept alive before its wrappers go on the screen class, and for good: the first test kept no reference to the module, and Python 2 set the freed module's globals to None, so every recorded call failed with "'NoneType' object is not callable", 479 popups from the main interface's own drawing.
 		# Every loaded version stays in this list, as a wrapper left by a failed or partial install could still point to it (Codex's review); a few modules per session. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		_state.setdefault("uiModules", []).append(module)
@@ -322,7 +332,8 @@ def _checkedHandler(name, args):
 
 
 # <!-- custom: The keys agents tried in place of a command's own, with what that command may take instead; used only to word the refusal above. (Claude code Opus 5.5) -->
-_ARG_GUESSES = {"screen": ("name",), "name": ("widget", "text"), "tab": ("widget", "text"), "button": ("widget", "text"), "file": ("out", "save"), "path": ("out", "save")}
+# <!-- custom: "name" also maps to "path": 'save name=...' was refused with no hint (save/reload test, 2026-11-22). (Claude code Opus 5.5) -->
+_ARG_GUESSES = {"screen": ("name",), "name": ("widget", "text", "path"), "tab": ("widget", "text"), "button": ("widget", "text"), "file": ("out", "save"), "path": ("out", "save")}
 
 
 def _allowedArgs(name):
@@ -339,6 +350,7 @@ def _allowedArgs(name):
 	names = []
 	for szPart in szArgs.split(","):
 		match = re.match(r"\s*([A-Za-z_0-9]+)", szPart)
+		# <!-- custom: sas-ci-string-compare-exemption: The launch settings use a literal none marker. (GPT-6.2-Sol) -->
 		if match is not None and match.group(1) != "none":
 			names.append(match.group(1))
 	for szShared in ("player", "fog"):
@@ -358,6 +370,7 @@ def _applyLaunchRole():
 	if szRole:
 		if szRole not in _ROLE_ALLOWED:
 			raise ValueError("the per-run INI's [SASPilot] Role is %s, which is not play, assist or all" % szRole)
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox uses stable role keys. (GPT-6.2-Sol) -->
 		if szRole != "all":
 			_state["role"] = szRole
 			_state["fog"] = True
@@ -407,8 +420,13 @@ def _typeOrNone(getter, iType):
 	return getter(iType).getType()
 
 
+# <!-- custom: Keep -1 for optional XML types and command arguments that need their own error or fallback. (GPT-6.2-Sol) -->
+def _findOptionalInfoType(szType):
+	return gc.getInfoTypeForString(szType)
+
+
 def _infoIndex(szType):
-	iType = gc.getInfoTypeForString(szType)
+	iType = _findOptionalInfoType(szType)
 	if iType < 0:
 		raise ValueError("unknown XML type %s" % szType)
 	return iType
@@ -513,7 +531,8 @@ def _unit(args):
 def _city(args):
 	player = _player(args)
 	key = args["city"]
-	if isinstance(key, (int, long)) or str(key).isdigit():
+	# <!-- custom: str(key) raised UnicodeEncodeError on a Portuguese city name with a non-ASCII letter, which broke 'turn' through its homeUnknown reminder (JOAO turn-112 save, 2026-11-22); unicode() takes both kinds of string. (Claude code Opus 5.5) -->
+	if isinstance(key, (int, long)) or unicode(key).isdigit():
 		city = player.getCity(int(key))
 		if city is not None and not city.isNone():
 			return city
@@ -780,6 +799,7 @@ def _plotFull(plot):
 
 def _plotsJson(iX, iY, iRadius, iFogTeam=-1):
 	text = _pilotGame("getSASPilotPathJson").getSASPilotPlotsJson(iX, iY, iRadius, iFogTeam)
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("radius %d is out of range: 0 to the larger map side" % iRadius)
 	# <!-- custom: The area ID comes from the true map, so with fog it leaked hidden geography: in the scouting trial (2026-11-14) the bay by the capital and a sea seen far south-west shared one ID, telling that they connect through plots nobody had seen.
@@ -910,7 +930,7 @@ def cmd_player(args):
 	return _playerFull(_player(args))
 
 
-_HELP["players"] = "Every player ever alive, as in 'player'. With fog on, the active team's players so, and other teams' players only once met, with their ID, name, civilization, team, whether alive and state religion, as the scoreboard shows them."
+_HELP["players"] = "Every player ever alive, as in 'player'. With fog on, the active team's players so, and other teams' players only once met, with their ID, name, civilization, team, whether alive and state religion, as the scoreboard shows them, plus civics for living major civilizations as in Foreign Diplomacy."
 
 
 def cmd_players(args):
@@ -930,6 +950,10 @@ def cmd_players(args):
 			entry["alive"] = bool(player.isAlive())
 			# <!-- custom: The scoreboard shows a met rival's state religion, which a conversion popup at turn 52 of the 2026-11-19 validation run needed: converting pleases rivals of the same faith. (Claude code Opus 5.5) -->
 			entry["stateReligion"] = _typeOrNone(gc.getReligionInfo, player.getStateReligion())
+			# <!-- custom: Match the Foreign Diplomacy Advisor Info tab, which shows civics for living, met major civilizations.
+			# The 2026-11-22 tab audit found no command giving them under fog. See KI#1110. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if player.isAlive() and not player.isBarbarian() and not player.isMinorCiv():
+				entry["civics"] = [_typeOrNone(gc.getCivicInfo, player.getCivics(iOption)) for iOption in range(gc.getNumCivicOptionInfos())]
 			result.append(entry)
 	return result
 
@@ -939,11 +963,13 @@ _HELP["units"] = "A player's units, briefly, or every living player's with playe
 
 def cmd_units(args):
 	# <!-- custom: Written in C++ by CyGame.getSASPilotUnitsJson: on a Huge map at turn 300, Python took 8 ms for the 876 units of all players, 6 of them writing JSON (2026-11-13). (Claude code Opus 5.5) -->
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if args.get("player") == "all":
 		iPlayer = -1
 	else:
 		iPlayer = _playerId(args)
 	text = _pilotGame("getSASPilotPathJson").getSASPilotUnitsJson(iPlayer, _fogTeam(args))
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("no player %d" % iPlayer)
 	return RawJson(text)
@@ -1095,7 +1121,11 @@ def cmd_buildable(args):
 		# <!-- custom: With what the building gives a city where it counts most often: happiness, health and culture, as at turn 81 of the islands replay (2026-11-15) Utrecht reached its happiness limit and choosing a building to lift it took the XML.
 		# CyCity.getBuildingHappiness and getBuildingHealth give the amount in this city. (Claude code Opus 5.5) -->
 		info = gc.getBuildingInfo(i)
-		result.append({"building": info.getType(), "cost": player.getBuildingProductionNeeded(i), "stored": city.getBuildingProduction(i), "turns": city.getBuildingProductionTurnsLeft(i, 0), "happiness": city.getBuildingHappiness(i), "health": city.getBuildingHealth(i), "culture": info.getObsoleteSafeCommerceChange(CommerceTypes.COMMERCE_CULTURE)})
+		# <!-- custom: movesCapital flags a Palace, as its hover says it moves the capital: at turn 306 of the ASOKA Huge save (2026-11-22) a happiness-first pick queued Brandenburg's Palace, as it gives happiness and every build there took 1 turn. (Claude code Opus 5.5) -->
+		row = {"building": info.getType(), "cost": player.getBuildingProductionNeeded(i), "stored": city.getBuildingProduction(i), "turns": city.getBuildingProductionTurnsLeft(i, 0), "happiness": city.getBuildingHappiness(i), "health": city.getBuildingHealth(i), "culture": info.getObsoleteSafeCommerceChange(CommerceTypes.COMMERCE_CULTURE)}
+		if info.isCapital():
+			row["movesCapital"] = True
+		result.append(row)
 	result.sort(lambda a, b: cmp(a["turns"], b["turns"]))
 	return {"city": city.getName(), "buildings": result}
 
@@ -1142,7 +1172,7 @@ def cmd_trainable(args):
 		result.append(entry)
 	# <!-- custom: Aircraft fight with air strength, not strength, so they sorted with civilians at zero (Codex's review, round 36): airStrength and its per-100-hammers figure, and aircraft count as military. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	for entry in result:
-		info = gc.getUnitInfo(gc.getInfoTypeForString(entry["unit"]))
+		info = gc.getUnitInfo(getInfoTypeOrFail(entry["unit"]))
 		if info.getAirCombat() > 0:
 			entry["airStrength"] = info.getAirCombat()
 			if entry["cost"] > 0:
@@ -1368,7 +1398,7 @@ def _contrastColor(player):
 		ours.append((rgb.r, rgb.g, rgb.b))
 	best = None
 	for szColor in MARK_CONTRAST_COLORS:
-		iColor = gc.getInfoTypeForString(szColor)
+		iColor = _findOptionalInfoType(szColor)
 		if iColor < 0:
 			continue
 		rgb = gc.getColorInfo(iColor).getColor()
@@ -1404,9 +1434,10 @@ def cmd_mark(args):
 				szColor = "contrast"
 			else:
 				szColor = "COLOR_GREEN"
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if szColor == "contrast":
 			szColor = _contrastColor(player)
-		iColor = gc.getInfoTypeForString(szColor)
+		iColor = _findOptionalInfoType(szColor)
 		# <!-- custom: The check first also compared iColor with gc.getNumColorInfos, which Python does not have: every 'mark' failed with an AttributeError (islands replay, 2026-11-15).
 		# Type names are unique across tables, so a COLOR_ name that resolves is a colour; its type is compared back. (Claude code Opus 5.5) -->
 		if not szColor.startswith("COLOR_") or iColor < 0 or gc.getColorInfo(iColor).getType() != szColor:
@@ -1537,19 +1568,24 @@ def _screenRole(szName, args):
 
 
 def _commandRole(name, args):
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if name == "fog" and args.get("on") is not None and not args.get("on"):
 		return "omniscient"
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if name == "control" and args.get("control") is not None:
 		iControl = int(_enum(ControlTypes, args["control"]))
 		for (szControl, szRole) in _CONTROL_ROLES:
 			if iControl == int(getattr(ControlTypes, szControl)):
 				return szRole
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if name == "screen" and args.get("name") is not None:
 		return _screenRole(str(args["name"]), args)
 	# <!-- custom: Reading the font sizes is available in play; their session preview is a layout test. (GPT-6.2-Sol) -->
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if name == "uifont" and set(args).difference(("player", "fog")):
 		return "create"
 	# <!-- custom: A recorded widget is what the window shows a player, but widgettype, data1, data2 or option can send any widget action with any data, which no click can. (Claude code Opus 5.5) -->
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if name == "uipress" and [szKey for szKey in ("widgettype", "data1", "data2", "option") if args.get(szKey) is not None]:
 		return "create"
 	if args.get("fog") is not None and not args.get("fog"):
@@ -1570,6 +1606,7 @@ def _checkRole(name, args):
 		if _state.get("roleLocked"):
 			szHow = "the role is locked for this client; a client started with --role %s allows it" % " or ".join(allowing)
 		raise ValueError("'%s' has the %s role, which the session's %s role does not allow; %s" % (name, szNeeds, szRole, szHow))
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox uses stable role keys. (GPT-6.2-Sol) -->
 	if szRole != "all" and args.get("player") is not None:
 		# <!-- custom: Through _checkedPlayerId, as player=-2 reached gc.getPlayer unchecked here, an out-of-bounds read in a Release DLL (Codex's review, P1). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		iPlayer = _checkedPlayerId(args["player"])
@@ -1587,6 +1624,7 @@ def cmd_role(args):
 		# <!-- custom: 'role set=all' from the same mailbox lifted a 'start --role play' (Codex's review, round 32), so a launch role is locked: a fair playthrough should not be one command away from the WorldBuilder. The lock lives in the bridge's state, which lasts until Civ4 closes. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 		if _state.get("roleLocked") and args["set"] != (_state.get("role") or "all"):
 			raise ValueError("the role %s is locked for this client, as 'start --role' set it; start a new client for another role" % (_state.get("role") or "all"))
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if args["set"] == "all":
 			_state["role"] = None
 		else:
@@ -1620,9 +1658,47 @@ def cmd_path(args):
 	if iTeam >= 0 and (gc.getPlayer(unit.getOwner()).getTeam() != iTeam or iFlags != 0):
 		raise ValueError("with fog on, 'path' takes the team's own units and no flags")
 	text = _pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), iFlags)
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("no path query for unit %d to %d,%d" % (unit.getID(), plot.getX(), plot.getY()))
+	# <!-- custom: A bare {"found": false} hid why: a goody-hut Catapult on Marsh found no path even to the next plot, because SAS makes Jungle, Forest and Marsh impassable to siege off roads (KI#1076; JOAO turn-112 save, 2026-11-22).
+	# Name what blocks it, as the window shows the terrain. See KI#1076.2. (Claude code Opus 5.5) -->
+	if text.replace(" ", "") == '{"found":false}':
+		return _pathBlocked(unit, plot, iTeam)
 	return RawJson(text)
+
+
+def _pathBlocked(unit, target, iTeam):
+	info = gc.getUnitInfo(unit.getUnitType())
+	impassable = [gc.getFeatureInfo(i).getType() for i in range(gc.getNumFeatureInfos()) if info.getFeatureImpassable(i)] + [gc.getTerrainInfo(i).getType() for i in range(gc.getNumTerrainInfos()) if info.getTerrainImpassable(i)]
+	here = unit.plot()
+	exits = []
+	for iDir in range(DirectionTypes.NUM_DIRECTION_TYPES):
+		adj = plotDirection(here.getX(), here.getY(), DirectionTypes(iDir))
+		if adj is None or adj.isNone() or (iTeam >= 0 and not adj.isVisible(iTeam, False)):
+			continue
+		if unit.canMoveInto(adj, False, False, False):
+			exits.append({"x": adj.getX(), "y": adj.getY()})
+	result = {"found": False, "impassableFor": impassable, "enterableNext": exits, "routeLifts": info.getDomainType() == DomainTypes.DOMAIN_LAND}
+	# <!-- custom: A failed path may be caused by another unit in the group.
+	# Inspect only visible plots under fog, and describe the single-unit checks without attributing the whole path failure to them. (GPT-6.2-Sol) -->
+	result["note"] = "no group path found; enterableNext only checks this unit"
+	if iTeam >= 0:
+		result["note"] += " and only lists adjacent plots in sight"
+	if iTeam < 0 or target.isVisible(iTeam, False):
+		pTeam = gc.getTeam(unit.getTeam())
+		if not (result["routeLifts"] and target.isRoute()):
+			iFeature = target.getFeatureType()
+			if iFeature >= 0 and info.getFeatureImpassable(iFeature):
+				iTech = info.getFeaturePassableTech(iFeature)
+				if iTech < 0 or not pTeam.isHasTech(iTech):
+					result["blockedFeature"] = gc.getFeatureInfo(iFeature).getType()
+			iTerrain = target.getTerrainType()
+			if info.getTerrainImpassable(iTerrain):
+				iTech = info.getTerrainPassableTech(iTerrain)
+				if iTech < 0 or not pTeam.isHasTech(iTech):
+					result["blockedTerrain"] = gc.getTerrainInfo(iTerrain).getType()
+	return result
 
 
 _HELP["targets"] = "The plots a unit's group could pick for an interface mode from 'unit's targetModes, as the window highlights them, e.g. mode=INTERFACEMODE_RECON or INTERFACEMODE_AIRBOMB, with the mission to send: mission unit=<id> mission=<mission> data1=x data2=y. With fog on, only plots the team has revealed. args: unit, mode, player."
@@ -1645,7 +1721,13 @@ def cmd_targets(args):
 	# <!-- custom: canDoInterfaceModeAt does not recheck that the mode applies: for the SAS Airship, a land unit, INTERFACEMODE_REBASE accepted 4191 plots (2026-11-14).
 	# Check the mode first, as the window's button does. (Claude code Opus 5.5) -->
 	if not group.canDoInterfaceMode(eMode):
-		raise ValueError("unit %d cannot use %s now" % (unit.getID(), args["mode"]))
+		# <!-- custom: Name the checks a player can see: two Paratroopers that had moved with their stack got only "cannot use INTERFACEMODE_PARADROP now" (turn 304 of the ASOKA Huge save, 2026-11-22); CvUnit::canParadrop needs an unmoved unit on a city or airbase the team knows. (Claude code Opus 5.5) -->
+		hints = []
+		if unit.hasMoved():
+			hints.append("it has moved this turn")
+		if eMode == InterfaceModeTypes.INTERFACEMODE_PARADROP and not unit.plot().isCity():
+			hints.append("a drop starts from one of our cities or an airbase")
+		raise ValueError("unit %d cannot use %s now%s" % (unit.getID(), args["mode"], hints and " (" + "; ".join(hints) + ")" or ""))
 	iTeam = _fogTeam(args)
 	if iTeam >= 0 and gc.getPlayer(unit.getOwner()).getTeam() != iTeam:
 		raise ValueError("with fog on, 'targets' takes the team's own units")
@@ -1668,6 +1750,7 @@ def cmd_messages(args):
 	if iSince is None:
 		iSince = gc.getGame().getGameTurn() - 1
 	text = _pilotGame("getSASPilotMessagesJson").getSASPilotMessagesJson(_playerId(args), int(iSince))
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("no player %s" % args.get("player"))
 	# <!-- custom: The texts carry font and color tags and icon characters, as the first test showed ("<font=3>You have captured Beshbalik!!!</font>"); the list is short, so it is read back and cleaned here rather than in the DLL. (Claude code Fable 5.2) -->
@@ -1735,7 +1818,7 @@ def cmd_todo(args):
 
 
 # <!-- custom: F6 and Sevopedia draw these relationships from loaded infos.
-# Index the rules lazily in this module so polling and ordinary gameplay pay nothing, and a Pilot hot reload rebuilds the index on demand.
+# Index the rules lazily in this module so polling and ordinary gameplay pay nothing, and a SASPilot hot reload rebuilds the index on demand.
 # Research progress and diplomacy come from the current game on each request. (GPT-6.1-Sol) -->
 _GRAPH_CACHE = {}
 
@@ -1781,6 +1864,7 @@ def _promotionNodes():
 
 
 def _assetRequirements(info, kind):
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if kind == "unit":
 		allCount = gc.getNUM_UNIT_AND_TECH_PREREQS()
 		bonusCount = gc.getNUM_UNIT_PREREQ_OR_BONUSES()
@@ -1872,8 +1956,7 @@ def _techEffects(iCiv):
 				_recordTechEffect(effects, iTech, effect, result.getType(), details)
 		for j in range(gc.getNumFeatureInfos()):
 			if info.isFeatureRemove(j):
-				_recordTechEffect(effects, info.getFeatureTech(j), "allowsFeatureRemoval", gc.getFeatureInfo(j).getType(),
-					{"build": info.getType(), "buildTech": _typeOrNone(gc.getTechInfo, iTech), "production": info.getFeatureProduction(j)})
+				_recordTechEffect(effects, info.getFeatureTech(j), "allowsFeatureRemoval", gc.getFeatureInfo(j).getType(), {"build": info.getType(), "buildTech": _typeOrNone(gc.getTechInfo, iTech), "production": info.getFeatureProduction(j)})
 	for i in range(gc.getNumTechInfos()):
 		info = gc.getTechInfo(i)
 		rows = effects[info.getType()]
@@ -1935,6 +2018,7 @@ def _historyStart(player, other, metric, first, current, fog, partial):
 		return None
 	if player.canSeeDemographics(other.getID()):
 		return first
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if metric != "score":
 		return None
 	if player.hasEverSeenDemographics(other.getID()):
@@ -1987,10 +2071,12 @@ def cmd_graph(args):
 	kind = args.get("kind")
 	szType = args.get("type")
 	result = {"kind": kind}
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if kind == "history":
 		if szType is not None:
 			raise ValueError("the history graph takes metric instead of type")
 		return _historyGraph(args, result)
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if kind == "relations":
 		if szType is not None:
 			raise ValueError("the relations graph takes no type filter")
@@ -2000,11 +2086,13 @@ def cmd_graph(args):
 		result = cmd_relations(query)
 		result["kind"] = kind
 		return result
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if kind == "promotions":
 		nodes = _promotionNodes()
 	elif kind in ("tech", "upgrades"):
 		iCiv = _player(args).getCivilizationType()
 		result["civilization"] = gc.getCivilizationInfo(iCiv).getType()
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if kind == "upgrades":
 			nodes = _upgradeNodes(iCiv)
 		else:
@@ -2016,8 +2104,10 @@ def cmd_graph(args):
 		nodes = [node for node in nodes if node["type"] == szType]
 		if not nodes:
 			raise ValueError("%s is not in the %s graph" % (szType, kind))
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if kind == "upgrades":
 			result["upgradesFrom"] = [node["type"] for node in _upgradeNodes(iCiv) if szType in node["upgradesTo"]]
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if kind == "promotions":
 			result["requiredBy"] = [{"type": node["type"], "group": group} for node in _promotionNodes()
 				for group in ("all", "any") if szType in node["requires"][group]]
@@ -2040,12 +2130,12 @@ def cmd_tech(args):
 		row = dict(effect)
 		if "requires" in row:
 			row["otherMissingTechs"] = [tech for tech in row["requires"]["techAll"] if tech != node["type"]
-				and not team.isHasTech(gc.getInfoTypeForString(tech))]
+				and not team.isHasTech(getInfoTypeOrFail(tech))]
 		node["effects"].append(row)
 	requires = node["requires"]
-	node["missingAll"] = [tech for tech in requires["all"] if not team.isHasTech(gc.getInfoTypeForString(tech))]
+	node["missingAll"] = [tech for tech in requires["all"] if not team.isHasTech(getInfoTypeOrFail(tech))]
 	node["missingAny"] = []
-	if requires["any"] and not [tech for tech in requires["any"] if team.isHasTech(gc.getInfoTypeForString(tech))]:
+	if requires["any"] and not [tech for tech in requires["any"] if team.isHasTech(getInfoTypeOrFail(tech))]:
 		node["missingAny"] = requires["any"]
 	node["known"] = bool(team.isHasTech(iTech))
 	node["canResearch"] = bool(player.canResearch(iTech, False))
@@ -2186,11 +2276,12 @@ def _addTechCases(player, args, entries):
 		entry["sellTo"] = (info.isTrade() and iMet - holders.get(szTech, 0)) or 0
 		entry["xmlTradeable"] = bool(info.isTrade())
 		entry["leadsTo"] = [effect["target"] for effect in effects[szTech] if effect["effect"] == "leadsTo"]
+		# <!-- custom: sas-ci-string-compare-exemption: The technology report uses a stable prerequisite kind. (GPT-6.2-Sol) -->
 		unlocks = [effect["target"] for effect in effects[szTech] if effect["effect"] == "prerequisite"]
 		entry["unlocks"] = unlocks
 		needs = []
 		for szTarget in unlocks:
-			iType = gc.getInfoTypeForString(szTarget)
+			iType = _findOptionalInfoType(szTarget)
 			if iType < 0:
 				continue
 			# <!-- custom: At turn 77 of the 2026-11-19 validation run Code of Laws read as meeting happiness through the Palace, which we already had (one per civ), while Polytheism read as nothing though it unlocks Temples, a special-building class whose buildings give happiness under a state religion.
@@ -2213,8 +2304,10 @@ def _addTechCases(player, args, entries):
 				if building.getPrereqReligion() >= 0 and building.getPrereqReligion() != player.getStateReligion():
 					iHappy = building.getHappiness()
 				if iHappy > 0 and iHappyMargin <= 1:
+					# <!-- custom: sas-ci-string-compare-exemption: The city audit uses stable happiness and health result keys. (GPT-6.2-Sol) -->
 					needs.append("happiness (%s +%d; smallest happy margin %d%s)" % (szTarget, iHappy, iHappyMargin, (szBinding == "happiness" and ", binds first") or ""))
 				if building.getHealth() > 0 and iHealthMargin <= 1:
+					# <!-- custom: sas-ci-string-compare-exemption: The city audit uses stable happiness and health result keys. (GPT-6.2-Sol) -->
 					needs.append("health (%s +%d; smallest health margin %d%s)" % (szTarget, building.getHealth(), iHealthMargin, (szBinding == "health" and ", binds first") or ""))
 			if szTarget.startswith("UNIT_"):
 				unitInfo = gc.getUnitInfo(iType)
@@ -2462,6 +2555,10 @@ def cmd_mission(args):
 		szWhy = "moves left %d, group %d of %d unit(s)" % (unit.movesLeft(), group.getID(), group.getNumUnits())
 		if group.getLengthMissionQueue() > 0:
 			szWhy += ", whose current mission is %s" % gc.getMissionInfo(group.getMissionType(0)).getType()
+		# <!-- custom: A Catapult's MISSION_FORTIFY was refused with only its moves and group, as siege cannot fortify (JOAO turn-114 save, 2026-11-22); list the plain missions it can start here, as the window shows only those buttons. (Claude code Opus 5.5) -->
+		canStart = [gc.getMissionInfo(i).getType() for i in range(gc.getNumMissionInfos()) if i != MissionTypes.MISSION_BUILD and group.canStartMission(i, -1, -1, plot, False)]
+		if canStart:
+			szWhy += "; without data it can start: %s" % ", ".join(canStart)
 		raise ValueError("unit %d cannot start %s (%s, %s) now (%s)" % (unit.getID(), args["mission"], iData1, iData2, szWhy))
 	# <!-- custom: No mission AI plot or unit, as the window's own orders give none (CvNetPushMission).
 	# SASPilot first passed the plot above, which pushMission records as the group's mission AI plot while the group can move: a Work Boat sent by 'move' from (39,32) then had fishing boats appended after arriving with no moves left, and at the next turn the KI#176 stale-target guard in continueMission cancelled the build, as the boat was not at (39,32) (fog-on playthrough, turns 116-118, 2026-11-13). See KI#176.
@@ -2558,8 +2655,8 @@ def cmd_map(args):
 	x1 = int(args.get("x1", min(kMap.getGridWidth() - 1, max([x for (x, y) in known]) + 1)))
 	y0 = int(args.get("y0", max(0, min([y for (x, y) in known]) - 1)))
 	y1 = int(args.get("y1", min(kMap.getGridHeight() - 1, max([y for (x, y) in known]) + 1)))
-	iForest = gc.getInfoTypeForString("FEATURE_FOREST")
-	iJungle = gc.getInfoTypeForString("FEATURE_JUNGLE")
+	iForest = getInfoTypeOrFail("FEATURE_FOREST")
+	iJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
 	ours = {}
 	for unit in _units(player):
 		ours[(unit.getX(), unit.getY())] = True
@@ -2882,7 +2979,7 @@ def cmd_world(args):
 		row["holyCityOf"] = []
 		inferred = []
 		for szWonder in row["wonders"]:
-			info = gc.getBuildingInfo(gc.getInfoTypeForString(szWonder))
+			info = gc.getBuildingInfo(getInfoTypeOrFail(szWonder))
 			iReligion = info.getHolyCity()
 			if iReligion == -1:
 				iReligion = info.getGlobalReligionCommerce()
@@ -2944,8 +3041,57 @@ def cmd_world(args):
 					row["built"] = True
 					if iLoopTeam == iTeam or team.isHasMet(iLoopTeam):
 						row["builder"] = loopTeam.getName()
-		if game.isDiploVote(iSource):
-			row["totalVotes"] = max([0] + [game.countPossibleVote(iVote, iSource) for iVote in range(gc.getNumVoteInfos())])
+		bActive = game.isDiploVote(iSource)
+		if bActive:
+			# <!-- custom: Match Victory Members' election weight.
+			# Some resolutions vote by cities or civilizations instead of population, so taking the maximum mixes different ballots.
+			# Keep the public total and list only known members under fog. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			aiVotes = [i for i in range(gc.getNumVoteInfos()) if gc.getVoteInfo(i).isVoteSourceType(iSource)]
+			iElection = -1
+			for iVote in aiVotes:
+				if gc.getVoteInfo(iVote).isSecretaryGeneral():
+					iElection = iVote
+					break
+			iSecretary = -1
+			if iElection >= 0:
+				iSecretary = game.getSecretaryGeneral(iSource)
+				row["totalVotes"] = game.countPossibleVote(iElection, iSource)
+			else:
+				row["totalVotes"] = max([0] + [game.countPossibleVote(iVote, iSource) for iVote in aiVotes])
+			bFog = _fogTeam(args) >= 0
+			members = []
+			for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
+				member = gc.getPlayer(iPlayer)
+				if not member.isAlive() or not member.isVotingMember(iSource):
+					continue
+				if bFog and member.getTeam() != iTeam and not team.isHasMet(member.getTeam()):
+					continue
+				iVotes = None
+				if iElection >= 0:
+					iVotes = member.getVotes(iElection, iSource)
+				entry = {"player": iPlayer, "name": member.getName(), "votes": iVotes, "status": member.isFullMember(iSource) and "full" or "voting"}
+				if member.getTeam() == iSecretary:
+					entry["status"] = "secretaryGeneral"
+				members.append(entry)
+			members.sort(lambda a, b: cmp(b["votes"], a["votes"]))
+			row["members"] = members
+		# <!-- custom: The Victory screen's Resolutions tab rows (CvVictoryScreen.drawResolutionTable): each resolution the source can choose, a diplomatic victory only while that victory is valid (advc.178), with the votes required and possible while the source is active, and whether it passed; an inactive source keeps its resolutions and outcomes, as the tab does.
+		# The 2026-11-22 tab audit found no command for them: 'world' gave the members only. See KI#1110. (Claude code Opus 5.5) -->
+		if bActive or row["built"]:
+			resolutions = []
+			for iVote in range(gc.getNumVoteInfos()):
+				info = gc.getVoteInfo(iVote)
+				if not info.isVoteSourceType(iSource) or not game.isChooseElection(iVote) or (info.isVictory() and not game.isDiploVictoryValid()):
+					continue
+				entry = {"resolution": info.getType(), "passed": bool(game.isVotePassed(iVote))}
+				if bActive:
+					iPossible = game.countPossibleVote(iVote, iSource)
+					if iPossible <= 0:
+						continue
+					entry["required"] = game.getVoteRequired(iVote, iSource)
+					entry["total"] = iPossible
+				resolutions.append(entry)
+			row["resolutions"] = resolutions
 		voteSources.append(row)
 	return {"wonders": wonders, "topCities": [row for (iValue, row) in ranked[:5]], "rivalsAlive": len(rivals), "rivalsMet": len([p for p in rivals if team.isHasMet(p.getTeam())]), "religions": religions, "corporations": corporations, "voteSources": voteSources, "nationalWonders": nationalWonders, "projects": projects}
 
@@ -3148,12 +3294,16 @@ _HELP["victory"] = "The Victory screen's Victories tab, per victory still valid:
 
 
 def _victoryValue(loopTeam, szKind, iArg):
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szKind == "score":
 		return gc.getGame().getTeamScore(loopTeam.getID())
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szKind == "population":
 		return loopTeam.getTotalPopulation()
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szKind == "land":
 		return loopTeam.getTotalLand()
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szKind == "project":
 		return loopTeam.getProjectCount(iArg)
 	return loopTeam.getBuildingClassCount(iArg)
@@ -3358,7 +3508,7 @@ def cmd_geography(args):
 	team = gc.getTeam(iTeam)
 	cyMap = gc.getMap()
 	g = gc.getGame()
-	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
 	iLandSeen = 0
 	iWaterSeen = 0
 	iOceanSeen = 0
@@ -3532,7 +3682,7 @@ def cmd_shore(args):
 		raise ValueError("no plot at %s,%s" % (args["x"], args["y"]))
 	if _fogTeam(args) >= 0 and not plot.isRevealed(iTeam, False):
 		raise ValueError("plot %s,%s is not revealed to our team" % (args["x"], args["y"]))
-	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
 	iWater = 0
 	iOceanAdjacent = 0
 	iUnknown = 0
@@ -3646,6 +3796,7 @@ def _remindWounded(player, args):
 def _remindUnfinished(player, args):
 	# <!-- custom: Builds a city has hammers in but is not making now, which the city keeps (CvCity's per-unit and per-building production): the user advised at turn 119 of the turn-0 game (2026-11-14) not to leave a nearly done build, as a Worker one turn from done, after switching the queue; Hastings had switched from an Axeman to a Worker.
 	# Each with its stored hammers, its cost and the turns it would take now; not every one is worth finishing, which stays the agent's choice. (Claude code Opus 5.5) -->
+	# <!-- custom: The text said only "has 10 of 60 hammers in UNIT_WORKER, 6 turns from done now", which read as the current build right after a Monument was put first in Lisbon (JOAO turn-114 save, 2026-11-22); it now says the build is set aside. (Claude code Opus 5.5) -->
 	result = []
 	for city in _cities(player):
 		iCurrentUnit = -1
@@ -3657,11 +3808,13 @@ def _remindUnfinished(player, args):
 		for i in range(gc.getNumUnitInfos()):
 			iStored = city.getUnitProduction(i)
 			if iStored > 0 and i != iCurrentUnit and city.canTrain(i, False, False):
-				result.append({"text": "%s has %d of %d hammers in %s, %d turns from done now" % (city.getName(), iStored, player.getUnitProductionNeeded(i), gc.getUnitInfo(i).getType(), city.getUnitProductionTurnsLeft(i, 0)), "city": city.getID(), "item": gc.getUnitInfo(i).getType()})
+				# <!-- custom: A Worker or Settler is built from food as well as hammers (isFoodProduction), so "hammers" misnamed its stored amount; say "production" for those (the user, 2026-11-22). (Claude code Opus 5.5) -->
+				szStored = gc.getUnitInfo(i).isFoodProduction() and "production (food and hammers)" or "hammers"
+				result.append({"text": "%s has %d of %d %s in %s, set aside behind its current build, %d turns from done if made now" % (city.getName(), iStored, player.getUnitProductionNeeded(i), szStored, gc.getUnitInfo(i).getType(), city.getUnitProductionTurnsLeft(i, 0)), "city": city.getID(), "item": gc.getUnitInfo(i).getType()})
 		for i in range(gc.getNumBuildingInfos()):
 			iStored = city.getBuildingProduction(i)
 			if iStored > 0 and i != iCurrentBuilding and city.canConstruct(i, False, False, False):
-				result.append({"text": "%s has %d of %d hammers in %s, %d turns from done now" % (city.getName(), iStored, player.getBuildingProductionNeeded(i), gc.getBuildingInfo(i).getType(), city.getBuildingProductionTurnsLeft(i, 0)), "city": city.getID(), "item": gc.getBuildingInfo(i).getType()})
+				result.append({"text": "%s has %d of %d hammers in %s, set aside behind its current build, %d turns from done if made now" % (city.getName(), iStored, player.getBuildingProductionNeeded(i), gc.getBuildingInfo(i).getType(), city.getBuildingProductionTurnsLeft(i, 0)), "city": city.getID(), "item": gc.getBuildingInfo(i).getType()})
 	return result
 
 
@@ -3806,7 +3959,7 @@ def _remindTrades(player, args):
 			buyer = gc.getPlayer(entry["player"]).getTeam()
 			contested = []
 			for szTech in entry["techs"]:
-				iTech = gc.getInfoTypeForString(szTech)
+				iTech = getInfoTypeOrFail(szTech)
 				# <!-- custom: The holder must be able to trade techs with the buyer, which needs the tech-trading tech on either side (CvPlayer::canTradeItem): at turn 57 of the 2026-11-19 validation run Sitting Bull knew Calendar, but neither he nor Cyrus had Writing, so he could not sell it to Cyrus, while the reminder said he could and suggested giving our one trade good away. (Claude code Opus 5.5) -->
 				for iTeam in range(gc.getMAX_CIV_TEAMS()):
 					if iTeam not in (player.getTeam(), buyer) and gc.getTeam(iTeam).isAlive() and team.isHasMet(iTeam) and gc.getTeam(iTeam).isHasTech(iTech) and (gc.getTeam(iTeam).isTechTrading() or gc.getTeam(buyer).isTechTrading()) and gc.getTechInfo(iTech).isTrade():
@@ -3875,7 +4028,6 @@ def _remindRivalMoods(player, args):
 		for item in fromJson(_tradeItemsJson(player, iOther)):
 			if item["item"] != "TRADE_RESOURCES":
 				continue
-			iBonus = gc.getInfoTypeForString(item["what"])
 			ours.append(item["what"])
 		ours.sort()
 		now = [szAttitude, iValue, techs, theirs, ours, szBorders]
@@ -3886,8 +4038,9 @@ def _remindRivalMoods(player, args):
 			continue
 		offers = []
 		for szBonus in ours:
-			info = gc.getBonusInfo(gc.getInfoTypeForString(szBonus))
-			offers.append({"bonus": szBonus, "lastCopy": player.getNumAvailableBonuses(gc.getInfoTypeForString(szBonus)) <= 1, "happiness": info.getHappiness(), "health": info.getHealth()})
+			iBonus = getInfoTypeOrFail(szBonus)
+			info = gc.getBonusInfo(iBonus)
+			offers.append({"bonus": szBonus, "lastCopy": player.getNumAvailableBonuses(iBonus) <= 1, "happiness": info.getHappiness(), "health": info.getHealth()})
 		if before is None:
 			szText = "%s is %s (%+d); open borders: %s; would trade techs %s and resources %s; we could offer %s" % (other.getName(), szAttitude[9:].lower(), iValue, szBorders, ", ".join(techs) or "none", ", ".join(theirs) or "none", ", ".join(ours) or "nothing")
 		else:
@@ -3998,7 +4151,7 @@ def _remindUnimproved(player, args):
 				szText = szText + " (unit %d is on its way)" % row["unitOnTheWay"]
 			for iUnit, szCity in queued.items():
 				for szBuild in builds:
-					if gc.getUnitInfo(iUnit).getBuilds(gc.getInfoTypeForString(szBuild)):
+					if gc.getUnitInfo(iUnit).getBuilds(getInfoTypeOrFail(szBuild)):
 						row["inProduction"] = {"unit": gc.getUnitInfo(iUnit).getType(), "city": szCity}
 				if row.has_key("inProduction"):
 					szText = szText + " (%s is in %s's queue)" % (row["inProduction"]["unit"], row["inProduction"]["city"])
@@ -4072,18 +4225,35 @@ def _remindIdleGarrison(player, args):
 				if other.getTeam() != iTeam and not other.isInvisible(iTeam, False) and other.canAttack():
 					foreign.append((plot.getX(), plot.getY()))
 	iPerMille = 1000 * iRevealed / max(1, kMap.numPlots())
-	result = []
+	# <!-- custom: One entry per city, not per unit: at turn 302 of the ASOKA Huge save (2026-11-22) the check gave 71 of 132 reminders, one per fortified unit in 17 cities, and drowned the rest of the digest.
+	# Each entry keeps the unit IDs, types and the nearest foreign unit (the same for every unit on the plot), so the call stays the agent's as before, and the city's plot, so mute=idleGarrison@x,y silences one city. (Claude code Opus 5.5) -->
+	byCity = {}
+	order = []
 	for unit in idle:
+		key = (unit.getX(), unit.getY())
+		if not byCity.has_key(key):
+			byCity[key] = []
+			order.append(key)
+		byCity[key].append(unit)
+	result = []
+	for key in order:
+		units = byCity[key]
 		near = None
 		for (x, y) in foreign:
-			iDist = max(abs(unit.getX() - x), abs(unit.getY() - y))
+			iDist = max(abs(key[0] - x), abs(key[1] - y))
 			if near is None or iDist < near:
 				near = iDist
 		szNear = near is None and "no foreign military unit in sight" or "nearest foreign military unit %d plots away" % near
 		# <!-- custom: Says what to do instead: at turn 32 of the 2026-11-19 validation run the Warrior slept in Dublin with nothing in sight, and the user called it wasteful next to exploring. (Claude code Opus 5.5) -->
 		if near is None or near > IDLE_GARRISON_THREAT_PLOTS:
 			szNear += "; with no threat in reach it pays more exploring, fog-busting (the fogBusting posts) or escorting a Settler, and can come back when a threat shows"
-		result.append({"text": "%s %d waits in %s (%s; %d per mille of the map revealed)" % (gc.getUnitInfo(unit.getUnitType()).getType(), unit.getID(), unit.plot().getPlotCity().getName(), szNear, iPerMille), "unit": unit.getID(), "nearestForeign": near, "revealedPerMille": iPerMille})
+		counts = {}
+		for unit in units:
+			szType = gc.getUnitInfo(unit.getUnitType()).getType()
+			counts[szType] = counts.get(szType, 0) + 1
+		szTypes = ", ".join(["%s x%d" % (szType, counts[szType]) for szType in sorted(counts.keys())])
+		szCity = units[0].plot().getPlotCity().getName()
+		result.append({"text": "%s holds %d fortified or sleeping military unit(s): %s (%s; %d per mille of the map revealed)" % (szCity, len(units), szTypes, szNear, iPerMille), "city": units[0].plot().getPlotCity().getID(), "x": key[0], "y": key[1], "units": [unit.getID() for unit in units], "nearestForeign": near, "revealedPerMille": iPerMille})
 	return result
 
 
@@ -4091,7 +4261,7 @@ def _remindHuts(player, args):
 	# <!-- custom: Goody huts the team has seen, with the nearest of our land units and its distance in plots: huts give techs, maps and gold early, and rivals' scouts take them too, so an agent scouting should see them all at once (the user, Continents game of 2026-11-14, after three huts in the first runs gave Mining, a map and research).
 	# Only huts as the team last saw them. (Claude code Opus 5.5) -->
 	iTeam = player.getTeam()
-	iHut = gc.getInfoTypeForString("IMPROVEMENT_GOODY_HUT")
+	iHut = _findOptionalInfoType("IMPROVEMENT_GOODY_HUT")
 	if iHut < 0:
 		return []
 	units = []
@@ -4392,7 +4562,7 @@ def _remindWaterScouting(player, args):
 	iUnmet = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if i != iTeam and gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian() and not team.isHasMet(i)])
 	if iUnmet == 0:
 		return []
-	iOcean = gc.getInfoTypeForString("TERRAIN_OCEAN")
+	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
 	bOceanShip = False
 	idle = []
 	(unit, it) = player.firstUnit(False)
@@ -4540,7 +4710,7 @@ def _remindFogBusting(player, args):
 	# <!-- custom: Whether Barbarian land units can spawn on our landmass at all: AdvCiv spawns them in a settled land area only while its unowned land plus half its unowned shelf (passable, habitable shallow coast next to it, not lake or ice) is at least half the handicap's iUnownedTilesPerBarbarianUnit (advc.300, CvGame::createBarbarianUnits and CvMap::computeShelves).
 	# At turn 57 of the islands replay (2026-11-15) the user called the north post a mistake: on Noble (55 tiles per unit, so 27) the island had 24 unowned land plots, and scouting the rest of it came first.
 	# Counted from what the team has revealed, so it is an estimate. (Claude code Opus 5.5) -->
-	iCoast = gc.getInfoTypeForString("TERRAIN_COAST")
+	iCoast = getInfoTypeOrFail("TERRAIN_COAST")
 	iThreshold = gc.getHandicapInfo(gc.getGame().getHandicapType()).getUnownedTilesPerBarbarianUnit() / 2
 	# <!-- custom: Counted over what the team knows, so a known count under the cutoff is not proof: the engine counts all the area's unowned land, and unrevealed land of the landmass may lift it over.
 	# The first wording said "cannot spawn" outright (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
@@ -4716,7 +4886,8 @@ def _remindHomeUnknown(player, args):
 	# Per city, the directions whose known land borders the unknown within HOME_UNKNOWN_RADIUS plots, from 'directions'. (Claude code Opus 5.5) -->
 	result = []
 	for city in _cities(player):
-		sectors = cmd_directions({"player": player.getID(), "city": city.getName(), "radius": HOME_UNKNOWN_RADIUS, "fog": args.get("fog")})["sectors"]
+		# <!-- custom: Pass the city's ID, not its name: two cities can share a name, and the name lookup failed on a non-ASCII one (2026-11-22). (Claude code Opus 5.5) -->
+		sectors = cmd_directions({"player": player.getID(), "city": city.getID(), "radius": HOME_UNKNOWN_RADIUS, "fog": args.get("fog")})["sectors"]
 		edges = [(row["direction"], row["unknownEdge"]) for row in sectors if row["unknownEdge"] > 0]
 		if not edges:
 			continue
@@ -4743,6 +4914,7 @@ def cmd_limits(args):
 		if info.getHappiness() <= 0 and info.getHealth() <= 0:
 			continue
 		szStatus = _bonusStatus(player, i, seen)
+		# <!-- custom: sas-ci-string-compare-exemption: The map report uses a stable visibility state key. (GPT-6.2-Sol) -->
 		if szStatus == "unseen":
 			continue
 		resources.append({"bonus": info.getType(), "happiness": info.getHappiness(), "health": info.getHealth(), "status": szStatus, "usableWith": _typeOrNone(gc.getTechInfo, info.getTechCityTrade()), "haveUsableTech": bool(info.getTechCityTrade() < 0 or gc.getTeam(iTeam).isHasTech(info.getTechCityTrade()))})
@@ -4802,9 +4974,11 @@ def _remindHappyHealth(player, args):
 		if leader.get("connected"):
 			linked.append(leader["name"])
 		for szBonus in leader.get("willExport", []):
-			info = gc.getBonusInfo(gc.getInfoTypeForString(szBonus))
+			info = gc.getBonusInfo(getInfoTypeOrFail(szBonus))
+			# <!-- custom: sas-ci-string-compare-exemption: The city audit uses stable happiness and health result keys. (GPT-6.2-Sol) -->
 			if (szBinding == "happiness" and info.getHappiness() > 0) or (szBinding == "health" and info.getHealth() > 0):
 				offers.append("%s from %s" % (szBonus, leader["name"]))
+	# <!-- custom: sas-ci-string-compare-exemption: The city audit uses stable happiness and health result keys. (GPT-6.2-Sol) -->
 	szText = "%s binds first (smallest margins: happy %d, health %d); traits give %+d happy, %+d health; our %s resources to trade away: %s; %s resources met civs would export: %s; trade networks linked with: %s" % (szBinding, iHappy, iHealth, traitHappy, traitHealth, (szBinding == "happiness" and "health") or "happiness", ", ".join([row["bonus"] for row in ours if row["canTradeAway"] and ((szBinding == "happiness" and row["health"] > 0) or (szBinding == "health" and row["happiness"] > 0))]) or "none", szBinding, ", ".join(offers) or "none", ", ".join(linked) or "nobody (a resource trade needs our networks linked, by road or coast)")
 	return [{"text": szText, "bindsFirst": szBinding, "cities": [{"city": name, "happyMargin": h, "healthMargin": g} for (name, h, g) in rows], "traitHappiness": traitHappy, "traitHealth": traitHealth, "ourResources": ours, "offers": offers, "linkedWith": linked}]
 
@@ -5006,6 +5180,7 @@ def cmd_reminders(args):
 	if args.get("mute"):
 		muted[str(args["mute"])] = True
 	if args.get("unmute"):
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if str(args["unmute"]) == "all":
 			muted.clear()
 		elif muted.has_key(str(args["unmute"])):
@@ -5387,7 +5562,7 @@ _HELP["scores"] = "The Info screen's Score tab, per player met and ourselves: sc
 
 
 def cmd_scores(args):
-	# <!-- custom: The user pointed to the Info screen's Score tab at turn 150 of the turn-0 game (2026-11-14): it showed at a glance that we knew 27 techs against 29 to 37 for every rival, that Pericles gained +42 score a turn, and power totals per city, which no pilot command gave together.
+	# <!-- custom: The user pointed to the Info screen's Score tab at turn 150 of the turn-0 game (2026-11-14): it showed at a glance that we knew 27 techs against 29 to 37 for every rival, that Pericles gained +42 score a turn, and power totals per city, which no SASPilot command gave together.
 	# Follows CvInfoScreen.drawScoreTab: the same tests decide what is visible. (Claude code Opus 5.5) -->
 	player = _player(args)
 	team = gc.getTeam(player.getTeam())
@@ -5543,11 +5718,13 @@ def cmd_advise(args):
 	# <!-- custom: The user's facts-versus-advice idea (2026-11-14), with their own example as its first rule: avoid an animal that is faster than you while you are weaker; animals are strong in SAS and give little.
 	# A command of its own, so tuning a rule never touches the fact commands that replays compare against. (Claude code Opus 5.5) -->
 	szAbout = args.get("about")
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szAbout == "scout":
 		result = cmd_scout(args)
 		result["rule"] = "most plots revealed first, then fewest animals and barbarians within two plots, then the best defense"
 		result["steps"].sort(lambda a, b: cmp((-a["reveals"], len(a["enemiesNear"]), -a["defense"]), (-b["reveals"], len(b["enemiesNear"]), -b["defense"])))
 		return result
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if szAbout == "threats":
 		return _adviseThreats(args)
 	raise ValueError("advise takes about=scout or about=threats, not %s" % szAbout)
@@ -5607,7 +5784,7 @@ def cmd_routes(args):
 	# <!-- custom: Under fog, player= naming another team still drew the map's edges from all its plots and listed every city with its coordinates and capital connection, although the rows hid unrevealed tiles (Codex's review, 2026-11-14). Refuse it, as 'odds' does for foreign units. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	_requireOwnTeamUnderFog(args, player, "the route map")
 	kMap = gc.getMap()
-	iRail = gc.getInfoTypeForString("ROUTE_RAILROAD")
+	iRail = getInfoTypeOrFail("ROUTE_RAILROAD")
 	owned = []
 	for i in range(kMap.numPlots()):
 		plot = kMap.plotByIndex(i)
@@ -5685,6 +5862,7 @@ def cmd_group(args):
 	if args.get("with") is not None:
 		iHead = _unit({"unit": args["with"], "player": args.get("player")}).getID()
 	text = _pilotGame("joinSASPilotGroup").joinSASPilotGroup(unit.getOwner(), unit.getID(), iHead)
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("unit %d cannot join unit %s's group: both must be the player's, on one plot and of one domain" % (unit.getID(), args.get("with")))
 	group = unit.getGroup()
@@ -5794,7 +5972,7 @@ def _diploToken(state):
 
 
 def _screenContent(state):
-	# <!-- custom: Codex's round-15 review: the conversation was counted only when a pilot read found the screen newly open, so a close and reopen between reads was missed; CvDiplomacy.py now counts each conversation as it begins.
+	# <!-- custom: Codex's round-15 review: the conversation was counted only when a SASPilot read found the screen newly open, so a close and reopen between reads was missed; CvDiplomacy.py now counts each conversation as it begins.
 	# The screen's data is compared too, as the join-war and embargo replies take their target from CyDiplomacy.getData() (CvDiplomacy.handleUserResponse), not from the reply. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	diplo = CyDiplomacy()
 	return (state.get("conversation", 0), state["who"], state["aiComment"], diplo.getData(), tuple([(r["comment"], r["data1"], r["data2"]) for r in state["responses"]]), tuple([tuple(sorted(item.items())) for item in _diploOffer(diplo.getTheirTradeOffer)]), tuple([tuple(sorted(item.items())) for item in _diploOffer(diplo.getPlayerTradeOffer)]))
@@ -5883,7 +6061,7 @@ def cmd_contact(args):
 	szWeGive = ",".join([_tradeArg(item, player) for item in give])
 	szTheyGive = ",".join([_tradeArg(item, gc.getPlayer(iOther)) for item in take])
 	if not _pilotGame("tableSASPilotDeal").tableSASPilotDeal(player.getID(), iOther, szWeGive, szTheyGive):
-		raise ValueError("not a deal player %d can put on the table with player %d: check the items against 'trade'" % (player.getID(), iOther))
+		raise ValueError("not a deal player %d can put on the table with player %d: %s" % (player.getID(), iOther, _dealRefusal(player, gc.getPlayer(iOther), give, take) or "check the items against 'trade'"))
 	_state["contactPending"] = (iOther, True, time.clock())
 	return {"contacted": _who(iOther), "table": True}
 
@@ -5966,6 +6144,7 @@ def cmd_rivaltechs(args):
 	ourTeam = gc.getTeam(player.getTeam())
 	if args.get("with") is None:
 		raise ValueError("this command needs with=<player ID>, a list or all; 'players' lists them")
+	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 	if str(args["with"]) == "all":
 		rivals = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and i != player.getID() and gc.getPlayer(i).getTeam() != player.getTeam() and ourTeam.isHasMet(gc.getPlayer(i).getTeam())]
 	else:
@@ -6142,6 +6321,34 @@ def _tradeArg(szItem, giver):
 	return "%d:%d" % (eKind, iData)
 
 
+_TRADE_ITEMS_WITH_ID = (int(TradeableItems.TRADE_CITIES), int(TradeableItems.TRADE_PEACE), int(TradeableItems.TRADE_WAR), int(TradeableItems.TRADE_EMBARGO))
+
+
+def _dealRefusal(player, other, give, take):
+	# <!-- custom: Both deal commands said only "check the items against 'trade'" when the DLL refused: on 2026-11-22 (JOAO turn-120 save) TECH_FEUDALISM, offered to Huayna Capac at turn 115, had left our list as he got it elsewhere, and the message named neither the item nor why.
+	# Names each item missing from its giver's list in 'trade' (the same C++ list), or gold above what the giver can pay; None when every item is listed, as the refusal then has another cause, such as the turn being over. (Claude code Opus 5.5) -->
+	missing = []
+	for (giver, receiver, items, szSide) in ((player, other, give, "we give"), (other, player, take, "they give")):
+		listed = fromJson(_tradeItemsJson(giver, receiver.getID()))
+		for szItem in items:
+			(iKind, iData) = [int(x) for x in _tradeArg(szItem, giver).split(":")]
+			szKind = szItem.split(":")[0]
+			rows = [row for row in listed if int(_enum(TradeableItems, row["item"])) == iKind]
+			if szKind in ("TRADE_GOLD", "TRADE_GOLD_PER_TURN"):
+				if not rows or iData > rows[0]["data"]:
+					missing.append("%s (%s): at most %s" % (szItem, szSide, rows and rows[0]["data"] or 0))
+				continue
+			if iKind in _TRADE_INFO_TABLES or iKind in _TRADE_ITEMS_WITH_ID:
+				rows = [row for row in rows if row["data"] == iData]
+			if not rows:
+				missing.append("%s (%s): not tradeable now" % (szItem, szSide))
+			elif rows[0].get("denial"):
+				missing.append("%s (%s): %s" % (szItem, szSide, rows[0]["denial"]))
+	if not missing:
+		return None
+	return "; ".join(missing)
+
+
 def _who(iPlayer):
 	# <!-- custom: A player as ID, leader name and civilization XML type, as the BBAI and SASGameRecord rows give an ID beside a name: replies such as {"contacted": 2} needed a lookup to tell it was Kublai (the user, 2026-11-14).
 	# The ID stays what commands take; the name and type say who it is.
@@ -6157,17 +6364,56 @@ def cmd_propose(args):
 	szWeGive = ",".join([_tradeArg(item, player) for item in args.get("give", [])])
 	szTheyGive = ",".join([_tradeArg(item, other) for item in args.get("take", [])])
 	text = _pilotGame("proposeSASPilotDeal").proposeSASPilotDeal(player.getID(), other.getID(), szWeGive, szTheyGive)
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
-		raise ValueError("not a deal player %d can propose to player %d: check the items against 'trade'" % (player.getID(), other.getID()))
+		raise ValueError("not a deal player %d can propose to player %d: %s" % (player.getID(), other.getID(), _dealRefusal(player, other, args.get("give", []), args.get("take", [])) or "check the items against 'trade'"))
 	result = fromJson(text)
 	result["with"] = _who(other.getID())
 	return result
 
 
-_HELP["odds"] = "The odds the window shows when a unit is pointed at a plot to attack: the defender the game would pick, both strengths, and the chance to win in per mille. args: unit, x, y, player."
+_HELP["odds"] = "The odds the window shows when a unit is pointed at a plot to attack: the defender the game would pick, both strengths, and the chance to win in per mille. With stack=1, every unit of ours on the unit's plot that could attack, best odds first, each with the defender it would meet, its group's size and the path's turns (attacksThisTurn when the attack comes this turn; a unit in a group moves the whole group), as hovering a stack over a target shows the attacker the game would send. args: unit, x, y, stack, player."
 
 
 def cmd_odds(args):
+	# <!-- custom: stack=1 ranks every unit on the attacker's plot: at turn 302 of the ASOKA Huge save (2026-11-22) choosing among 26 units in Babylon against Dur-Kurigalzu took one 'odds' call per unit, while the window shows the best attacker on one hover. (Claude code Opus 5.5) -->
+	if args.get("stack"):
+		lead = _unit(args)
+		target = _plot(args)
+		iTeam = _fogTeam(args)
+		_requireOwnTeamUnderFog(args, gc.getPlayer(lead.getOwner()), "stack odds")
+		if iTeam >= 0 and not target.isVisible(iTeam, False):
+			raise ValueError("plot %d,%d is not in sight; fog is on" % (target.getX(), target.getY()))
+		rows = []
+		paths = {}
+		plot = lead.plot()
+		for i in range(plot.getNumUnits()):
+			other = plot.getUnit(i)
+			if other.getOwner() != lead.getOwner() or not other.canAttack() or other.isCargo():
+				continue
+			one = dict(args)
+			del one["stack"]
+			one["unit"] = other.getID()
+			try:
+				reply = cmd_odds(one)
+			except ValueError, error:
+				rows.append({"unit": other.getID(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "refused": str(error)})
+				continue
+			# <!-- custom: Each row also gives the unit's group size and the path's turns to the target: the first version showed a Modern Tank at 1000 per mille, but it led a 28-unit group 4 turns away, so 'move' on it marched the whole Babylon stack out of the city (2026-11-22).
+			# The window's hover shows the path's turns. (Claude code Opus 5.5) -->
+			group = other.getGroup()
+			iGroup = group.getID()
+			if iGroup not in paths:
+				path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(other.getOwner(), other.getID(), target.getX(), target.getY(), 0))
+				paths[iGroup] = path and path.get("found") and path.get("turns") or None
+			iTurns = paths[iGroup]
+			# <!-- custom: Group ETA is shared.
+			# This unit must still have moves and be eligible to attack, even if other members can reach and attack this turn. (GPT-6.2-Sol) -->
+			bReady = other.canMove() and (not other.isMadeAttack() or other.isBlitz())
+			bAttacksThisTurn = iTurns == 1 and bReady and other.canMoveInto(target, True, False, False)
+			rows.append({"unit": other.getID(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "damage": other.getDamage(), "movesLeft": other.movesLeft(), "oddsPerMille": reply["oddsPerMille"], "defender": reply["defender"]["type"], "defenderStrength": reply["defenderStrength"], "groupSize": group.getNumUnits(), "pathTurns": iTurns, "attacksThisTurn": bAttacksThisTurn})
+		rows.sort(lambda a, b: cmp(b.get("oddsPerMille", -1), a.get("oddsPerMille", -1)))
+		return {"x": int(args["x"]), "y": int(args["y"]), "attackers": rows}
 	# <!-- custom: A person sees the combat odds on hovering an enemy before attacking; SASPilot had moves and paths but no odds (fog-on playthrough, 2026-11-13).
 	# The defender is the one the game would pick against this attacker, as getBestDefender does for the hover text; with fog on, only a plot in sight. (Claude code Opus 5.5) -->
 	unit = _unit(args)
@@ -6213,6 +6459,7 @@ def cmd_sites(args):
 	# <!-- custom: At the first Settler of the fog-on playthrough (2026-11-13) SASPilot had plots and yields but not the green circles BtS draws for a selected Settler; this reads the same list in C++, as Python cannot reach it. (Claude code Opus 5.5) -->
 	unit = _unit(args)
 	text = _pilotGame("getSASPilotCitySitesJson").getSASPilotCitySitesJson(unit.getOwner(), unit.getID())
+	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
 	if text == "null":
 		raise ValueError("unit %d cannot found a city" % unit.getID())
 	return RawJson(text)
@@ -6444,7 +6691,7 @@ _HELP["workers"] = "Planning Workers by hand. Without city: each Worker with whe
 
 def _workerTurns(plot, iBuild, player):
 	# <!-- custom: Turns for one ordinary Worker, as the plot's own build progress counts them: the Worker's XML work rate with the player's worker speed modifier. (Claude code Opus 5.5) -->
-	iWorker = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(gc.getInfoTypeForString("UNITCLASS_WORKER"))
+	iWorker = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(getInfoTypeOrFail("UNITCLASS_WORKER"))
 	if iWorker < 0:
 		return None
 	iRate = gc.getUnitInfo(iWorker).getWorkRate() * (100 + player.getWorkerSpeedModifier()) / 100
@@ -6631,6 +6878,7 @@ def _followOrder(name, args):
 	# <!-- custom: Only the active player's own units and cities, so the camera never shows a place fog hides; a bad argument is left to the command's own error. (Claude code Opus 5.5) -->
 	try:
 		plot = None
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		if name == "hurry" and args.get("hurry") is None:
 			return
 		if name in FOLLOW_UNIT_ORDERS and args.get("unit") is not None:
@@ -6638,6 +6886,7 @@ def _followOrder(name, args):
 			if unit.getOwner() == gc.getGame().getActivePlayer():
 				plot = unit.plot()
 		# <!-- custom: 'citizens' without automated= only reads the city screen, so it moves no camera: SASPilotWatch.py read each city's citizens every 2 seconds while the user played in the window, and the camera kept jumping back to Dublin (Continents replay, 2026-11-19). (Claude code Opus 5.5) -->
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
 		elif name in FOLLOW_CITY_ORDERS and args.get("city") is not None and not (name == "citizens" and args.get("automated") is None):
 			city = _city(args)
 			if city.getOwner() == gc.getGame().getActivePlayer():
@@ -6870,6 +7119,78 @@ def cmd_greatpeople(args):
 	return {"threshold": iThreshold, "created": player.getGreatPeopleCreated(), "cities": cities, "firstDiscoveryFree": firstFree}
 
 
+_HELP["battles"] = "The Military Advisor's Battles tab: our battles as the save records them, newest first, each with its turn, our side's outcome (won, lost, retreated, or theirRetreat), the winner and loser (attacker and defender for a retreat) with their unit types, the plot with its terrain, feature, hill or peak and whether it was a city defended or captured, the attacker's and defender's strength at the start, their maximum and their strength at the end, times 100 (strengthX100), a unit captured after it, and each side's experience and whether it had a Great General. since= a turn, limit= rows (default 50). args: player, since, limit."
+
+
+# <!-- custom: The rows' slots as SASBattleHistory writes them (recordCombatResult, recordCombatRetreat, _getEntryWithCapture, _getEntryWithPlotContext, _getEntryWithUnitContext); older rows are shorter, so a missing slot gives no field. (Claude code Opus 5.5) -->
+_BATTLE_CITY_CONTEXT = {0: None, 1: "defended", 2: "captured"}
+
+
+def _battleSlot(entry, i):
+	if len(entry) > i:
+		return entry[i]
+	return None
+
+
+def _battleRow(entry, iPlayer):
+	# <!-- custom: Slots through _battleSlot rather than a nested function, as Civ4's Python code avoids closures (AGENTS.md). (Claude code Opus 5.5) -->
+	bRetreat = SASBattleHistory.isRetreatEntry(entry)
+	if bRetreat:
+		szOutcome = _battleSlot(entry, 1) == iPlayer and "retreated" or "theirRetreat"
+	else:
+		szOutcome = _battleSlot(entry, 1) == iPlayer and "won" or "lost"
+	row = {"turn": _battleSlot(entry, 0), "outcome": szOutcome, "x": _battleSlot(entry, 5), "y": _battleSlot(entry, 6)}
+	if bRetreat:
+		row.update({"attacker": _battleSlot(entry, 1), "defender": _battleSlot(entry, 2), "attackerUnit": _typeOrNone(gc.getUnitInfo, _battleSlot(entry, 3)), "defenderUnit": _typeOrNone(gc.getUnitInfo, _battleSlot(entry, 4))})
+	else:
+		row.update({"winner": _battleSlot(entry, 1), "loser": _battleSlot(entry, 2), "winnerUnit": _typeOrNone(gc.getUnitInfo, _battleSlot(entry, 3)), "loserUnit": _typeOrNone(gc.getUnitInfo, _battleSlot(entry, 4))})
+	# <!-- custom: A retreat always records end strength, even when there was no matching combat callback for start/max strength.
+	# The writer zero-pads that missing block.
+	# Older lethal rows can have start/max without end strength.
+	# Report each block only when recorded, in the game's units (1430 is 14.3). See KI#1110. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	strength = {}
+	if _battleSlot(entry, 12):
+		if not bRetreat:
+			row.update({"attacker": entry[7], "defender": entry[8]})
+		strength.update({"attackerStart": entry[9], "attackerMax": entry[10], "defenderStart": entry[11], "defenderMax": entry[12]})
+	if bRetreat or (strength and len(entry) >= 18):
+		strength.update({"attackerEnd": entry[16], "defenderEnd": entry[17]})
+	if strength:
+		row["strengthX100"] = strength
+	if _battleSlot(entry, 15):
+		row["captured"] = {"by": _battleSlot(entry, 13), "unit": _typeOrNone(gc.getUnitInfo, _battleSlot(entry, 14)), "count": _battleSlot(entry, 15)}
+	(iTerrain, iFeature, iHillPeak, iCity) = SASBattleHistory.getPlotContext(entry)
+	if iTerrain is not None and iTerrain >= 0:
+		row["terrain"] = _typeOrNone(gc.getTerrainInfo, iTerrain)
+		row["feature"] = _typeOrNone(gc.getFeatureInfo, iFeature)
+		row["hillOrPeak"] = _typeOrNone(gc.getTerrainInfo, iHillPeak)
+		row["city"] = _BATTLE_CITY_CONTEXT.get(iCity)
+	(iAttackerXP, bAttackerGG, iDefenderXP, bDefenderGG) = SASBattleHistory.getUnitContext(entry)
+	if iAttackerXP >= 0 or iDefenderXP >= 0:
+		experience = {}
+		if iAttackerXP >= 0:
+			experience.update({"attacker": iAttackerXP, "attackerGreatGeneral": bool(bAttackerGG)})
+		if iDefenderXP >= 0:
+			experience.update({"defender": iDefenderXP, "defenderGreatGeneral": bool(bDefenderGG)})
+		row["experience"] = experience
+	return row
+
+
+def cmd_battles(args):
+	# <!-- custom: The 2026-11-22 tab audit found no command for the Battles tab, which an agent at war needs (which units won where, against what), and reading its 143-row table through the UI cost a screen per look.
+	# Under fog, refuse another team's history even in a role that can select that team. See KI#1110. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	player = _player(args)
+	_requireOwnTeamUnderFog(args, player, "battle history")
+	iPlayer = player.getID()
+	iSince = int(args.get("since", -1))
+	iLimit = int(args.get("limit", 50))
+	if iLimit < 0:
+		raise ValueError("limit must be nonnegative")
+	entries = [entry for entry in SASBattleHistory.getEntriesForPlayer(iPlayer) if len(entry) >= 7 and entry[0] >= iSince]
+	entries.reverse()
+	return {"player": iPlayer, "total": len(entries), "battles": [_battleRow(entry, iPlayer) for entry in entries[:iLimit]]}
+
+
 _HELP["military"] ="The Military Advisor's summary as decisions need it: unit counts by domain, military and civilian; where they stand (own cities, own land, neutral land, enemy land, other land); the wounded by ID; every unit that can upgrade now with its targets and cheapest cost, and the total; Great General progress and generals created; cities with walls and castles. args: player."
 
 
@@ -6910,7 +7231,7 @@ def cmd_military(args):
 		(unit, it) = player.nextUnit(it, False)
 	defenses = {}
 	for szClass in ("BUILDINGCLASS_WALLS", "BUILDINGCLASS_CASTLE"):
-		iClass = gc.getInfoTypeForString(szClass)
+		iClass = _findOptionalInfoType(szClass)
 		if iClass >= 0:
 			iBuilding = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationBuildings(iClass)
 			defenses[szClass[14:]] = len([city for city in _cities(player) if iBuilding >= 0 and city.getNumBuilding(iBuilding) > 0])
@@ -7370,6 +7691,7 @@ def _popups():
 			value = parts[i]
 			if _POPUP_FIELDS[i] in ("id", "typeId", "data1", "data2", "data3", "flags", "option1", "option2", "pythonButtons"):
 				value = int(value)
+			# <!-- custom: sas-ci-string-compare-exemption: The DLL popup dictionary uses a stable field name. (GPT-6.2-Sol) -->
 			elif _POPUP_FIELDS[i] == "buttons":
 				# <!-- custom: "0=KEEP,1=RAZE" from getSASPilotPopupButtons: the buttons the game would offer now, by number and name. (Claude code Fable 5.2) -->
 				buttons = []
@@ -7411,6 +7733,12 @@ def _popupAbout(popup):
 		# <!-- custom: The resolution the window shows, which the DLL puts in the text (getSASPilotPopups); 'todo' lists 'about', not the text.
 		# A TEAM_<id> button elects that team. (Claude code Opus 5.5) -->
 		popup["about"] = {"resolution": _plainText(popup["text"])}
+		# <!-- custom: Each TEAM_<id> button also names that team's leaders, as the window's vote buttons do: the turn-305 U.N. election of the ASOKA Huge save (2026-11-22) offered TEAM_1 and TEAM_4, and telling Cyrus from the rest took a 'players' lookup. (Claude code Opus 5.5) -->
+		for button in popup.get("buttons", []):
+			szName = str(button.get("name", ""))
+			if szName.startswith("TEAM_") and szName[5:].isdigit():
+				iTeam = int(szName[5:])
+				button["leaders"] = [gc.getPlayer(i).getName() for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and gc.getPlayer(i).getTeam() == iTeam]
 	elif szType in ("BUTTONPOPUP_RAZECITY", "BUTTONPOPUP_CHOOSEPRODUCTION"):
 		city = gc.getPlayer(_activePlayerId()).getCity(popup["data1"])
 		if city is not None and not city.isNone():
@@ -7491,7 +7819,27 @@ def _cityPlots(city):
 		plot = city.getCityIndexPlot(i)
 		if plot is None or plot.isNone():
 			continue
-		plots.append({"index": i, "x": plot.getX(), "y": plot.getY(), "worked": city.isWorkingPlot(plot), "canWork": city.canWork(plot), "yields": _yields(plot.getYield)})
+		entry = {"index": i, "x": plot.getX(), "y": plot.getY(), "worked": city.isWorkingPlot(plot), "canWork": city.canWork(plot), "yields": _yields(plot.getYield)}
+		# <!-- custom: Match the city UI's known ownership, competing city and work requirements.
+		# A visible enemy can make a tile unsafe, but canWork also tests siege and blockades, so a generic enemy on the tile alone does not explain a refusal. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not entry["canWork"] and i != gc.getCITY_HOME_PLOT():
+			iTeam = gc.getPlayer(city.getOwner()).getTeam()
+			if not plot.isRevealed(iTeam, False):
+				entry["why"] = "not revealed"
+			else:
+				iOwner = plot.getRevealedOwner(iTeam, False)
+				if iOwner != city.getOwner():
+					entry["why"] = iOwner < 0 and "unowned" or "owned by player %d" % iOwner
+				elif plot.isVisible(iTeam, False):
+					working = plot.getWorkingCity()
+					if working is not None and not working.isNone() and working.getOwner() == city.getOwner() and working.getID() != city.getID():
+						entry["why"] = "assigned to %s" % working.getName()
+						entry["workedBy"] = working.getID()
+					elif plot.isWater() and not gc.getTeam(iTeam).isWaterWork():
+						entry["why"] = "water work is not unlocked"
+					elif not plot.hasYield():
+						entry["why"] = "yields nothing"
+		plots.append(entry)
 	return plots
 
 
@@ -7937,13 +8285,13 @@ def cmd_py(args):
 	if "gc" not in namespace:
 		# <!-- custom: Was the statement form exec "..." in namespace, which Python 2.4 runs but Ruff's modern parser cannot read, so CI's Ruff stopped on this file (Codex found it).
 		# eval of a code object compiled in "exec" mode runs the statements in both, checked with C:\Python24. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		eval(compile("from CvPythonExtensions import *\n", "<pilot>", "exec"), namespace)
+		eval(compile("from CvPythonExtensions import *\n", "<saspilot>", "exec"), namespace)
 	namespace["gc"] = gc
 	namespace["game"] = gc.getGame()
 	namespace["map"] = CyMap()
 	namespace["interface"] = CyInterface()
 	namespace["describe"] = describe
-	namespace["pilot"] = sys.modules.get(__name__) or globals()
+	namespace["saspilot"] = sys.modules.get(__name__) or globals()
 	iActive = gc.getGame().getActivePlayer()
 	if iActive >= 0:
 		namespace["player"] = gc.getPlayer(iActive)
@@ -7954,7 +8302,7 @@ def cmd_py(args):
 	sys.stdout = capture
 	try:
 		try:
-			compiled = compile(code, "<pilot>", "eval")
+			compiled = compile(code, "<saspilot>", "eval")
 		except SyntaxError:
 			compiled = None
 		if compiled is not None:
@@ -7964,7 +8312,7 @@ def cmd_py(args):
 			# Name the likely cause when the failing line has that shape. (Claude code Opus 5.5) -->
 			# <!-- custom: eval of an "exec" code object and sys.exc_info() replace exec ... in and "except SyntaxError, error", which Ruff cannot parse; see the namespace setup above. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 			try:
-				eval(compile(code + "\n", "<pilot>", "exec"), namespace)
+				eval(compile(code + "\n", "<saspilot>", "exec"), namespace)
 			except SyntaxError:
 				error = sys.exc_info()[1]
 				szLine = error.text or ""

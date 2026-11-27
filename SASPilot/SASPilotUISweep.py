@@ -15,16 +15,18 @@ import time
 from collections import Counter
 from pathlib import Path
 
-# <!-- custom: SASPilotClient, as pilot, for the requests, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
-import SASPilotClient as pilot
+# <!-- custom: SASPilotClient, as saspilot, for the requests, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 from SASPilotClient import PilotError, pick_pid
 # <!-- custom: desktop_windows is no longer imported: --dismiss, its only use here, was removed on 2026-11-27. (Claude code Opus 5.5) -->
 
 # <!-- custom: The screens a player opens from the window, by 'uiopen''s short names; the Sevopedia browses by category rather than footer tabs, so it is left to a sweep of its own. (Claude code Opus 5.5) -->
 SCREENS = ("tech", "policy", "religion", "corporation", "foreigntrade", "foreigndiplomacy", "domestic", "military", "espionage", "info", "world", "victory", "halloffame", "pedia")
-# <!-- custom: Each screen 'uiopen' must open, and the fewest footer tabs it shows, as counted on the turn-402 test save (2026-11-20), so a screen that opens another or loses a tab fails: the tabs come from the recorder under test, so they cannot vouch for themselves (Codex's review).
-# The Victory screen's Resolutions and Members tabs depend on the game, so 2 there; Religion, Corporation and Espionage open the advisor SAS merged them into. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-EXPECTED = {"tech": ("TECH_CHOOSER", 0), "policy": ("POLICY_ADVISOR_SCREEN", 3), "religion": ("POLICY_ADVISOR_SCREEN", 3), "corporation": ("POLICY_ADVISOR_SCREEN", 3), "foreigntrade": ("FOREIGN_ADVISOR", 4), "foreigndiplomacy": ("FOREIGN_DIPLOMACY_ADVISOR", 4), "domestic": ("DOMESTIC_ADVISOR", 5), "military": ("MILITARY_ADVISOR", 4), "espionage": ("FOREIGN_DIPLOMACY_ADVISOR", 4), "info": ("INFO_SCREEN", 6), "world": ("WORLD_ADVISOR", 5), "victory": ("VICTORY_SCREEN", 2), "halloffame": ("HALL_OF_FAME", 0), "pedia": ("PEDIA_MAIN", 0)}
+# <!-- custom: Each screen 'uiopen' must open, so a screen that opens another fails; Religion, Corporation and Espionage open the advisor SAS merged them into (Claude code Opus 5.5 + GPT-6.2-Sol).
+# Until 2026-11-22 this also held the fewest footer tabs each showed, counted by hand on the turn-402 save, as the tabs come from the recorder under test and cannot vouch for themselves (Codex's review); the drawn tabs are now compared with CvScreenEnums.ADVISOR_TABS, read through 'uitabs all=1', an independent source the screens draw from. See KI#1110. (Claude code Opus 5.5) -->
+EXPECTED = {"tech": "TECH_CHOOSER", "policy": "POLICY_ADVISOR_SCREEN", "religion": "POLICY_ADVISOR_SCREEN", "corporation": "POLICY_ADVISOR_SCREEN", "foreigntrade": "FOREIGN_ADVISOR", "foreigndiplomacy": "FOREIGN_DIPLOMACY_ADVISOR", "domestic": "DOMESTIC_ADVISOR", "military": "MILITARY_ADVISOR", "espionage": "FOREIGN_DIPLOMACY_ADVISOR", "info": "INFO_SCREEN", "world": "WORLD_ADVISOR", "victory": "VICTORY_SCREEN", "halloffame": "HALL_OF_FAME", "pedia": "PEDIA_MAIN"}
+# <!-- custom: The registry advisor whose tabs each shortcut into a merged advisor shows. (Claude code Opus 5.5) -->
+TAB_ADVISOR = {"religion": "policy", "corporation": "policy", "espionage": "foreigndiplomacy"}
 # <!-- custom: The tab a shortcut into a merged advisor must open on, by its place among the tabs, the same in every language: Religion and Corporation open the Policy Advisor's second and third, Espionage the Foreign Diplomacy Advisor's fourth (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 EXPECTED_TAB = {"religion": 1, "corporation": 2, "espionage": 3}
 # <!-- custom: Sevopedia categories whose entries play something when pressed, so only the category is opened; named by their screen, not their English label (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -78,8 +80,16 @@ class Sweep(object):
 		self.searched = 0
 		self.expanded = 0
 
+	def registryTabs(self):
+		# <!-- custom: Each advisor's shown tab labels from the registry, read once per sweep. (Claude code Opus 5.5) -->
+		if getattr(self, "_registryTabs", None) is None:
+			self._registryTabs = {}
+			for advisor in self.call("uitabs", all=1)["advisors"]:
+				self._registryTabs[advisor["advisor"]] = [tab["label"] for tab in advisor["tabs"] if tab.get("shown", True)]
+		return self._registryTabs
+
 	def call(self, command, **arguments):
-		reply = pilot.request(self.pid, command, arguments)
+		reply = saspilot.request(self.pid, command, arguments)
 		if not reply.get("ok"):
 			raise PilotError("%s %s: %s" % (command, arguments, str(reply.get("error")).splitlines()[0]))
 		return reply.get("result")
@@ -152,8 +162,8 @@ class Sweep(object):
 
 	def opened(self, name):
 		reply = self.call("uiopen", name=name)
-		if reply.get("screen") != EXPECTED[name][0]:
-			raise Stop("%s: opened %s, expected %s; stopped" % (name, reply.get("screen"), EXPECTED[name][0]))
+		if reply.get("screen") != EXPECTED[name]:
+			raise Stop("%s: opened %s, expected %s; stopped" % (name, reply.get("screen"), EXPECTED[name]))
 
 	def pedia(self, dry, iItems):
 		# <!-- custom: The Sevopedia browses by category, a list box ('uiitems' lists its entries by name), and each category's entries are a table read with 'uiread': each category is pressed, then its first non-blank entries, each drawing its page.
@@ -278,8 +288,9 @@ class Sweep(object):
 		self.check(name)
 		tabs = self.call("uitabs").get("tabs") or []
 		print("%s: %s" % (name, ", ".join([tab["label"] for tab in tabs]) or "no footer tabs"))
-		if len(tabs) < EXPECTED[name][1]:
-			self.problems.append("%s: %d footer tabs, expected at least %d" % (name, len(tabs), EXPECTED[name][1]))
+		expected = self.registryTabs().get(TAB_ADVISOR.get(name, name), [])
+		if [tab["label"] for tab in tabs] != expected:
+			self.problems.append("%s: footer tabs %s, CvScreenEnums.ADVISOR_TABS has %s" % (name, [tab["label"] for tab in tabs], expected))
 		if name in EXPECTED_TAB:
 			active = [i for i in range(len(tabs)) if tabs[i]["active"]]
 			if active != [EXPECTED_TAB[name]]:

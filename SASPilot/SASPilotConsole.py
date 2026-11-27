@@ -24,12 +24,12 @@ format_json = import_module("formatting.json_format").format_json
 # <!-- custom: console_colors, from the same folder, holds the shared palette and to_html for --html. (Claude code Opus 5.5) -->
 console_colors = import_module("formatting.console_colors")
 
-# <!-- custom: The same folder pilot.LOGS_DIR names, computed here so the watcher starts without importing the client. (Claude code Opus 5.5) -->
+# <!-- custom: The same folder saspilot.LOGS_DIR names, computed here so the watcher starts without importing the client. (Claude code Opus 5.5) -->
 LOGS_DIR = Path.home() / "Documents" / "My Games" / "beyond the sword" / "Logs"
 
 
 def newest_log(pid):
-	# <!-- custom: With a running client, its own log, named by its start time as pilot.log_path names it: the newest file of a PID could belong to an earlier process that had the same PID (Codex's review).
+	# <!-- custom: With a running client, its own log, named by its start time as saspilot.log_path names it: the newest file of a PID could belong to an earlier process that had the same PID (Codex's review).
 	# None until that log exists. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if pid:
 		ticks = process_instance(pid)
@@ -66,7 +66,7 @@ def process_instance(pid):
 
 def short(value, limit):
 	# <!-- custom: limit 0 keeps the whole text: the user found results and arguments cut with "..." in the console and wanted them whole by default, cutting only for those who prefer it (2026-11-14).
-	# The log itself keeps at most pilot.LOG_RESULT_CHARS of a result. (Claude code Opus 5.5) -->
+	# The log itself keeps at most saspilot.LOG_RESULT_CHARS of a result. (Claude code Opus 5.5) -->
 	text = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 	if limit <= 0 or len(text) <= limit:
 		return text
@@ -80,7 +80,7 @@ _style = {}
 
 
 def _learn_operator(record):
-	# <!-- custom: An operator's number, from its operator row, keyed as pilot._log_request keys it: by session when there is one, else by name. (Claude code Opus 5.5) -->
+	# <!-- custom: An operator's number, from its operator row, keyed as saspilot._log_request keys it: by session when there is one, else by name. (Claude code Opus 5.5) -->
 	args = record.get("args") or {}
 	if args.get("number"):
 		_style.setdefault("numbers", {})[args.get("session") or args.get("operator")] = args["number"]
@@ -112,7 +112,7 @@ def emit(text):
 
 
 def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
-	# <!-- custom: The row SASPilotClient.py writes when a game starts or is loaded, shown as a banner so each game's commands are set apart; see pilot.log_game_marker. (Claude code Opus 5.5) -->
+	# <!-- custom: The row SASPilotClient.py writes when a game starts or is loaded, shown as a banner so each game's commands are set apart; see saspilot.log_game_marker. (Claude code Opus 5.5) -->
 	# <!-- custom: Banners begin with the row's time like other lines: an operator can join long before its first order or leave long after its last, which the banner alone did not show (the user, 2026-11-14). (Claude code Opus 5.5) -->
 	when = "%-12s " % record.get("utc", "")[11:23].rstrip("Z")
 	if record.get("kind") == "game":
@@ -126,7 +126,7 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 			settings = "settings: %d recommended, %s" % (args["settingsChecked"], unset and "%d not set: %s" % (len(unset), ", ".join(unset)) or "all set")
 			banner += "\n    " + (unset and paint(settings, "error") or settings)
 		return paint(banner, "banner")
-	# <!-- custom: The row SASPilotClient.py writes when an operator first sends a command to this client, or says it leaves; see pilot._log_request. (Claude code Opus 5.5) -->
+	# <!-- custom: The row SASPilotClient.py writes when an operator first sends a command to this client, or says it leaves; see saspilot._log_request. (Claude code Opus 5.5) -->
 	if record.get("kind") == "operator":
 		args = record.get("args") or {}
 		# <!-- custom: The session's first 8 characters tell two sessions of one agent apart, as a Claude Code session ID begins its log's file name. (Claude code Opus 5.5) -->
@@ -314,7 +314,7 @@ def main():
 		waited = True
 		time.sleep(1.0)
 		path = newest_log(args.pid)
-	# <!-- custom: A console of its own says it is open in <log>.watch, its PID and creation time, which pilot.ensure_watcher reads to reopen a console that was closed: on 2026-11-14 the user could not find the console, which had ended with the agent's session while Civ4 ran on (the user asked for it to start with SASPilot). (Claude code Opus 5.5) -->
+	# <!-- custom: A console of its own says it is open in <log>.watch, its PID and creation time, which saspilot.ensure_watcher reads to reopen a console that was closed: on 2026-11-14 the user could not find the console, which had ended with the agent's session while Civ4 ran on (the user asked for it to start with SASPilot). (Claude code Opus 5.5) -->
 	if args.arrange_self and args.pid:
 		try:
 			path.with_suffix(".watch").write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
@@ -338,10 +338,10 @@ def main():
 	# <!-- custom: "filter:" was "shows:", which the user read as the arguments (2026-11-14); it is which lines are printed. (Claude code Opus 5.5) -->
 	print("filter:  %s" % ("every command" if args.all else "orders, errors, and game and operator banners; --all adds reads"), file=sys.stderr)
 	# <!-- custom: The recommended-settings check, here as well as on the game banner: a game started before the banner carried it never showed it, and the user looked for it at the console's start (2026-11-14).
-	# SASPilotClient.py is imported only for this. (Claude code Opus 5.5) -->
+	# SASPilotClient.py is imported only for this, as saspilot since 2026-11-27, so the name says which tool it is. (Claude code Opus 5.5) -->
 	try:
-		import SASPilotClient as pilot
-		rows = pilot.settings_check()
+		import SASPilotClient as saspilot
+		rows = saspilot.settings_check()
 		unset = ["%s=%s (recommended %s)" % (row["name"], row["current"], row["recommended"]) for row in rows if not row["ok"]]
 		settings = "settings: %d recommended, %s" % (len(rows), unset and "%d not set: %s" % (len(unset), ", ".join(unset)) or "all set")
 		print(unset and paint(settings, "error") or settings, file=sys.stderr)

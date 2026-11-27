@@ -37,7 +37,7 @@ POLL_SECONDS = 0.001
 LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: Commands that never change the game; a command with one of ORDER_ARGS is an order even so, e.g. 'espionage weight=' or 'fog on='. Everything else, 'py' included, is logged as an order, since it may change the game. (Claude code Opus 5.5) -->
 # <!-- custom: The ui* commands that only read or redraw what is shown; uiopen, uipress and uiselect act as clicks do, and uiplot gives a mission with x and y. Before 2026-11-20 none was listed, so the log and SASPilotConsole called uistate or uihover orders. (Claude code Opus 5.5) -->
-READ_COMMANDS = frozenset(("pyerrors", "uifont", "uioptions", "uiopen", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
+READ_COMMANDS = frozenset(("pyerrors", "uifont", "uioptions", "uiopen", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "battles", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
 # <!-- custom: Codex's review found 'popups held=' (it switches holding) and 'profile' (it can run any command repeatedly) logged as reads, and the query forms of 'research', 'hurry' and 'freetech' as orders. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close"), "uifont": ("tiny", "body", "label", "title", "reset"), "uiopen": ("name",)}
 # <!-- custom: A logged result longer than this is cut, so a 1.6 MB plot reply does not flood the log; its size is still recorded. (Claude code Opus 5.5) -->
@@ -270,9 +270,9 @@ def remind(args, failed):
 	# <!-- custom: Reminders the agent gets with each command's output, so the user need not point these out every time (the user, 2026-11-14): an error, and a 'py' order, whose snippet may belong in a command (AGENTS.md); 'SASPilotClient.py review' gathers them.
 	# Printed on stderr, which the agent's tool shows beside the reply. (Claude code Opus 5.5) -->
 	if args.command == "py":
-		print("pilot: reminder: a 'py' order; if a later game would ask this again, make it a command in SASPilotCommands.py rather than writing the code again (AGENTS.md). 'SASPilotClient.py review' lists this session's snippets.", file=sys.stderr)
+		print("SASPilot: reminder: a 'py' order; if a later game would ask this again, make it a command in SASPilotCommands.py rather than writing the code again (AGENTS.md). 'SASPilotClient.py review' lists this session's snippets.", file=sys.stderr)
 	elif failed:
-		print("pilot: reminder: 'SASPilotClient.py review' lists this session's errors and 'py' snippets.", file=sys.stderr)
+		print("SASPilot: reminder: 'SASPilotClient.py review' lists this session's errors and 'py' snippets.", file=sys.stderr)
 
 
 def review(pid):
@@ -506,8 +506,9 @@ def _request(pid, command, args=None, timeout=60.0):
 				(mailbox / request_name).unlink()
 				started_note = "it was withdrawn before the game took it, so retrying is safe"
 			except FileNotFoundError:
-				# <!-- custom: A run_ only says the game claimed it; a failed read or reply write can leave it behind, so the outcome is unknown either way (Codex's review).
-				# One last look catches a reply that landed at the deadline; the request ID lets the caller find a later one. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+				# <!-- custom: A run_ only says the game claimed it.
+				# The game reads before claiming since 2026-11-27, but a failed reply write can still leave it behind, so the outcome is unknown.
+				# One last look catches a reply that landed at the deadline; the request ID lets the caller find a later one. (Claude code Opus 5.5 + GPT-6.1-Sol + GPT-6.2-Sol) -->
 				if reply_path.exists():
 					continue
 				started_note = "the game claimed request %s, outcome unknown, so check the game's state before retrying; a late reply would be %s" % (request_id, reply_path.name)
@@ -600,8 +601,8 @@ def settings_check():
 	# The development values come from toggle_dev_diagnostics.py, so the two cannot drift apart.
 	# They are read from the working tree, which may differ from the committed values players get.
 	# Returns one row per setting: file, name, current, recommended, ok. (Claude code Opus 5.5) -->
-	sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "diagnostics"))
-	import toggle_dev_diagnostics
+	# <!-- custom: Imported through _import_toggle, shared with console_on, so its folder goes on sys.path once (2026-11-27). (Claude code Opus 5.5) -->
+	toggle_dev_diagnostics = _import_toggle()
 	# <!-- custom: The settings agent runs want besides the toggle's list moved to define_values.py as AGENT_RUN_VALUES on 2026-11-19, so each switched value has one home. (Claude code Opus 5.5) -->
 	from define_values import AGENT_RUN_VALUES
 	# <!-- custom: Settings only Python reads moved to SASSessionTunables.py on main (KI#128.11), so each is read from the file holding it through the toggle's own reader; reading the XML alone reported the seven informing screens' switches as unset, as Codex's review (GPT-6.2-Sol) of the 2026-11-27 merge reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -634,7 +635,7 @@ def settings_check():
 def print_settings_check():
 	rows = settings_check()
 	unset = [row for row in rows if not row["ok"]]
-	print("pilot: %d recommended settings checked, %d not set (values from the working tree; committed values may differ, as players get the shipped ones):" % (len(rows), len(unset)), file=sys.stderr)
+	print("SASPilot: %d recommended settings checked, %d not set (values from the working tree; committed values may differ, as players get the shipped ones):" % (len(rows), len(unset)), file=sys.stderr)
 	for row in rows:
 		print("  %-4s %s %s = %s (recommended %s)" % (row["ok"] and "ok" or "WARN", row["file"], row["name"], row["current"], row["recommended"]), file=sys.stderr)
 	if unset:
@@ -721,7 +722,7 @@ def start(args):
 	log_game_marker(pid, args.save and "load" or "new", args.save and str(resolve_save(args.save)) or None, state)
 	# <!-- custom: --watch opens the command console laid out beside the new Civ4 at once, rather than a second command after it (the user, 2026-11-14); see SASPilotConsole.py --window. (Claude code Opus 5.5) -->
 	# <!-- custom: On by default since the user asked that SASPilot start with its console (2026-11-14).
-	# --no-watch was removed the same day: Codex started a scouting trial with it, so the user, watching, saw one console for two clients and could not follow that one. Every client now has its console, as the user asked; SAS_PILOT_WATCH=0 stays for automated tests that must not open windows. (Claude code Opus 5.5) -->
+	# --no-watch was removed the same day: Codex started a scouting trial with it, so the user, watching, saw one console for two clients and could not follow that one. Every client now has its console, as the user asked; SAS_PILOT_CONSOLE_ON in SASSessionTunables.py replaced the SAS_PILOT_WATCH=0 environment variable on 2026-11-27 (see ensure_watcher). (Claude code Opus 5.5) -->
 	state["watch"] = ensure_watcher(pid, args.watch_slots, args.watch_slot)
 	# <!-- custom: A second client's console opened full height in band 1 of 1 over the first one's (2026-11-15), so with --multiple and no --watch-slots every running client is laid out again, one band each. (Claude code Opus 5.5) -->
 	if args.multiple and args.watch_slots == 1 and state["watch"]:
@@ -733,8 +734,30 @@ def open_watcher(pid, slots=1, slot=1):
 	import subprocess
 	# <!-- custom: The launcher's status line went to stdout ahead of the reply's JSON on the first test, which would break an agent parsing the reply; said on stderr instead. (Claude code Opus 5.5) -->
 	process = subprocess.Popen([sys.executable, str(Path(__file__).resolve().parent / "SASPilotConsole.py"), "--window", "--pid", str(pid), "--slots", str(slots), "--slot", str(slot)], stdout=subprocess.DEVNULL)
-	print("pilot: opened SASPilotConsole for client %d (launcher process %d); SAS_PILOT_WATCH=0 turns this off" % (pid, process.pid), file=sys.stderr)
+	print("SASPilot: opened SASPilotConsole for client %d (launcher process %d)" % (pid, process.pid), file=sys.stderr)
 	return True
+
+
+def _import_toggle():
+	# <!-- custom: toggle_dev_diagnostics.py from LLM_Helpers/diagnostics, its folder put on sys.path once: console_on runs on every command, and a fresh insert each time left 21 entries after 20 calls (Codex's review, 2026-11-27). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	folder = str(Path(__file__).resolve().parents[1] / "LLM_Helpers" / "diagnostics")
+	if folder not in sys.path:
+		sys.path.insert(0, folder)
+	import toggle_dev_diagnostics
+	return toggle_dev_diagnostics
+
+
+def console_on():
+	# <!-- custom: SAS_PILOT_CONSOLE_ON through toggle_dev_diagnostics.py's own parser of SASSessionTunables.py, reading that file alone.
+	# The first version read the XML too, so an unreadable GlobalDefines_advciv_sas.xml stopped even 'ping' before it was sent (Codex's review, 2026-11-27).
+	# An unreadable or malformed line is reported on stderr and the console opens, as the console is what lets the user see the command at all. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	try:
+		toggle = _import_toggle()
+		text = (Path(__file__).resolve().parents[1] / toggle.TUNABLES_RELATIVE).read_bytes().decode("utf-8")
+		return toggle.tunable_assignment(text, "SAS_PILOT_CONSOLE_ON")[0] == 1
+	except (OSError, UnicodeDecodeError, SyntaxError, ValueError, SystemExit) as error:
+		print("SASPilot: SAS_PILOT_CONSOLE_ON could not be read (%s); the console opens" % (error,), file=sys.stderr)
+		return True
 
 
 def ensure_watcher(pid, slots=None, slot=None):
@@ -742,9 +765,12 @@ def ensure_watcher(pid, slots=None, slot=None):
 	# The console writes its PID and creation time to <log>.watch; a missing file, a process that ended or a reused PID means it is gone.
 	# One file read and one OpenProcess per command, far below a request's time.
 	# Only for a client with a log, as a console waits on one. (Claude code Opus 5.5) -->
-	# <!-- custom: Said on every command: on 2026-11-20 an agent set SAS_PILOT_WATCH=0 by hand for an interactive test, and the user, watching, found no console. (Claude code Opus 5.5) -->
-	if os.environ.get("SAS_PILOT_WATCH") == "0":
-		print("pilot: SASPilotConsole is off (SAS_PILOT_WATCH=0), meant only for automated tests; unset it when the user may watch", file=sys.stderr)
+	# <!-- custom: The switch is SAS_PILOT_CONSOLE_ON in Assets/Python/SASSessionTunables.py, beside the other settings define_values.py checks, no longer the SAS_PILOT_WATCH=0 environment variable.
+	# That variable, meant for automated tests, was set by hand in interactive tests on 2026-11-20 by an agent and on 2026-11-27 by Codex, eleven times past the warning printed on each command, and the user, watching, found no console.
+	# A 0 in the file shows in git status and fails hands_free_defaults.py in a commit; test_saspilot_watch_default.py fails if an environment switch comes back.
+	# Read on every command, as the reopening is, so an edit applies at once; the line below is said each time it is off. (Claude code Opus 5.5) -->
+	if not console_on():
+		print("SASPilot: SASPilotConsole is off (SAS_PILOT_CONSOLE_ON=0 in Assets/Python/SASSessionTunables.py); set 1 when the user may watch", file=sys.stderr)
 		return False
 	try:
 		path = log_path(pid)
@@ -930,6 +956,18 @@ def ask_price(pid, price_args, timeout):
 	if accept not in (True, False, 1, 0):
 		raise PilotError("accept takes true/1 or false/0, not %r" % (accept,))
 	bAccept = bool(accept)
+	# <!-- custom: An item the AI refuses (a denial in 'trade', such as Frederick's Corn with DENIAL_NO_GAIN at turn 303 of the ASOKA Huge save, 2026-11-22) is cleared from the table by the game once the screen shows, so the reply below met a changed screen and failed, leaving the screen open.
+	# The refusal is the answer a player gets, so it is returned without opening the screen. (Claude code Opus 5.5) -->
+	if price_args.get("take"):
+		table = _bridge(pid, "trade", {"with": price_args.get("with")}, timeout)
+		refused = []
+		for item in price_args["take"]:
+			(kind, _, what) = str(item).partition(":")
+			for row in table.get("they", []):
+				if row.get("item") == kind and (not what or what in (str(row.get("what")), str(row.get("data")))) and row.get("denial"):
+					refused.append({"item": item, "denial": row["denial"]})
+		if refused:
+			return {"priced": False, "refused": refused, "screenOpened": False}
 	_bridge(pid, "contact", price_args, timeout)
 	deadline = time.monotonic() + 15.0
 	screen = {}
@@ -950,8 +988,17 @@ def ask_price(pid, price_args, timeout):
 	# <!-- custom: With items on both sides, the screen offers "Can you complete this deal?"
 	# (COMPLETE_DEAL) and Propose instead: Navigation against Meditation and Drama with Kublai at turn 133 came back unpriced.
 	# COMPLETE_DEAL is the counter-offer the window gives for such a table. (Claude code Opus 5.5) -->
-	asked = _reply_with(pid, screen, ["USER_DIPLOCOMMENT_OFFER", "USER_DIPLOCOMMENT_FISH_FOR_DEAL", "USER_DIPLOCOMMENT_COMPLETE_DEAL"], timeout, bound)
-	if asked is None:
+	# <!-- custom: A failed ask raised past the cleanup below and left the trade screen open, which blocked the next 'price' (Frederick's Corn, 2026-11-22); it is reported in the result and the cleanup still runs.
+	# Only the ask is caught, so an error after an acceptance still keeps acceptSent. (Claude code Opus 5.5) -->
+	askStopped = None
+	try:
+		asked = _reply_with(pid, screen, ["USER_DIPLOCOMMENT_OFFER", "USER_DIPLOCOMMENT_FISH_FOR_DEAL", "USER_DIPLOCOMMENT_COMPLETE_DEAL"], timeout, bound)
+	except PilotError as error:
+		asked = None
+		askStopped = str(error)
+	if askStopped is not None:
+		result = {"priced": False, "askStopped": askStopped}
+	elif asked is None:
 		result = {"priced": False, "aiComment": screen.get("aiComment"), "replies": [choice["comment"] for choice in screen.get("replies", [])]}
 	else:
 		result = {"priced": asked.get("aiComment") == "AI_DIPLOCOMMENT_TRY_THIS_DEAL", "aiComment": asked.get("aiComment"), "theyGive": asked.get("theyOffer"), "weGive": asked.get("weOffer")}
@@ -1045,8 +1092,16 @@ def print_digest(digest, brief, compact=True):
 		print(json.dumps(digest, ensure_ascii=False, indent=None if compact else 1))
 		return
 	turn = digest["gameTurn"]
+	# <!-- custom: Combat detail lines (odds, each modifier, each hit) are left out of the brief view: six fights at turn 304 of the ASOKA Huge save (2026-11-22) printed about 80 of them, while the INFO line after each fight already gives its result.
+	# The full digest keeps them, with their count here. (Claude code Opus 5.5) -->
+	iCombatLines = 0
 	for message in digest["messages"]:
+		if message["messageType"] == "MESSAGE_TYPE_COMBAT_MESSAGE":
+			iCombatLines += 1
+			continue
 		print("T%d %s: %s" % (turn, message["messageType"].replace("MESSAGE_TYPE_", ""), message["text"]))
+	if iCombatLines:
+		print("T%d combat: %d detail line(s) left out; 'messages' lists them" % (turn, iCombatLines))
 	for notice in digest.get("notices", []):
 		print("T%d NOTICE: %s" % (turn, notice))
 	todo = digest["todo"]
@@ -1098,7 +1153,7 @@ def main():
 	parser.add_argument("--fog", action="store_true", help="start: switch fog on once the game runs, so replies show only what the player knows, as for a playthrough; a new client starts with fog off")
 	parser.add_argument("--role", choices=("play", "assist", "all"), help="start: the session's role, locked until Civ4 closes; play allows only what a player sees and does, facts only (fog on; py, the WorldBuilder, fog=0, other teams' player= and 'advise' refused); assist adds advice; default all")
 	# <!-- custom: --no-watch was removed on 2026-11-14 so every client has its console (see start()); an old command line with it now fails loudly rather than hiding the console. (Claude code Opus 5.5) -->
-	parser.add_argument("--watch", action="store_true", help="start: SASPilotConsole always opens (SASPilotConsole.py --window) beside the new Civ4, Civ4 at its own size top-left and the console filling the rest, and any later command reopens it if it was closed; kept so older command lines still run. SAS_PILOT_WATCH=0 is only for automated tests that must not open windows")
+	parser.add_argument("--watch", action="store_true", help="start: SASPilotConsole always opens (SASPilotConsole.py --window) beside the new Civ4, Civ4 at its own size top-left and the console filling the rest, and any later command reopens it if it was closed; kept so older command lines still run. SAS_PILOT_CONSOLE_ON in Assets/Python/SASSessionTunables.py switches it")
 	parser.add_argument("--watch-slots", type=int, default=1, help="start --watch: bands to split the monitor into, one per client (2 for two clients)")
 	parser.add_argument("--watch-slot", type=int, default=1, help="start --watch: this client's band, from the top")
 	parser.add_argument("--multiple", action="store_true", help="start: allow other Civ4 clients and pass Civ4's 'multiple' argument")
@@ -1267,7 +1322,7 @@ def main():
 					if result is None:
 						return 0
 	except PilotError as error:
-		print("pilot: %s" % error, file=sys.stderr)
+		print("SASPilot: %s" % error, file=sys.stderr)
 		remind(args, True)
 		return 1
 	remind(args, False)

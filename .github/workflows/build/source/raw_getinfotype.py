@@ -54,6 +54,7 @@ ALLOWED_RELATIVE_PATH_REASONS = {
 # Function-scope exceptions. These helpers are allowed to call the raw API/wrapper internally;
 # the rest of the file is still checked normally.
 ALLOWED_FUNCTION_REASONS = {
+	(Path("SASPilot/game/SASPilotCommands.py"), "_findOptionalInfoType", RAW_GETINFOTYPE_NAME): "optional XML tags and command arguments with their own missing-tag handling",
 	(Path("Assets/Python/SASUtils.py"), "getInfoTypeOrFail", RAW_GETINFOTYPE_NAME): "strict helper implementation",
 	(Path("Assets/Python/CvUtil.py"), "findInfoTypeNum", RAW_GETINFOTYPE_NAME): "legacy wrapper implementation",
 	(Path("Assets/Python/SASUtils.py"), "findInfoTypeNumOrFail", RAW_FINDINFOTYPE_NAME): "strict helper implementation",

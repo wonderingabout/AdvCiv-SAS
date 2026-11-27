@@ -103,7 +103,12 @@ python SASPilotClient.py close
 - `start --save <file>` loads a save instead of a new game: a full path, a bare name from `Saves/single`, or a path under `Saves` such as `single/auto/<name>`, the extension optional; `start --multiple` runs beside other clients, as in the [Game Runs Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#two-clients-at-once).
 - The run above is the sequence tested on 2026-11-13: the Settler founded Carthage, the queue and research were set, the warrior walked to its target over two turns, and 22 turns were ended in a row.
 
-`start` lays out SASPilotConsole beside the game as soon as it is ready, and any later command reopens it if it was closed; every client has one (`SAS_PILOT_WATCH=0` only for automated tests that must not open windows). When the user watches you play, keep the camera on your orders too (see [SASPilotConsole](#saspilotconsole)):
+`start` lays out SASPilotConsole beside the game as soon as it is ready, and any later command reopens it if it was closed; every client has one while `SAS_PILOT_CONSOLE_ON` in [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) is 1, as it ships.
+
+- It replaced the `SAS_PILOT_WATCH=0` environment variable on 2026-11-27: meant for automated tests, it was set by hand in interactive tests twice, the last time by Codex eleven times past its warning, so the user found no console.
+  - A 0 in the file shows in `git status` and fails [`hands_free_defaults.py`](/.github/workflows/README.md#buildruntimehands_free_defaultspy) in a commit, while an environment variable showed nowhere.
+
+When the user watches you play, keep the camera on your orders too (see [SASPilotConsole](#saspilotconsole)):
 
 ```bash
 python SASPilotClient.py start --save <save> --fog
@@ -122,6 +127,7 @@ python SASPilotClient.py look follow=1
 - Each client has a mailbox folder, `SASPilot/<process ID>` beside `CivilizationIV.ini` in `Documents/My Games/beyond the sword`, so several clients can be piloted at once; see [KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081) for why our files are named by process.
 - [`SASPilotClient.py`](/SASPilot/SASPilotClient.py) writes a request as `req_<id>.json`, whole and then renamed into place. On its next frame the game claims it by renaming it `run_<id>.json`, runs it and writes `rep_<id>.json` the same way: `{"id", "ok", "result" or "error" and "traceback", "gameTurn", "gameMs", "tick"}`, where `tick` names the event that served it.
   - On a timeout the client deletes its `req_` if it is still there, so the command never runs; a `run_` means the game took it, so the error says to check the game's state before retrying.
+  - The game reads a request before claiming it (2026-11-27). The first claim renamed and then read, so a read failing for a moment left the request under `run_`, which the game never looks at again, and the client waited out its timeout; Codex (GPT-6.2-Sol) met it in the late-game Sevopedia sweep on the Hammurabi T403 save and swapped the order, with a test that locks the request for one tick.
 - The commands themselves are in [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py), which the loader reads from disk; it is Python 2.4, run inside Civ4.
 - Commands see everything, without fog of war, and orders are applied directly to the game objects, as a human's are in single player. Network games are untested.
 - Python 2.4 has no `json` module, so the command file carries its own small writer and reader.
@@ -169,7 +175,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `todo` | what waits for orders: cities with an empty queue, missing research, units ready to move with no mission and not automated, and held popups that ask for a choice; also an open diplomacy screen, and a city screen left open over the map (`cityScreen`), as a spy's Investigate City leaves one, and any advisor or other screen left open (`openScreens`) |
 | `closescreens` | close the screens left open in the window, all or one `name=` as `todo`'s `openScreens` names it, as Esc or their Exit button does: SASPilot could open an advisor with `control` or `screen` but not close it, and the user saw a Foreign Advisor left open by a test (2026-11-14) |
 | `turn` | what a person sees as a turn starts: turn, year, `todo` and the messages since the previous turn |
-| `player`, `players` | gold, rates, research, civics, religion, counts, wars; one player or all. Under fog, `players` gives other teams' players only once met, with their ID, name, civilization, team and whether alive, as the scoreboard does: it gave every civilization in full, unmet ones included (Codex's review, round 32) |
+| `player`, `players` | gold, rates, research, civics, religion, counts, wars; one player or all. Under fog, `players` gives other teams' players only once met, with their ID, name, civilization, team and whether alive, as the scoreboard does: it gave every civilization in full, unmet ones included (Codex's review, round 32). A living met rival also comes with its civics, as the Foreign Diplomacy Advisor's Info tab shows them (2026-11-22, [KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)'s tab audit) |
 | `units`, `unit` | a player's units briefly, each with its state (activity, automation, head mission and its target plot, fortify turns, promotion ready; ours only under fog), or every living player's with `player=all`; one unit in full, with the missions, builds, commands, promotions and upgrades it can take now |
 | `hover` | the hover text a player reads for units, as plain text: each of ours in one line as the plot hover lists them, or one unit's full hover with `unit=`; another player's unit only while in sight under fog |
 | `cities`, `city` | a player's cities briefly; one city in full, with what it can train, construct, create, maintain or hurry now, and as the city screen shows them its trade routes (each partner and the commerce it brings), defense and bombard damage, and Great People progress. The user asked at turn 141 of the turn-0 game whether SASPilot had the city screen's details: London then traded with York for 1 commerce and, after Currency, with Pericles's Sparta for 3, as foreign routes need foreign cities we have seen |
@@ -232,7 +238,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `scores` | the SAS Info screen's Score tab: per player met and ourselves, score and its change since last turn, techs known, land share in per mille, power and power per city where the demographics are visible, cities seen, state religion and holy city, vassal status, will to talk, and research where espionage shows it. The user pointed to the tab at turn 150 of the turn-0 game: it showed at once that we knew 27 techs against 29 to 37 for every rival. Also every other column of the tab: traits, land to the hundredth of a percent, masters and vassals, and per rival the power ratio, attitude and its value, worst enemy, war, peace treaty, trade network, open borders, defensive pact, golden age or anarchy and our espionage weight; checked column by column against the tab at turn 200 of a Large autoplay (2026-11-15). `sort=<field>` or `sort=-<field>` sorts as a column header does |
 | `wartargets` | war targets and threats side by side: per player met, power, frontier, nearest city, war, their attitude toward us, and the diplomatic cost of a war on them (who would be angered or pleased, who would join if asked, pacts and masters). `threat` flags a rival at least as strong as us that dislikes us, however far |
 | `rivalcities` | seen rival cities near ours: population against ours, capital, coast, defense bonus, defenders when the plot is in view, bonuses we lack, and a food and production estimate from the tiles seen |
-| `world` | what every player can know, met or not: world wonders with their year, projects, national wonders seen, the Top 5 Cities, rivals alive and met, religions with date and influence, corporations, and vote sources with builder, religion and total votes; owners named only where the game's screens name them. See [What a player knows about rivals not met](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#what-a-player-knows-about-rivals-not-met) |
+| `world` | what every player can know, met or not: world wonders with their year, projects, national wonders seen, the Top 5 Cities, rivals alive and met, religions with date and influence, corporations, and vote sources with builder, religion and total votes, each member's votes and status, and each resolution with the votes required and possible and whether it passed, as the Victory screen's Members and Resolutions tabs show them; owners named only where the game's screens name them. See [What a player knows about rivals not met](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#what-a-player-knows-about-rivals-not-met) |
 | `settings` | the Victory screen's Settings tab: the game being played (difficulty, map script, size and real grid, climate, sea level, map options, speed, era, options, disabled victories), our leader and civilization with traits and unique units and buildings, and the rivals the tab lists: those met, those not met whose pick at setup was not random (leader, civilization or both, with the possible leaders or civilizations for the random half), and how many were fully random; every leader named with its AI personality as the Sevopedia ranks it. See [What a player knows about rivals not met](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#what-a-player-knows-about-rivals-not-met) |
 | `shore` | a plot's relation to water for choosing a city site: coastal (can build ships), fresh water, river, lake, adjacent water and ocean plots, and for a Farm whether the plot is irrigated or can take irrigation now; revealed plots only |
 | `seareach` | where a ship can still explore: per direction (north, south, east, west of it), the unknown coast its pathfinder reaches and in how many turns, marked when it lies in a met rival's waters, and the nearest reachable unknown coast as `recommend` (crossing a rival's waters toward the unknown is fine, touring its known shore is not); a failed path means no route through revealed plots, not ocean, as unrevealed water may connect |
@@ -242,6 +248,7 @@ The user asked on 2026-11-13 whether the bridge would be faster or more reliable
 | `geography` | the map as our team has seen it, with takeaways: land, water and ocean seen, each landmass with its owners, cities, unowned land and whether fully explored, landmass count with mean and median size of explored ones, the bonus mix on seen plots, met rivals sharing our landmass and open borders; the map settings and the AI's land- or naval-heavy reading; the script's World Picker preview. See [Map composition and contact](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md#map-composition-and-contact); `settings` quotes the map script's own description and every one of its options with this game's value (`mapOptionsAll`), defaults included, such as SAS_Large_Facing_Islands' east-west coast lanes |
 | `timeline` | the Info screen's Timeline tab as entries, newest first, through the tab's own filter: met players' era changes, first discoveries, Great People and cities founded where seen, plus public announcements (religions, corporations, world wonders) in faraway form; each with turn, date, text, kind, its player once met and `public`. `since=`, `find=`, `public=1`, `limit=` |
 | `demographics` | the Info screen's Demographics tab: soldiers, land, population, economy, industry and agriculture, with our value and rank, and the rivals' best, worst and average, under fog by the tab's own rules (rank among met players, best and worst among those whose demographics we see, average above 3 rivals, rounded) |
+| `battles` | the Military Advisor's Battles tab: our battles, newest first, with the turn, our outcome (won, lost, retreated, theirRetreat), winner and loser or attacker and defender with their unit types, the plot with terrain, feature, hill or peak and city context, strengths times 100 at the start, maximum and end, a unit captured after it, and each side's experience and Great General; `since=`, `limit=`. Added after the 2026-11-22 tab audit found no command for the tab ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)) |
 | `finance`, `domestic`, `military` | the Finance tab's numbers; the Domestic Advisor's per-city overview, with `coastal` per city and a `summary` (cities, coastal, unhealthy or at the health cap, unhappy or at the happy cap, starving), as the user asked at turn 156 of the turn-0 game how many coastal cities we have and which cities need health, and from the advisor's other overview pages each city's defense %, garrison, revolt chance in per mille (Orleans's 9.2% at turn 139 had been learned only from a turn message), food stored against the growth threshold, war weariness and the turn founded; at turn 157 they showed 16 units idle in Orleans and one in London; the Military Advisor's units by domain and place, wounded, upgradeable now with the cheapest cost, Great General progress and walls |
 | `targets` | the plots a unit could pick for an interface mode from `unit`'s `targetModes` (recon, air bomb, air strike, rebase, paradrop, airlift, ranged attack, nuke), as the window highlights them, with the mission to send; under fog, revealed plots only. Without `mode=`, the unit's modes. A Jet Fighter's recon flew this way on turn 285 (2026-11-14) |
 | `settle` | give every idle group Fortify, else Sleep, else Skip, once per group, as a player does before ending the turn |
@@ -334,7 +341,7 @@ Each site's `priority` is the first that applies:
 | `scoutBeforeFounding` | no city yet and units with moves left besides the Settler | scouting trial, 2026-11-14 |
 | `exposed` | a unit within two plots of a visible animal or barbarian | a Scout died beside a Bear |
 | `huts` | every goody hut seen, with our nearest unit | scouting trial, 2026-11-14 |
-| `idleGarrison` | military units waiting in a city, with the nearest foreign unit; a city's only defender with a rival city within 8 plots stays | usually they should explore early; at turn 59 it sent Cork's only Archer out with Pasargadae 7 plots away |
+| `idleGarrison` | military units waiting in a city, one entry per city with their types, counts and IDs and the nearest foreign unit (per unit until 2026-11-22, when 71 of a turn-302 game's 132 reminders were these); a city's only defender with a rival city within 8 plots stays | usually they should explore early; at turn 59 it sent Cork's only Archer out with Pasargadae 7 plots away |
 | `sharedBonuses` | a food bonus two cities share, with the `work` click that moves it to the hungrier one | Continents game, 2026-11-14 |
 | `staleMarks` | a site mark one of our cities stands on or near, with the `mark ... clear=1` that removes it; a mark on our own city is kept, and a site mark left on a new city is flagged for a city mark | the user marks our cities to see a site's overlap |
 | `rivalMoods` | a met rival whose attitude, tradeable techs and resources, or the resources we could offer changed since the last call | the user: check trades every turn |
@@ -485,7 +492,7 @@ python SASPilot/SASPilotConsole.py
 - A watcher started with `--pid` ends once that Civ4 process has closed, compared by its start time, as Windows reuses process IDs: on 2026-11-14 two watcher consoles were open, one still following a client closed half an hour before, as nothing told it, so each relaunch with `--watch` added a console.
 - Test an operator change with `SAS_PILOT_LOG=0` or on a client of its own: the turn-0 game's log numbers its two real agents 4 and 6, as the previous session's tests of the feature registered `test-sec`, `explicit` and `rejoin-t` as operators 2, 3 and 5 (operator 1's row went with a `.seq` reset that a later fix stopped), and the user asked why there was an operator 6 (2026-11-14).
 - The console opens with `start` and reopens on any later command if it has closed: later the same day it had ended with the agent's session while Civ4 ran on, and the user could not find it.
-  - The console writes its PID, start time and band to `<log>.watch`; `SASPilotClient.py` checks it before each command, one file read and one process check, and opens a new console in the same band if that process is gone. `SAS_PILOT_WATCH=0` turns this off, for automated tests that must not open windows.
+  - The console writes its PID, start time and band to `<log>.watch`; `SASPilotClient.py` checks it before each command, one file read and one process check, and opens a new console in the same band if that process is gone, unless `SAS_PILOT_CONSOLE_ON` is 0 (see [Quick start](#quick-start)).
   - `start --no-watch` was removed the same day: Codex started a scouting trial with it, and the user, watching, saw one console for two running clients and could not follow the trial. Every client now has its console, as the user asked; a `.watch` file still saying `declined` opens one on the next command.
   - The check and the launch run under a lock on `<log>.watchlock`, one caller at a time: Codex reproduced two simultaneous commands that both found no console and both opened one (round 33), then, with an exclusive claim file instead, two that both took over a stale claim (round 34). With the lock, four commands sent at once opened one console.
 - `SASPilotClient.py review` lists, for the operator's session, its errors and its `py` snippets grouped by code, most repeated first; after every `py` order and every error, `SASPilotClient.py` prints a one-line reminder on stderr, so the agent sees it with the reply without the user pointing it out (the user's idea, 2026-11-14).
@@ -514,11 +521,11 @@ python SASPilotClient.py py "game.getGameTurn()"
 ```
 
 ```bash
-python SASPilotClient.py py "print player.getName(); result = [c.getName() for c in pilot._cities(player)]"
+python SASPilotClient.py py "print player.getName(); result = [c.getName() for c in saspilot._cities(player)]"
 ```
 
 - One expression returns its value; otherwise set `result`. What the code prints is shown first.
-- The namespace persists between calls and holds `gc`, `game`, `map`, `interface`, `player` (the active one), `describe()`, `pilot` (the command module) and everything from `CvPythonExtensions`.
+- The namespace persists between calls and holds `gc`, `game`, `map`, `interface`, `player` (the active one), `describe()`, `saspilot` (the command module) and everything from `CvPythonExtensions`.
 - `py -` reads the code from standard input and `py @file.py` from a file, for anything longer than a line.
 - `describe(obj)` calls every zero-argument `get`/`is`/`can`/`has`/`count` method of an object, which is how `info` works; use it to see what a `CyCity` or `CyPlayer` can tell.
 - The [Sevopedia debug dumps](/_1_AdvCiv-SAS/Docs/Sevopedia/Debug/) and the [BUG API text](/_0_Legacy/Docs/Civ4BUG_Python_API/all_classes_web.txt) say which methods exist; with SASPilot a doubt is now settled by calling the method in a running game.
@@ -531,12 +538,12 @@ python SASPilotClient.py py "print player.getName(); result = [c.getName() for c
 ### Using it from a script
 
 ```python
-import pilot
-pid = pilot.pick_pid(None)
-for unit in pilot.call(pid, "units"):
+import SASPilotClient as saspilot
+pid = saspilot.pick_pid(None)
+for unit in saspilot.call(pid, "units"):
 	print(unit["type"], unit["x"], unit["y"])
-pilot.call(pid, "endturn")
-pilot.wait_for_turn(pid, 600, after_turn=0)
+saspilot.call(pid, "endturn")
+saspilot.wait_for_turn(pid, 600, after_turn=0)
 ```
 
 - `call` returns the result or raises `PilotError` with the game's traceback; `request` returns the whole reply.
@@ -618,9 +625,9 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | Command | What it does |
 | --- | --- |
 | `uiscreens` | The screens it knows, with `open` and the number of recorded widgets; the short names `uiopen` takes. |
-| `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. |
+| `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. `tab=` switches to a footer tab by its registry key or label in the same call, such as `uiopen name=victory tab=members`, which took `uiopen`, `uitabs` and `uipress` before (2026-11-22). |
 | `uisplash name=era item=ERA_RENAISSANCE` | Shows a screen the game shows on an event, without the event: era, dawnofman, wonder, religion, project and techsplash, the item by its XML type. It bypasses the SAS splash switches, respects the player's own options, and returns the close button for `uipress` when the preview draws. Movie previews leave the map camera in place. The create role, as it shows what the player has not reached. |
-| `uitabs` | The open advisor's footer tabs: widget name, label and the active one, as the screen last drew them. |
+| `uitabs` | The open advisor's footer tabs: widget name, label and the active one, as the screen last drew them. `all=1` reads the shared advisor tab registry without opening screens. It gives each tab's key, label, API command and whether the current game and advisor options show it ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)). |
 | `uiscroll dir=down` | Scrolls a list with its arrow buttons: up, down, pageup, pagedown, top, bottom, such as the Foreign Advisor's Bonuses grid; an arrow at its end is hidden, so it is refused. Without `dir`, the arrows shown. |
 | `uiwidgets [match=Tab]` | The open screen's widgets in creation order: name, text, widget type and data. Hidden ones only with `hidden=1`. |
 | `uipress widget=MilitaryAdvisorTabButton2` | Clicks a widget; `text=Augustus` names it by what it shows instead; `choice=` picks a drop-down's entry; `row=` and `column=` click a table cell, `right=1` clicks with the right button. |
@@ -917,7 +924,9 @@ Where the window can change between two commands, a stale record must not turn a
 - A screen hidden by hand: while testing, an agent's own loop hid every screen but number 0, assuming that was the main interface, which is 99.
   - The HUD stayed drawn but reported inactive, and main interface presses were refused until the game was loaded again.
   - `closescreens` closes only the screens a player can close; `uistate` reports `mainInterfaceActive`, which the sweep checks after each screen closes.
-- A save loaded while screens are recorded was not tested.
+- A save loaded while a screen is recorded: on 2026-11-22 the Domestic Advisor was open when `save` and then `menu path=` reloaded the JOAO turn-120 game in the same process (`loads` 2).
+  - After the load, `uistate` showed no open screens and an active main interface, so the old record was not reused; `uiopen name=domestic` recorded the same 41 widgets again, with no Python errors.
+  - The locked `play` role held (`fog=0` was still refused), and a Worker kept its six queued road and mine missions.
 
 ### What stays the EXE's, and what covers it
 

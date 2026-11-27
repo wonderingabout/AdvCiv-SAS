@@ -40313,3 +40313,13 @@ Found and fixed by Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the change
 - The November 22 candidate was tested in game at turn 307 of the ASOKA Huge save: every label matched the previous drawing, the sweep found 0 problems over 12 screens, and the audit opened all 35 tabs shown (the Rise and Fall tab is hidden there).
 
 Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who reviewed it, 2026-11-22.
+
+- Rechecked on 2026-11-27 with a Debug-opt DLL in the play role with fog. The audit opened all 35 visible tabs in both Asoka's turn-307 Huge save at 1920 x 1080 and Hammurabi's SAS24 save at turn 403 at 2560 x 1440.
+  - On the Asoka save, the 14-screen sweep found no problems and the APIs matched the 143 Battles, 14 UN Members and 13 UN Resolutions rows.
+  - On the Hammurabi save, reading list boxes through `uiitems` found entries in 18 of the 21 Treaties lists. The audit had read them as tables and called them all empty.
+  - The Rise and Fall tab was hidden in both saves. Eight visible tabs still lack a dedicated command, including parts of World and the Info screen's Statistics.
+  - The first exhaustive Sevopedia sweep reached 721 pages before a claimed mailbox request timed out. Civ4 still answered later requests and logged no Python error.
+    - A test reproduced one way to leave that claim behind: a read error after renaming it into the running queue. The poll now reads first, then claims before dispatch, so a transient read can be retried without dispatching a withdrawn request.
+    - The rerun opened all 943 linked pages across 36 categories, with no sweep problems or Python errors.
+
+Rechecked, and the mailbox fixed, by Codex (GPT-6.2-Sol), 2026-11-27.

@@ -9,8 +9,8 @@ import json
 import sys
 import time
 
-# <!-- custom: SASPilotClient for the read requests; reads go into the command log as any SASPilotClient.py command does. (Claude code Opus 5.5) -->
-import SASPilotClient as pilot
+# <!-- custom: SASPilotClient for the read requests; reads go into the command log as any SASPilotClient.py command does; named saspilot since 2026-11-27, so the name says which tool it is. (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 from SASPilotClient import PilotError, pick_pid, request
 
 

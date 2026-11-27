@@ -3,9 +3,13 @@
 
 # <!-- custom: Exercise SASPilot command module with small Civ4 API substitutes.
 # The live DLL supplies these getters in game, but Linux CI can still verify the JSON relationships and the player-specific projections. (GPT-6.1-Sol) -->
+# <!-- custom: json encodes test replies without the game's Python 2 JSON shim. (GPT-6.2-Sol) -->
+import json
 from pathlib import Path
 import runpy
 import sys
+# <!-- custom: TemporaryDirectory gives the request test a fresh mailbox. (GPT-6.2-Sol) -->
+from tempfile import TemporaryDirectory
 from types import ModuleType, SimpleNamespace
 # <!-- custom: unittest runs the graph tests, patch stands in for the game's modules, such as CvPythonExtensions, and ElementTree reads the XML the graphs are checked against. (Claude code Opus 5.5) -->
 import unittest
@@ -30,11 +34,42 @@ class PilotGraphTests(unittest.TestCase):
         extension = ModuleType("CvPythonExtensions")
         extension.CyGlobalContext = lambda: None
         extension.AutomateTypes = object()
-        extension.TradeableItems = SimpleNamespace(TRADE_TECHNOLOGIES=1, TRADE_RESOURCES=2, TRADE_CIVIC=3, TRADE_RELIGION=4)
+        extension.TradeableItems = SimpleNamespace(TRADE_TECHNOLOGIES=1, TRADE_RESOURCES=2, TRADE_CIVIC=3, TRADE_RELIGION=4,
+                                                  TRADE_CITIES=5, TRADE_PEACE=6, TRADE_WAR=7, TRADE_EMBARGO=8)
         # <!-- custom: SASCurrentDefines too, imported since the commands read their defines through it (2026-11-27); these graph tests read none. (Claude code Opus 5.5) -->
-        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface"), "SASCurrentDefines": ModuleType("SASCurrentDefines")}):
+        # <!-- custom: The graph tests load the command module outside Civ4, with stand-ins for the advisor history and strict XML accessor. (GPT-6.2-Sol) -->
+        utils = ModuleType("SASUtils")
+        utils.getInfoTypeOrFail = lambda name: self.scope["gc"].getInfoTypeForString(name)
+        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface"),
+                                     "SASCurrentDefines": ModuleType("SASCurrentDefines"), "SASBattleHistory": ModuleType("SASBattleHistory"),
+                                     "SASUtils": utils}):
             commands = runpy.run_path(str(COMMANDS))
         self.scope = commands["cmd_graph"].__globals__
+
+    def test_poll_retries_a_request_that_cannot_be_read_yet(self):
+        with TemporaryDirectory() as directory:
+            request = Path(directory) / "req_test.json"
+            request.write_bytes(b"test")
+            reply = Path(directory) / "rep_test.json"
+            served = []
+            state = {"mailbox": directory, "helloWritten": True, "served": 0}
+
+            def serve(text):
+                served.append(text)
+                return {"ok": True}
+
+            self.scope.update({"_installErrorTee": lambda state: None, "_loadUI": lambda: None,
+                               "_serve": serve, "_writeAtomic": lambda path, text: Path(path).write_text(text),
+                               "time": SimpleNamespace(clock=lambda: 0), "toJson": json.dumps})
+            poll = self.scope["poll"]
+            with patch.dict(self.scope, {"open": unittest.mock.Mock(side_effect=OSError("temporarily locked"))}):
+                poll(state, None)
+                self.assertTrue(request.is_file())
+                self.assertEqual(served, [])
+            poll(state, None)
+            poll(state, None)
+            self.assertTrue(reply.is_file())
+            self.assertEqual(served, [b"test"])
 
     def test_tech_graph_preserves_all_and_any_prerequisites_from_xml(self):
         rows = infos("Technologies/CIV4TechInfos.xml", "TechInfo")

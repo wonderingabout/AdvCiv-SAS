@@ -8,8 +8,8 @@ import argparse
 import json
 import sys
 
-# <!-- custom: SASPilotClient, as pilot, for the grid request, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
-import SASPilotClient as pilot
+# <!-- custom: SASPilotClient, as saspilot, for the grid request, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 from SASPilotClient import PilotError, pick_pid, request
 
 FOOD = {"BONUS_CLAM", "BONUS_FISH", "BONUS_CRAB", "BONUS_BANANA", "BONUS_PIG", "BONUS_COW", "BONUS_SHEEP", "BONUS_WHEAT", "BONUS_RICE", "BONUS_CORN", "BONUS_DEER", "BONUS_CAMEL"}

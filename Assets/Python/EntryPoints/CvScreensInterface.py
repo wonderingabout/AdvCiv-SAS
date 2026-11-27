@@ -53,7 +53,7 @@ import SASTextScale
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import SASGameRecordActions
-# <!-- custom: SASPilot serves the agent pilot's mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
+# <!-- custom: SASPilot serves its agents' mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
 import SASPilot
 import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
 # <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, among them the informing screens' switches. (Claude code Opus 5.5) -->

@@ -27,7 +27,7 @@ SASPilot reads and drives a running Civ4 game for agents, as JSON rather than sc
 - Why `SASPilot<Role>.py`: the console window was already called SASPilotConsole, and the user wanted script and window to share one name, so the other scripts followed.
   - `SASPilotClient.py`, not `SASPilot.py`, for the old `pilot.py`: [`SASPilot.py`](/Assets/Python/SASPilot.py) is already the in-game bridge that answers it, and two files of one name would make every grep and link ambiguous. Client says what it is: the desktop side of that bridge. `Core` or `Main` were considered and said less.
   - A CamelCase name had been avoided at first, lest it read as another in-game file like `SASPilotCommands.py`; the folder now tells them apart, as Civ4 loads only the files in `game/`, and the desktop scripts start with a shebang and argparse.
-  - The helpers import the client as `import SASPilotClient as pilot`, so their code still reads `pilot.request(...)`.
+  - The helpers import the client as `import SASPilotClient as saspilot`, so their code reads `saspilot.request(...)`.
 
 ### `SASPilotClient.py` and `SASPilotCommands.py`
 
@@ -39,7 +39,7 @@ SASPilot reads and drives a running Civ4 game for agents, as JSON rather than sc
 - SASPilot is off unless `SAS_PILOT_ON` is 1 or the launch INI has `[SASPilot] On = 1`, which `SASPilotClient.py start` writes.
 - Commands, measurements, what failed first and the limits (popups, diplomacy, the main menu) are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Written on 2026-11-13 by Claude Code Fable 5.2, when the user asked for a way to pilot the active player from the command line rather than through screenshots and clicks.
-- `SASPilotReplay.py` replays a sequence from [`sequences/`](/SASPilot/sequences/), a list of pilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once.
+- `SASPilotReplay.py` replays a sequence from [`sequences/`](/SASPilot/sequences/), a list of SASPilot commands against a save, and lists each reply that differs from the last accepted run (`--accept`), so a DLL rebuild or a command edit that changes an answer shows up at once.
   - Added the same day by Claude Code Opus 5.5, after about ten DLL rebuilds checked by hand only; see [Replaying commands](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#replaying-commands).
   - `fogplay_t105_freetech.json` takes the Oracle's free tech at turn 105 of the 2026-11-13 fog-on playthrough; `fogplay_t115_core.json` reads most commands with fog on at turn 115, opens and leaves diplomacy, and ends a turn; `fogplay_t116_queued_build.json` queues a Work Boat's fishing boats behind its move and checks they are built; `fogplay_t148_trade_table.json` puts Navigation on Pacal's trade table and expects his 65-gold counter-offer, which an empty trade table had given away for free. Their saves are local, in `Saves/single`.
 - `SASPilotClient.py` appends every request to a per-client command log, `Logs/SASPilot_<processStartUtc>_<pid>.jsonl`, with the agent's `note=` reason; [`SASPilotConsole.py`](/SASPilot/SASPilotConsole.py) opens SASPilotConsole, showing orders by default and reads with `--all`.
@@ -74,6 +74,9 @@ SASPilot reads and drives a running Civ4 game for agents, as JSON rather than sc
   - Written in the islands replay (2026-11-15) after the same shell loop had been rewritten many times, and once ended six turns against an open diplomacy screen.
 - [`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) opens every advisor and the Sevopedia through SASPilotUI, presses only their tabs, scroll arrows, Exit and Sevopedia entries, and lists Python errors, tabs that do not switch and widgets lost between visits.
   - It stops at the first Python error; `--dry-run` presses no tab.
+  - Each advisor's drawn tabs must equal its entry in `CvScreenEnums.ADVISOR_TABS` (since 2026-11-22; a hand-counted minimum before, [KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)).
+- [`SASPilotTabAudit.py`](/SASPilot/SASPilotTabAudit.py) opens every advisor tab of `CvScreenEnums.ADVISOR_TABS` by its key and lists its tables (rows, columns and a sample row), list boxes (item count and a sample), and texts beside the command that gives the same facts, so a UI or command change can be audited again: a table read back empty while the screen shows content, or a tab with `NO COMMAND`.
+  - Written for the 2026-11-22 audit of advisor coverage; `--advisors` picks some, `--out` saves the full report as JSON.
   - See [Sweeping the screens](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#sweeping-the-screens-tested-on-a-late-game).
 - [`SASPilotSweep.py`](/SASPilot/SASPilotSweep.py) runs `unit` on every unit and `city` on every city of the running game and lists the failures, as a regression check after a DLL or command change; `--commands unit` limits it, and `--player` sweeps another player's under the all role.
   - It prints the player, fog mode and role first: with fog on, another player's units and cities are read only as far as our team sees them (Codex's review).

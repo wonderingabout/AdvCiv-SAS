@@ -57,7 +57,7 @@ def _pilotSection():
 
 
 def _resolveEnabled():
-	# <!-- custom: The XML switch is read first, as before the session ID came, so a malformed per-run INI cannot stop a pilot that SAS_PILOT_ON turns on (Codex's review); it then runs without a session. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: The XML switch is read first, as before the session ID came, so a malformed per-run INI cannot stop a SASPilot that SAS_PILOT_ON turns on (Codex's review); it then runs without a session. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if SASCurrentDefines.getInt("SAS_PILOT_ON") > 0:
 		try:
 			state["session"] = _pilotSection().get("session")
@@ -180,7 +180,7 @@ def isEnabled():
 
 
 def _safeTick(szEvent):
-	# <!-- custom: Codex's review found that a pilot error in the screen update would skip the screen's own update; a forced error (2026-11-13) was contained there but reached PythonErr.log from the game update, where it could also stop handlers registered after it.
+	# <!-- custom: Codex's review found that a SASPilot error in the screen update would skip the screen's own update; a forced error (2026-11-13) was contained there but reached PythonErr.log from the game update, where it could also stop handlers registered after it.
 	# So every hook keeps its error here, logged once and shown by 'ping' as tickError; saving the command file reloads it and recovers. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	try:
 		_tick(szEvent)
@@ -214,7 +214,7 @@ def onLoad(argsList):
 	# <!-- custom: Holding popups began with the first request, after the load had already launched the save's popups: starting from the turn-105 save, the Oracle's free-tech chooser came up in the window instead of being held, and once SASPilot chose through it, it stayed there, as the DLL cannot close a popup on display (2026-11-13).
 	# So hold from the load on.
 	# The XML defines are loaded by now, so the switch can be read here. (Claude code Opus 5.5) -->
-	# <!-- custom: Read here without setting _bEnabled or starting the mailbox, which stay with the first game update and _safeTick's guard: the first version started them here, where a bad pilot INI or a missing command file would have raised into the load handler with _bEnabled already set (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	# <!-- custom: Read here without setting _bEnabled or starting the mailbox, which stay with the first game update and _safeTick's guard: the first version started them here, where a bad SASPilot INI or a missing command file would have raised into the load handler with _bEnabled already set (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	try:
 		bOn = _bEnabled
 		if bOn is None:

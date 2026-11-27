@@ -12,8 +12,8 @@ import sys
 import tempfile
 import time
 
-# <!-- custom: SASPilotClient, as pilot, for the requests, logged with each move's reason as any SASPilotClient.py command is; SASPilotScout for the choices. (Claude code Opus 5.5) -->
-import SASPilotClient as pilot
+# <!-- custom: SASPilotClient, as saspilot, for the requests, logged with each move's reason as any SASPilotClient.py command is; SASPilotScout for the choices. (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 from SASPilotClient import PilotError, pick_pid, request
 import SASPilotScout
 
@@ -21,7 +21,7 @@ import SASPilotScout
 def ask(pid, command, args=None, note=None):
     # <!-- custom: The reason goes into the command log beside the order, as SASPilotClient.py's --note does, so the SASPilotConsole shows why each step was taken. (Claude code Opus 5.5) -->
     if note:
-        pilot._log_context["note"] = note
+        saspilot._log_context["note"] = note
     reply = request(pid, command, args or {})
     if not reply["ok"]:
         raise PilotError(reply["error"].strip().splitlines()[-1])
@@ -218,8 +218,8 @@ def main():
     parser.add_argument("--turns", type=int, default=5, help="turns to play at most")
     parser.add_argument("units", nargs="+", type=parse_spec, help="UNIT:X,Y:MIN,MAX[:ccw,nohut] per unit: its center, the band of distances from it, and flags (ccw loops the other way, so two units circle apart; nohut leaves huts to other units)")
     args = parser.parse_args()
-    pilot._log_context["operator"] = os.environ.get("SAS_PILOT_OPERATOR") or None
-    pilot._log_context["session"] = os.environ.get("SAS_PILOT_OPERATOR_SESSION") or os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or None
+    saspilot._log_context["operator"] = os.environ.get("SAS_PILOT_OPERATOR") or None
+    saspilot._log_context["session"] = os.environ.get("SAS_PILOT_OPERATOR_SESSION") or os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or None
     try:
         pid = pick_pid(args.pid)
         load_targets(pid)
@@ -239,7 +239,7 @@ def main():
                 print(json.dumps({"beforeEndTurn": waiting}))
                 return 0
             end = ask(pid, "endturn", {}, "SASPilotExplore: scouts moved, turn ended")
-            pilot.wait_for_turn(pid, 600.0, after_turn=end["gameTurn"])
+            saspilot.wait_for_turn(pid, 600.0, after_turn=end["gameTurn"])
             turn = ask(pid, "turn")
             flags = digest(turn, ids, known)
             print(json.dumps({"turnEnded": end.get("gameTurn"), "flags": flags}))

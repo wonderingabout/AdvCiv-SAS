@@ -2,11 +2,11 @@
 # AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Advanced Strategy)
 # (c) 2026 wonderingabout & AI/LLM helpers (see Authors in AdvCiv-SAS's root README.md)
 
-# <!-- custom: Replays a list of pilot commands against a save and compares the replies with the last accepted run, so a DLL rebuild or a SASPilotCommands.py edit that changes a command's answer shows up as a diff instead of in the middle of a playthrough.
+# <!-- custom: Replays a list of SASPilot commands against a save and compares the replies with the last accepted run, so a DLL rebuild or a SASPilotCommands.py edit that changes a command's answer shows up as a diff instead of in the middle of a playthrough.
 # By 2026-11-13 the command file had grown to 1,800 lines and the Debug-opt DLL had been rebuilt about ten times in one day, each round checked only by hand.
 # See "Replaying commands" in README_SASPilot.md. (Claude code Opus 5.5) -->
 
-# <!-- custom: argparse reads the options, json the sequence and baselines, sys the exit code, Path the files; pilot is the client whose start, request and close this reuses. (Claude code Opus 5.5) -->
+# <!-- custom: argparse reads the options, json the sequence and baselines, sys the exit code, Path the files; saspilot is the client whose start, request and close this reuses. (Claude code Opus 5.5) -->
 import argparse
 import json
 import re
@@ -14,12 +14,13 @@ import sys
 import time
 from pathlib import Path
 
-import SASPilotClient as pilot
+# <!-- custom: Named saspilot, not pilot, so the name says which tool it is, as everywhere SASPilot is meant (the user, 2026-11-27). (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 
 # <!-- custom: Keys whose values change from run to run without the command having changed: timings and the reply's size. (Claude code Opus 5.5) -->
 # <!-- custom: "conversation", 'diplo''s count of conversations since Civ4 started, depends on what the client did before the sequence loaded its save: 21 and 22 in a reused client against no field in the baselines (2026-11-13). (Claude code Opus 5.5) -->
 VOLATILE_KEYS = ("roundTripMs", "gameMs", "tick", "replyBytes", "iniFile", "conversation")
-LOGS_DIR = Path(pilot.MAILBOX_ROOT).parent / "Logs"
+LOGS_DIR = Path(saspilot.MAILBOX_ROOT).parent / "Logs"
 
 
 def load_sequence(path):
@@ -30,12 +31,12 @@ def load_sequence(path):
 	# "afterTurn" waits until the game is past that turn and waits for orders, as the client's 'endturn' does, e.g. "steps[21].result.gameTurn" after an 'endturn'. (Claude code Opus 5.5) -->
 	sequence = json.loads(Path(path).read_text(encoding="utf-8"))
 	if not sequence.get("steps"):
-		raise pilot.PilotError("%s has no steps" % path)
+		raise saspilot.PilotError("%s has no steps" % path)
 	return sequence
 
 
 def save_path(sequence):
-	return pilot.resolve_save(sequence["save"])
+	return saspilot.resolve_save(sequence["save"])
 
 
 def strip(value, ignore):
@@ -85,7 +86,7 @@ def lookup(results, path):
 	# <!-- custom: Reads "steps[8].result.screen" from this run's raw replies; a missing part raises, so a sequence that refers to a failed step stops there. (Claude code Opus 5.5) -->
 	match = re.match(r"steps\[(\d+)\]\.(.+)$", path)
 	if match is None:
-		raise pilot.PilotError("cannot read %r: expected steps[N].key..." % path)
+		raise saspilot.PilotError("cannot read %r: expected steps[N].key..." % path)
 	value = results[int(match.group(1))]
 	for part in re.findall(r"[^.\[\]]+|\[\d+\]", match.group(2)):
 		value = value[int(part[1:-1])] if part.startswith("[") else value[part]
@@ -99,11 +100,11 @@ def run_steps(pid, sequence, timeout):
 		if step.get("sleep"):
 			time.sleep(float(step["sleep"]))
 		if step.get("afterTurn"):
-			pilot.wait_for_turn(pid, 600.0, after_turn=lookup(raw, step["afterTurn"]))
+			saspilot.wait_for_turn(pid, 600.0, after_turn=lookup(raw, step["afterTurn"]))
 		command_args = dict(step.get("args") or {})
 		for (name, path) in (step.get("from") or {}).items():
 			command_args[name] = lookup(raw, path)
-		reply = pilot.request(pid, step["cmd"], command_args, timeout)
+		reply = saspilot.request(pid, step["cmd"], command_args, timeout)
 		raw.append(reply)
 		# <!-- custom: A failed command is recorded by its error line, not its traceback, whose line numbers move with every edit of the command file. (Claude code Opus 5.5) -->
 		entry = {"cmd": step["cmd"], "args": step.get("args") or {}, "ok": bool(reply.get("ok"))}
@@ -121,7 +122,7 @@ def run_steps(pid, sequence, timeout):
 
 
 def main():
-	parser = argparse.ArgumentParser(description="Replay pilot commands against a save and compare the replies with the accepted baseline. Example: SASPilotReplay.py sequences/fogplay_t115_core.json")
+	parser = argparse.ArgumentParser(description="Replay SASPilot commands against a save and compare the replies with the accepted baseline. Example: SASPilotReplay.py sequences/fogplay_t115_core.json")
 	parser.add_argument("sequence", help="the sequence JSON file")
 	parser.add_argument("--baseline", help="baseline file (default Logs/SASPilotReplay_<sequence>.json)")
 	parser.add_argument("--accept", action="store_true", help="write this run as the new baseline instead of comparing")
@@ -136,16 +137,16 @@ def main():
 	if args.pid is None:
 		# <!-- custom: The same start the CLI uses, so the client gets the per-run INI and the save's mod check. (Claude code Opus 5.5) -->
 		options = argparse.Namespace(save=str(save), timeout=600.0, multiple=False, map=None, world_size=None, speed=None, handicap=None, fixed_seeds=False)
-		pid = pilot.start(options)["pid"]
+		pid = saspilot.start(options)["pid"]
 		started = True
 	else:
 		pid = args.pid
-		pilot.load_game(pid, save)
+		saspilot.load_game(pid, save)
 	try:
 		results = run_steps(pid, sequence, args.timeout)
 	finally:
 		if started and not args.keep:
-			pilot.close(pid)
+			saspilot.close(pid)
 	run = {"sequence": str(args.sequence), "save": str(save), "steps": results}
 	# <!-- custom: A step marked expectError that succeeds fails the run too: it first only excused a failure, so a refusal that stopped working could be accepted into a baseline (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	failed = [i for (i, entry) in enumerate(results) if entry["ok"] == bool(sequence["steps"][i].get("expectError"))]
@@ -183,6 +184,6 @@ def main():
 if __name__ == "__main__":
 	try:
 		sys.exit(main())
-	except pilot.PilotError as error:
+	except saspilot.PilotError as error:
 		print("error: %s" % error, file=sys.stderr)
 		sys.exit(2)

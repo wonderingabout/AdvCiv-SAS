@@ -471,7 +471,7 @@ Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly l
   - **Full reset,** expiring Dec 10.
   - **Fable reset,** expiring Nov 17. It refills the 5-hour limit and the Fable allowance and gives back what Fable used of the weekly limit, without resetting the whole week.
   - Each has a "Reset for free" button. Resets are rare, so using one is the user's call: an agent can say when one would help, for example when it or Codex is near a limit with work in flight.
-- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SAS Pilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room.
+- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SASPilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room.
   - In **Settings > Usage**, check **Current session**, the overall weekly usage, and the Fable weekly allowance if your plan shows one. During the launch offer, Fable could have its own weekly cap within the overall allowance.
   - A Fable reset restores the Fable portion of weekly usage and refills the shared 5-hour window where applicable.
   - See [Claude Fable 5.2 launch offers](https://support.claude.com/en/articles/17506494-claude-fable-5-2-launch-offers) and [How usage limits work](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).

@@ -9,8 +9,8 @@
 import argparse
 import sys
 
-# <!-- custom: SASPilotClient, as pilot, for the requests, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
-import SASPilotClient as pilot
+# <!-- custom: SASPilotClient, as saspilot, for the requests, logged as any SASPilotClient.py command is. (Claude code Opus 5.5) -->
+import SASPilotClient as saspilot
 from SASPilotClient import PilotError, pick_pid
 
 # <!-- custom: Each sweep: the command listing the things, the key holding them in its reply, and the command run on each with its argument. (Claude code Opus 5.5) -->
@@ -19,7 +19,7 @@ SWEEPS = {"unit": ("units", "units", "unit"), "city": ("cities", "cities", "city
 
 def listed(pid, command, key, player):
 	# <!-- custom: An unexpected reply stops the sweep rather than counting as zero things checked (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	result = pilot.call(pid, command, {"player": player})
+	result = saspilot.call(pid, command, {"player": player})
 	if isinstance(result, dict):
 		result = result.get(key)
 	if not isinstance(result, list) or [item for item in result if not isinstance(item, dict) or "id" not in item]:
@@ -43,9 +43,9 @@ def main():
 	# <!-- custom: The player is fixed at the start, so every request asks about the same one, and the fog mode and role are printed: with fog on, another player's units and cities are listed and read only as far as our team sees them, which a clean sweep would hide (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	player = args.player
 	if player is None:
-		player = pilot.call(pid, "ping").get("activePlayer")
-	fog = pilot.call(pid, "fog").get("fog")
-	role = pilot.call(pid, "role").get("role")
+		player = saspilot.call(pid, "ping").get("activePlayer")
+	fog = saspilot.call(pid, "fog").get("fog")
+	role = saspilot.call(pid, "role").get("role")
 	print("player %s, fog %s, role %s" % (player, "on" if fog else "off", role))
 	failures = []
 	for name in names:
@@ -54,7 +54,7 @@ def main():
 		failed = 0
 		for item in ids:
 			request = {argument: item, "player": player}
-			reply = pilot.request(pid, name, request)
+			reply = saspilot.request(pid, name, request)
 			if not reply.get("ok"):
 				failed += 1
 				failures.append("%s %s=%s: %s" % (name, argument, item, str(reply.get("error")).splitlines()[0]))

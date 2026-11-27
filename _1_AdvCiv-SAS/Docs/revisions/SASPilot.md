@@ -21,7 +21,7 @@
 
 - `PILOT_REVISION` sits in [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py), beside the interface it identifies; Civ4 hot-reloads it, so the number changes with the commands without restarting the game.
 - The mailbox greeting (`hello.json`) and `ping` report the number the running game loaded.
-- The XML define `SAS_PILOT_ON` only switches the pilot on; it carries no revision.
+- The XML define `SAS_PILOT_ON` only switches SASPilot on; it carries no revision.
 
 ## History (latest first)
 
@@ -29,6 +29,6 @@
 
 - **Date:** 2026-11-15
 - **Git commit:** `5e8ce0d1b3ff6f1c6bb6f8eb9f1da9a7e86a9d21`
-- **Change:** The first revision, covering the pilot from its first commit on `main` through the `saspilot` draft PR, which are meant to be squashed into one commit; the entry stays broad until that work settles.
+- **Change:** The first revision, covering SASPilot from its first commit on `main` through the `saspilot` draft PR, which are meant to be squashed into one commit; the entry stays broad until that work settles.
   - The interface covers fog-aware state queries and orders, popup and diplomacy handling, replayable command sequences, plot grids and rules graphs for agent-side analysis, session-aware mailbox replies, and screens' widgets opened, read and clicked by name (SASPilotUI, with the `executeSASPilotWidget` binding).
     - See the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md) for the commands.
