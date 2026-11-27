@@ -1367,6 +1367,7 @@ python LLM_Helpers\diagnostics\summarize_sasgamerecord_volume.py "C:\path\SASGam
 - Switches the usual unstaged development diagnostics in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml) on or back to their shipped defaults, so they need not be re-edited by hand around each commit, amend or rebase.
   - The set and both its values live in [`define_values.py`](#define_valuespy): `DEVELOPMENT_VALUES` lists what `on` sets, beside the shipped values the CI checks require, so both settings of each define are seen and changed in one place; edit it as preferences change.
   - A toggled define without a shipped value there stops the script.
+  - It edits each setting where it lives: the XML for what the DLL or the EXE reads, and [`SASSessionTunables.py`](/Assets/Python/SASSessionTunables.py) for the names `SESSION_TUNABLE_NAMES` lists, such as the informing screens' switches; `stage` stages both files with shipped values (KI#128.11).
   - `on` includes All, Team and Direct chat text in local SGR logs. For a channel-isolation test, enable only the desired chat switch in XML instead.
   - `off` restores the shipped values, including withholding text for all three chat channels. Use `status` to print the current values without writing.
   - `on` also skips the Dawn of Man screen (`SAS_UI_DAWN_OF_MAN_ON=0`), which players keep; [`hands_free_defaults.py`](/.github/workflows/README.md#buildruntimehands_free_defaultspy) checks that it ships as `1`.

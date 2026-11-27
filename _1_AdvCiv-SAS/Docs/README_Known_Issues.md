@@ -12766,6 +12766,9 @@ Screenshots/files for this issue: none, as the move changes nothing on screen.
 
 The user's idea; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), whose review found the helper would also rewrite a lookup inside a string or on another object's `gc`.
 
+- Update (2026-11-27): [`toggle_dev_diagnostics.py`](/LLM_Helpers/README.md#toggle_dev_diagnosticspy) now switches a setting in whichever file holds it, the XML or `SASSessionTunables.py`, so the seven informing screens' switches, `SAS_UI_DAWN_OF_MAN_ON`, `SAS_UI_TECH_SPLASH_ON`, `SAS_UI_ERA_MOVIE_ON`, `SAS_UI_WONDER_MOVIE_ON`, `SAS_UI_RELIGION_MOVIE_ON`, `SAS_UI_PROJECT_MOVIE_ON` and `SAS_UI_TOP_CIVS_ON`, moved there too, with [`move_defines_to_tunables.py`](/LLM_Helpers/README.md#move_defines_to_tunablespy); four settings only Python reads stay in the XML, the three font sizes and `SAS_LIVE_DEFINE_OVERRIDES_ON`, which the live overrides need there.
+  - `CvScreensInterface.py` looks five of them up by a name it is given, which the helper reports rather than rewrites, so it reads them with `getattr(SASSessionTunables, szDefine)`.
+
 <a id="ki-129"></a>
 
 ## KI#129 - (Fixed) Military Advisor Map tab minimap disappeared after switching tabs

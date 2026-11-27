@@ -599,3 +599,38 @@ SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON = 1
 # <!-- custom: Manual unscaled number shown in the AI Auto Play popup when SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON is 0.
 # It is intentionally literal rather than adjusted for game speed. (ChatGPT-5.6-Sol) -->
 SAS_AIAUTOPLAY_DEFAULT_T_UNSCALED_GS = 501
+
+
+# <!-- custom: The screens that only inform, moved from GlobalDefines_advciv_sas.xml once toggle_dev_diagnostics.py could switch them here: each is 1 for players and 0 during development and agent runs, which click through none of them. (Claude code Opus 5.5) -->
+# <!-- custom: 1 shows the Dawn of Man screen at a game's start, as in base AdvCiv; 0 skips it, for hands-free runs and agents that start many games.
+# Autoplay already passes it, but a game started or loaded for a quick look still waited on its Continue button.
+# Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude Code Opus 5.5) -->
+SAS_UI_DAWN_OF_MAN_ON = 1
+
+# <!-- custom: 1 shows the tech splash when a tech is acquired, as in base AdvCiv; 0 skips it.
+# The event log still says "You have discovered ...".
+# At turn 148 of a pilot playthrough (2026-11-13), a tech bought from an AI put its splash on display at once and the window waited on its Continue button; agents and unattended runs only click through these screens.
+# Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_TECH_SPLASH_ON = 1
+
+# <!-- custom: 1 plays the movie shown when a player enters a new era, as in base AdvCiv; 0 skips it.
+# Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_ERA_MOVIE_ON = 1
+
+# <!-- custom: 1 plays a wonder's movie when the player completes it, as in base AdvCiv; 0 skips it.
+# Each kind of movie has its own switch, so a player can keep some.
+# Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_WONDER_MOVIE_ON = 1
+
+# <!-- custom: 1 plays the movie shown when the player founds a religion, as in base AdvCiv; 0 skips it.
+# Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_RELIGION_MOVIE_ON = 1
+
+# <!-- custom: 1 plays a project's movie when the player completes it, as in base AdvCiv; 0 skips it.
+# Ships as 1; the development toggle sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_PROJECT_MOVIE_ON = 1
+
+# <!-- custom: 1 shows the Greatest Civilizations screen when it comes, as in base AdvCiv; 0 skips it.
+# Either way its ranking is recorded as a Timeline row in the save, so nothing is lost; at turn 82 of the 2026-11-19 validation run it waited on its Exit button in an agent game.
+# Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
+SAS_UI_TOP_CIVS_ON = 1

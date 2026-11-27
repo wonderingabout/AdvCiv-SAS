@@ -18,6 +18,8 @@ import SASTextScale
 # <!-- custom: SASGameRecordConfig for the cached SGR level that pre-gates the ranking's rows, SASGameRecordActions for the helper that writes them. (Claude code Opus 5.5) -->
 import SASGameRecordConfig
 import SASGameRecordActions
+# <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
+import SASSessionTunables
 
 PyPlayer = PyHelpers.PyPlayer
 gc = CyGlobalContext()
@@ -26,7 +28,7 @@ localText = CyTranslator()
 NUM_CIVILIZATIONS = 8
 
 TOP_CIVS_CATEGORY_KEYS = ("WEALTH", "POWER", "TECH", "CULTURE", "SIZE")
-# <!-- custom: Lazy caches of SAS_UI_TOP_CIVS_ON and SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON, read on the first ranking after XML has loaded; define edits need a Civ4 restart anyway. (Claude code Opus 5.5) -->
+# <!-- custom: Lazy caches of SAS_UI_TOP_CIVS_ON, from SASSessionTunables, and SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON, from the XML, read on the first ranking after XML has loaded; edits to either need a Civ4 restart anyway. (Claude code Opus 5.5) -->
 g_bTopCivsOn = None
 g_bDismissInfoPopupsOn = None
 
@@ -156,7 +158,7 @@ class CvTopCivs:
 		# The advc.038 draws above stay first, so the game's random sequence is the same either way. (Claude code Opus 5.5) -->
 		global g_bTopCivsOn, g_bDismissInfoPopupsOn
 		if g_bTopCivsOn is None:
-			g_bTopCivsOn = gc.getDefineINT("SAS_UI_TOP_CIVS_ON") > 0
+			g_bTopCivsOn = SASSessionTunables.SAS_UI_TOP_CIVS_ON > 0
 			g_bDismissInfoPopupsOn = gc.getDefineINT("SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON") > 0
 		self.szHistorian = szHistorianRand
 		self.bDraw = g_bTopCivsOn and not (g_bDismissInfoPopupsOn and CyGame().getAIAutoPlay() > 0)

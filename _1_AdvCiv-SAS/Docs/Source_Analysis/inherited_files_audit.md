@@ -4,6 +4,13 @@ Every Python, XML, C++, `res` and `Config` file that vanilla Civ4, Warlords, Bey
 
 It began with a narrower question from the SASPilot work, whether the WorldBuilder screen that runs is ours (2026-11-22), answered under [WorldBuilder](#worldbuilder).
 
+Status (2026-11-27): done for today's needs, as settled with the user; a later need might reopen it.
+
+SAS carries every base-game Python file it uses ([KI#1104](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104)), every base-game map script, and the define and data XML its rules, AI and own XML rely on ([KI#1104.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.2), [KI#1104.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1104.3)); every other base-game file is decided in the sections below, each with its reason.
+
+- A base-game file comes in later only when an edit needs it, as `CIV4ProcessInfo.xml` once did; the copy then goes in a commit of its own before the edit, so the edit's diff shows only SAS's change.
+- The generated tables and their CI check still follow the repository, so they stay current without the audit being reopened.
+
 - This file:
   - its hand-written sections give what a commit title cannot: which copy actually runs, and the reasons by subsystem;
   - its [generated part](#generated-tables) holds the counts, the lists of files SAS took in, dropped again or removed, each with its full path and events, a tree of folders, and the base-game Python modules that SAS's Python files import while SAS has no module of the same name.
