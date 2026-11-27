@@ -1578,6 +1578,8 @@ The Python counterpart of [`cpp_define_reads_cached.py`](#buildsourcecpp_define_
 - Codex's review (GPT-6.2-Sol) found the first version's gaps, each now tested: a store into `self` in any method or loop counted as a cache, an unrelated guard such as `if self.ready and value is None:` passed, a read split after its bracket was missed, an outer loop's marker covered an inner one, and a valid one-line `if self.x is None: self.x = ...` failed.
 - Module-level and class-body reads are left to [`python_define_reads_import.py`](#buildsourcepython_define_reads_importpy), and reads through a variable name, as `SASCurrentDefines` and the overrides bridge make, are the caches themselves.
 - Added on 2026-11-26 for [KI#128.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.9), SAS and inherited defines alike, as in C++. Run repo-wide first, it found 97 reads in 54 functions; five ran in a loop, once per leader or tech, and are now read once before it, and all but the river define go through `SASCurrentDefines`.
+- It also fails when a `SASCurrentDefines` read fills a cache kept for the session, in `__init__` or under such a lazy guard: `SASCurrentDefines` is for a read at each use, which live overrides refresh, and a kept attribute for a value fixed for the session, read with `gc`, so keeping a `SASCurrentDefines` value mixes the two.
+  - Added on 2026-11-27, after the user caught `CvMainInterface.py`'s new units-waiting switch filled that way. Run repo-wide first, it found no other case; a related slip from the KI#128.9 pass, a local copied from an attribute and filled through `SASCurrentDefines` when empty, which this rule does not see, was fixed by hand in `initState`.
 
 ```bash
 python .github/workflows/build/source/python_define_reads_cached.py

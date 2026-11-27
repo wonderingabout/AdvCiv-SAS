@@ -82,20 +82,21 @@ def _cityBreakdownsHelp(*_):
 	return g_szCityBreakdownsHelp
 # <!-- custom: These four hovers named the action but not the current setting, so the player had to click to find out; they now state it, read from the live interface at hover time.
 # Import CvScreensInterface locally because it imports this module during startup. (Claude code Opus 5.5) -->
+# <!-- custom: The hover functions below keep the main interface object as pMainInterface, not a short name such as the former mi: a two-letter name says little, greps poorly and can clash with or shadow another name (the user's rule, 2026-11-27). (Claude code Opus 5.5) -->
 def _getMainInterface():
 	import CvScreensInterface
 	return CvScreensInterface.mainInterface
 def _scoreBgStyleHelp(*_):
-	mi = _getMainInterface()
+	pMainInterface = _getMainInterface()
 	szText = u"Cycle scoreboard background style"
-	if mi.iScoreBgStyleLevel is not None:
-		szText += u" (%d/%d: %s)" % (mi.iScoreBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iScoreBgStyleLevel])
+	if pMainInterface.iScoreBgStyleLevel is not None:
+		szText += u" (%d/%d: %s)" % (pMainInterface.iScoreBgStyleLevel + 1, len(pMainInterface.aScoreBgStyleLevels), pMainInterface.aScoreBgStyleLevels[pMainInterface.iScoreBgStyleLevel])
 	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _commerceBgStyleHelp(*_):
-	mi = _getMainInterface()
+	pMainInterface = _getMainInterface()
 	szText = u"Cycle commerce sliders background style"
-	if mi.iCommerceBgStyleLevel is not None:
-		szText += u" (%d/%d: %s)" % (mi.iCommerceBgStyleLevel + 1, len(mi.aScoreBgStyleLevels), mi.aScoreBgStyleLevels[mi.iCommerceBgStyleLevel])
+	if pMainInterface.iCommerceBgStyleLevel is not None:
+		szText += u" (%d/%d: %s)" % (pMainInterface.iCommerceBgStyleLevel + 1, len(pMainInterface.aScoreBgStyleLevels), pMainInterface.aScoreBgStyleLevels[pMainInterface.iCommerceBgStyleLevel])
 	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreExpandToggleHelp(*_):
 	szText = u"Toggle lock scoreboard hover"
@@ -106,17 +107,21 @@ def _scoreExpandToggleHelp(*_):
 	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _scoreAutocenterToggleHelp(*_):
 	szText = u"Toggle autocenter scoreboard scroll on the active player "
-	if _getMainInterface().bScoreScrollAutocenterActivePlayer:
-		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
+	# <!-- custom: The on/off words come from the main interface's text cache, updateCachedLocalizedText, through one lookup of the object, kept as pMainInterface, as _scoreBgStyleHelp does. (Claude code Opus 5.5) -->
+	pMainInterface = _getMainInterface()
+	if pMainInterface.bScoreScrollAutocenterActivePlayer:
+		szText += pMainInterface.szTextHoverToggleOn
 	else:
-		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
+		szText += pMainInterface.szTextHoverToggleOff
 	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 def _annotationsToggleHelp(*_):
 	szText = u"Toggle show map annotations "
-	if _getMainInterface().bAnnotationsVisible:
-		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
+	# <!-- custom: As in _scoreAutocenterToggleHelp. (Claude code Opus 5.5) -->
+	pMainInterface = _getMainInterface()
+	if pMainInterface.bAnnotationsVisible:
+		szText += pMainInterface.szTextHoverToggleOn
 	else:
-		szText += localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
+		szText += pMainInterface.szTextHoverToggleOff
 	return SASTextScale.sasFontTagLabel + szText + SASTextScale.SAS_FONT_TAG_CLOSE
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_UP, _scoreHelp(u"Scroll scoreboard up"))
 WidgetUtil.setWidgetHelpFunction(WIDGET_SCORE_SCROLL_DOWN, _scoreHelp(u"Scroll scoreboard down"))
@@ -248,6 +253,43 @@ class CvMainInterface:
 		except ValueError:
 			return
 		self.iScoreScrollOffset = max(0, min(iActiveIndex - (iMaxRows / 2), iTotalCount - iMaxRows))
+
+	# <!-- custom: How many of the active player's units still wait for orders, in the groups the unit cycle and End Turn count as waiting (readyToSelect), shown beside the selected unit's name: when cycling units, nothing said how many were left (the user's idea, 2026-11-27).
+	# A count, as with many units what matters is how many are left before the turn can end, 3 of 15 or 3 of 200, and it does not depend on which unit is moved first.
+	# Not a place like the cities' "[4/17]", as units have no fixed list: the cycle selects the waiting group nearest the one just moved, so the same unit would be "[3/151]" one turn and "[40/151]" the next, depending on which unit was moved first.
+	# Callers check SAS_MAIN_UI_UNITS_WAITING_ON first, so with it at 0 the call and its group walk are skipped (the user's point).
+	# It counts units, out of all the player's units, such as "52 / 151 waiting": the first version counted groups alone, "57 waiting", which said nothing of the army's size, and a group of 10 counted as 1 (the user's idea). (Claude code Opus 5.5) -->
+	def _sasUnitsWaitingSuffix(self):
+		pPlayer = gc.getPlayer(gc.getGame().getActivePlayer())
+		iWaitingUnits = 0
+		(pGroup, iIter) = pPlayer.firstSelectionGroup(False)
+		while pGroup:
+			# <!-- custom: True, as the unit cycle (CvPlayer's advc.153) and End Turn with a unit selected pass it: a group counts once any of its units can move.
+			# The first version passed False, so a group with one exhausted unit and one movable was cycled to but not counted, as Codex's review (GPT-6.2-Sol) found. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			# <!-- custom: All of a ready group's units count, an exhausted one in it too, as the cycle selects the group with them; the total, getNumUnits, counts every unit owned, cargo, Great People and spies included. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+			if not pGroup.isNone() and pGroup.readyToSelect(True):
+				iWaitingUnits += pGroup.getNumUnits()
+			(pGroup, iIter) = pPlayer.nextSelectionGroup(iIter, False)
+		# <!-- custom: The text key holds the word alone, cached in updateCachedLocalizedText, and the numbers are formatted here, so the unit panel's redraws do no text lookup (the user's suggestion). (Claude code Opus 5.5) -->
+		return u"  (%d / %d %s)" % (iWaitingUnits, pPlayer.getNumUnits(), self.szTextUnitsWaiting)
+
+	# <!-- custom: The selected city's place in its owner's city list, the order the city screen's arrows cycle through, so a player cycling cities knows which of how many this is (the user's idea, 2026-11-27); "" for another player's city.
+	# That list is in the order the cities became the player's, founded or captured, except that a new city takes the free slot of one lost (the DLL's FFreeListTrashArray), so a city keeps its number from turn to turn.
+	# The caller checks SAS_MAIN_UI_CITY_POSITION_ON first, as for the units waiting. (Claude code Opus 5.5) -->
+	def _sasCityPositionSuffix(self, pCity):
+		if pCity.getOwner() != gc.getGame().getActivePlayer():
+			return u""
+		pPlayer = gc.getPlayer(pCity.getOwner())
+		iPosition = 0
+		iIndex = 0
+		(pLoopCity, iIter) = pPlayer.firstCity(False)
+		while pLoopCity:
+			if not pLoopCity.isNone():
+				iIndex += 1
+				if pLoopCity.getID() == pCity.getID():
+					iPosition = iIndex
+			(pLoopCity, iIter) = pPlayer.nextCity(iIter, False)
+		return u"  [%d/%d]" % (iPosition, pPlayer.getNumCities())
 
 	def _appendSelectedInfoPaneTextRow(self, screen, szTable, iRow, szLeftBuffer, szRightBuffer, szButton="", iData1=-1):
 		screen.appendTableRow(szTable)
@@ -672,6 +714,9 @@ class CvMainInterface:
 		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ_RAW = None
 		self.iSAS_MAIN_UI_PLOT_LIST_X_OFFSET_RAW = None
 		self.iSAS_MAIN_UI_PLOT_LIST_Y_OFFSET_RAW = None
+		# <!-- custom: The units-waiting and city-position switches, read once on first use, as above: the unit panel and city title redraw often, a kept attribute is the fastest read, and neither switch changes during play, as both are outside SASLiveDefineOverridesAllowed.txt. (Claude code Opus 5.5) -->
+		self.bSAS_MAIN_UI_UNITS_WAITING_ON = None
+		self.bSAS_MAIN_UI_CITY_POSITION_ON = None
 		# <!-- custom: cached resolution-scaled width adjustment for the left-side default help text area; positive widens, negative narrows. (Claude code Opus 4.7) -->
 		self.iSAS_MAIN_UI_HELP_AREA_WIDTH_ADJ = None
 		# <!-- custom: cached resolution-scaled offsets for the map-view unit selection bar (PlotListPanel). (Claude code Opus 4.7) -->
@@ -997,9 +1042,10 @@ class CvMainInterface:
 		lBUGOptBtn.move(gRect("TurnLogButton").size() + HSPACE(4), 0)
 		gSetRectangle("BUGOptionsScreenWidget", lBUGOptBtn)
 		iLeftTopTextX = (gRect("TurnLogButton").x() * 2) / 3
+		# <!-- custom: Filled here when initState runs before interfaceScreen, as on a Python reload; it read the define through SASCurrentDefines into a local and left the attribute empty, so it read again on each call, and a value kept for the session belongs in the attribute, read with gc (the user's point, 2026-11-27). (Claude code Opus 5.5) -->
+		if self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT is None:
+			self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT = (gc.getDefineINT("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		bTopLeftFlagAndLeftSideTextShift = self.IS_SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT
-		if bTopLeftFlagAndLeftSideTextShift is None:
-			bTopLeftFlagAndLeftSideTextShift = (SASCurrentDefines.getInt("SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT") > 0)
 		if bTopLeftFlagAndLeftSideTextShift:
 			# <!-- custom: when this define is off, no flag is drawn here, so the left text (e.g. treasury) keeps its base position (no extra room needed). (GPT-5.3-Codex) -->
 			iLeftTopTextX += HSPACE(18)
@@ -1215,6 +1261,14 @@ class CvMainInterface:
 		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
 		self.szTextWaitingForYou = SASTextScale.sasFontTagLabel + localText.getText("SYSTEM_WAITING_FOR_YOU", ()) + SASTextScale.SAS_FONT_TAG_CLOSE
 		self.sFieldOfView_Text = localText.getText("TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_TEXT", ())
+		# <!-- custom: The "waiting" word of _sasUnitsWaitingSuffix, with the other cached texts so a language change refreshes it too. (Claude code Opus 5.5) -->
+		self.szTextUnitsWaiting = localText.getText("TXT_KEY_SAS_UNITS_WAITING", ())
+		# <!-- custom: The other fixed texts this file read by key at each use: the on/off word of the scoreboard autocenter and annotation toggles' hovers, and three city screen headings, which interfaceScreen labels after initState has filled this cache (the user's request to cache every fixed text key, 2026-11-27). (Claude code Opus 5.5) -->
+		self.szTextHoverToggleOn = localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_ON", ())
+		self.szTextHoverToggleOff = localText.getText("TXT_KEY_SAS_HOVER_TOGGLE_OFF", ())
+		self.szTextSpecialists = localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ())
+		self.szTextTradeRouteList = localText.getText("TXT_KEY_HEADING_TRADEROUTE_LIST", ())
+		self.szTextBuildings = localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ())
 
 	def setMiniMapRects(self):
 		# <advc.137>
@@ -1347,8 +1401,17 @@ class CvMainInterface:
 	def getCommercePercentLabelWidth(self):
 		return max(CyInterface().determineWidth(SASTextScale.labelText(u"%s:100%%" % SASVisuals.Commerce.char(eCommerce))) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES))
 
+	# <!-- custom: The map view's three commerce block defines, read together once into the attributes setCommerceAdjustRects uses; getMinimumMapCommerceRightSpace read the X offset by name on each call, while the same define was already kept here (2026-11-27). (Claude code Opus 5.5) -->
+	def _readMapCommerceOffsets(self):
+		if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
+			self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")
+			self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_Y_OFFSET")
+			self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0)
+
 	def getMinimumMapCommerceRightSpace(self):
-		iOffset = max(HSPACE(4), HSPACE(SASCurrentDefines.getInt("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")))
+		# <!-- custom: See _readMapCommerceOffsets. (Claude code Opus 5.5) -->
+		self._readMapCommerceOffsets()
+		iOffset = max(HSPACE(4), HSPACE(self.iSAS_COMMERCE_MAP_X_OFFSET))
 		return iOffset + self.getCommercePercentLabelWidth() + HSPACE(3) + 2 * BTNSZ(20) + HSPACE(0) + max(2, HSPACE(4))
 
 	def setCommerceAdjustRects(self):
@@ -1371,10 +1434,8 @@ class CvMainInterface:
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_CITY_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_CITY_ANCHOR_RIGHT
 		else:
-			if self.iSAS_COMMERCE_MAP_X_OFFSET is None:
-				self.iSAS_COMMERCE_MAP_X_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_X_OFFSET")
-				self.iSAS_COMMERCE_MAP_Y_OFFSET = gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_RIGHT_Y_OFFSET")
-				self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT = (gc.getDefineINT("SAS_MAIN_UI_MAP_COMMERCE_ANCHOR_RIGHT") > 0)
+			# <!-- custom: See _readMapCommerceOffsets. (Claude code Opus 5.5) -->
+			self._readMapCommerceOffsets()
 			iRightCommerceBlockXOffset = self.iSAS_COMMERCE_MAP_X_OFFSET
 			iRightCommerceBlockYOffset = self.iSAS_COMMERCE_MAP_Y_OFFSET
 			bCommerceBlockAnchorRight = self.IS_SAS_COMMERCE_MAP_ANCHOR_RIGHT
@@ -1993,7 +2054,7 @@ class CvMainInterface:
 		self.addPanel("SpecialistLabelBackground")
 		screen.setStyle("SpecialistLabelBackground", "Panel_City_Header_Style")
 		screen.hide("SpecialistLabelBackground")
-		self.setLabel("SpecialistLabel", "Background", localText.getText("TXT_KEY_CONCEPT_SPECIALISTS", ()), CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT)
+		self.setLabel("SpecialistLabel", "Background", self.szTextSpecialists, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT)
 		screen.hide("SpecialistLabel")
 # BUG - city specialist - end
 
@@ -2125,7 +2186,7 @@ class CvMainInterface:
 		screen.setStyle("TradeRouteListBackground", "Panel_City_Header_Style")
 		screen.hide("TradeRouteListBackground")
 
-		self.setLabel("TradeRouteListLabel", "Background", localText.getText("TXT_KEY_HEADING_TRADEROUTE_LIST", ()), CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
+		self.setLabel("TradeRouteListLabel", "Background", self.szTextTradeRouteList, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
 		screen.hide("TradeRouteListLabel")
 
 # BUG - Raw Yields - start
@@ -2161,7 +2222,7 @@ class CvMainInterface:
 		screen.setStyle("BuildingListBackground", "Panel_City_Header_Style")
 		screen.hide("BuildingListBackground")
 
-		self.setLabel("BuildingListLabel", "Background", localText.getText("TXT_KEY_CONCEPT_BUILDINGS", ()), CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
+		self.setLabel("BuildingListLabel", "Background", self.szTextBuildings, CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1)
 		screen.hide("BuildingListLabel")
 
 		# *********************************************************************************
@@ -4961,6 +5022,11 @@ class CvMainInterface:
 		iFoundYear = CyGame().getTurnYear(iFoundTurn)
 		szFoundYear = BugUtil.getDisplayYear(iFoundYear)
 		szBuffer += u"%s: %d - %d (%s)" % (pHeadSelectedCity.getName(), iPop, iCultureTotal, szFoundYear)
+		# <!-- custom: See _sasCityPositionSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
+		if self.bSAS_MAIN_UI_CITY_POSITION_ON is None:
+			self.bSAS_MAIN_UI_CITY_POSITION_ON = (gc.getDefineINT("SAS_MAIN_UI_CITY_POSITION_ON") > 0)
+		if self.bSAS_MAIN_UI_CITY_POSITION_ON:
+			szBuffer += self._sasCityPositionSuffix(pHeadSelectedCity)
 
 		if (pHeadSelectedCity.isOccupation()):
 			szBuffer += u" (%s:%d)" %(SASVisuals.Font.OCCUPATION_CHAR, pHeadSelectedCity.getOccupationTimer())
@@ -6279,6 +6345,11 @@ class CvMainInterface:
 					fMinMoves = float(iMinMoves) / self.iMoveDenominator
 					fMaxMoves = float(iMaxMoves) / self.iMoveDenominator
 					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves, SASVisuals.Font.MOVES_CHAR)
+			# <!-- custom: See _sasUnitsWaitingSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
+			if self.bSAS_MAIN_UI_UNITS_WAITING_ON is None:
+				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (gc.getDefineINT("SAS_MAIN_UI_UNITS_WAITING_ON") > 0)
+			if self.bSAS_MAIN_UI_UNITS_WAITING_ON:
+				szBuffer += self._sasUnitsWaitingSuffix()
 			if (szBuffer.find("<font=") == -1):
 				szBuffer = SASTextScale.sasFontTagLabel + szBuffer + SASTextScale.SAS_FONT_TAG_CLOSE
 			self.setText("SelectedUnitLabel", "Background", szBuffer, CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1, WidgetTypes.WIDGET_UNIT_NAME)
@@ -6342,6 +6413,11 @@ class CvMainInterface:
 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME", (pHeadSelectedUnit.getName(),))
 			else:
 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME_HOT_KEY", (pHeadSelectedUnit.getHotKeyNumber(), pHeadSelectedUnit.getName()))
+			# <!-- custom: See _sasUnitsWaitingSuffix; pre-gated on its switch, kept in an attribute (see __init__), so with it off nothing is called. (Claude code Opus 5.5) -->
+			if self.bSAS_MAIN_UI_UNITS_WAITING_ON is None:
+				self.bSAS_MAIN_UI_UNITS_WAITING_ON = (gc.getDefineINT("SAS_MAIN_UI_UNITS_WAITING_ON") > 0)
+			if self.bSAS_MAIN_UI_UNITS_WAITING_ON:
+				szBuffer += self._sasUnitsWaitingSuffix()
 			if (len(szBuffer) > 60):
 				szBuffer = SASTextScale.sasFontTagLabel + szBuffer + SASTextScale.SAS_FONT_TAG_CLOSE
 			if (szBuffer.find("<font=") == -1):

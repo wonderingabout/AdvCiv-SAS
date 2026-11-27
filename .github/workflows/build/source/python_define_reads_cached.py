@@ -122,7 +122,39 @@ def stores_once(statement, function, inner):
 	return False
 
 
+def fills_cache(statement, function):
+	# <!-- custom: True when the statement assigns into a cache, its target before the first "=" outside brackets being one cache_target accepts; a one-line if's condition is skipped first. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if statement and statement[0].string in ("if", "elif"):
+		colon = colon_split(statement)
+		if colon is None:
+			return False
+		statement = statement[colon + 1:]
+	depth = 0
+	for index, token in enumerate(statement):
+		if token.string in "([{":
+			depth += 1
+		elif token.string in ")]}":
+			depth -= 1
+		elif depth == 0 and token.type == tokenize.OP and token.string == "=":
+			return cache_target(statement[:index], function)
+	return False
+
+
 def uncached_reads(text):
+	return scan_reads(text)[0]
+
+
+# <!-- custom: Yields (line, function) for each SASCurrentDefines read that fills a cache kept for the session: in __init__ or under an "if <cache> is None:" guard.
+# SASCurrentDefines is for a read at each use, as live overrides empty it, while a kept attribute is for a value fixed for the session, read with gc; keeping a SASCurrentDefines value mixes the two, an extra cache in front of the attribute that also reads as if it followed overrides, which it does not.
+# Added on 2026-11-27, after the user caught it in CvMainInterface.py's new units-waiting switch, where a lazy attribute was filled through SASCurrentDefines. (Claude code Opus 5.5) -->
+def kept_current_reads(text):
+	return scan_reads(text)[1]
+
+
+CURRENT_GETTERS = ("getInt", "getFloat", "getString")
+
+
+def scan_reads(text):
 	# <!-- custom: Yields (line, define, function) for each literal read by name inside a function, outside any cache, whose function has no marker comment.
 	# A read inside a for or while body runs at each pass, so, as in the C++ check, only a marker inside its innermost loop covers it; a read in a for's own header, such as range(gc.getDefineINT("MAX_TRADE_ROUTES")), runs once and follows the function's marker, while a while's condition runs at each test, so it belongs to that loop.
 	# Reads at module level or in a class body run at import, which python_define_reads_import.py rejects, so they are left to it; reads through a variable name, as SASCurrentDefines and the overrides bridge make, are the caches themselves. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -134,6 +166,7 @@ def uncached_reads(text):
 	pending_column = 0
 	pending_while = []
 	found = []
+	kept = []
 
 	def function_of(blocks):
 		for block in reversed(blocks):
@@ -217,6 +250,14 @@ def uncached_reads(text):
 			statement = []
 			continue
 		statement.append(token)
+		if kind == tokenize.NAME and token.string == "SASCurrentDefines":
+			following = significant(tokens, index, 3)
+			if len(following) == 3 and following[0].string == "." and following[1].string in CURRENT_GETTERS and following[2].string == "(":
+				block = function_of(stack)
+				# <!-- custom: The statement must also store into a cache: under a lazy guard, return SASCurrentDefines.getInt("X") keeps nothing, yet the first version reported it as kept, as Codex's review (GPT-6.2-Sol) reproduced. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+				if block is not None and statement[0].string != "def" and fills_cache(statement, block) and stores_once(statement, block, stack[stack.index(block):]):
+					kept.append((token.start[0], block.function))
+			continue
 		if kind == tokenize.NAME and token.string in READERS:
 			following = significant(tokens, index, 2)
 			if len(following) < 2 or following[0].string != "(" or following[1].type != tokenize.STRING:
@@ -234,7 +275,7 @@ def uncached_reads(text):
 			block.reads.append(read)
 	while stack:
 		close(stack.pop())
-	return sorted(found)
+	return sorted(found), sorted(kept)
 
 
 def main(argv=None):
@@ -248,12 +289,14 @@ def main(argv=None):
 			count += 1
 			rel = path.relative_to(args.repo_root).as_posix()
 			try:
-				reads = uncached_reads(read_text(path))
+				reads, kept = scan_reads(read_text(path))
 			except (tokenize.TokenError, IndentationError, SyntaxError) as error:
 				errors.append("%s: could not be tokenized (%s), so its define reads were not checked" % (rel, error))
 				continue
 			for line, name, function in reads:
 				errors.append("%s:%d: %s is read by name at each call of %s(); read it through SASCurrentDefines, or keep it in an attribute or a lazy global; a define other code sets during play, which SASCurrentDefines would miss, says so with a %s comment in the function" % (rel, line, name, function, MARKER))
+			for line, function in kept:
+				errors.append("%s:%d: %s() keeps a SASCurrentDefines read in a cache filled once; fill a value fixed for the session with gc.getDefineINT and keep it, or read SASCurrentDefines at each use, not both" % (rel, line, function))
 	print("%s Python define reads cached (%d files)" % ("FAIL" if errors else "PASS", count))
 	for error in errors:
 		print("  - " + error)

@@ -736,6 +736,8 @@ Some common changes to city screen and map view include the tech bar's detail be
 
 Also moved map to the right (idea from the C2C mod thanks).
 
+Among other notable changes, the main interface now shows more of what was tedious to keep in mind, for players and agents playing from screenshots alike, such as how many units still wait for orders out of all your units, to see how close you are to ending the turn (`Worker  (52 / 151 waiting)`), or which of your cities the city screen shows, in the order its arrows go through them (`[4/17]`); see the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-in-game) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+
 #### City Screen rework
 
 Added some missing info such as the great person "+n (ICON)" information in any relevant building's row, which is handy to have and that was tedious to check through hovering.
@@ -746,7 +748,7 @@ Also beautified several other things, such as enlarging side panels to display m
 
 Additionally, also added a new specialists breakdown as of now on bottom-right and a culture breakdown. Also added an option to add one or several extra rows (tunable) in the production chooser bar. These all help reduce tedious hovering and provide useful info at a glance.
 
-The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`).
+The city screen has been heavily reworked, beautified, and enhanced, for example by splitting the old draft group into draft menu on one side with a new draft button, and config options as a one liner above the minimap zone, plus added new building list filtering options (Show all buildings, Show World Wonders only, etc.) as clickable buttons (based on how the C2C mod does it thanks), enhanced with detailed information (like `Nuremberg: 12 - 1779 (1120 BC)  [4/17]` or `Growing - 30/43 (4 Turns)`).
 
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(1)_spec_break_relig_gp_bldg.JPG" alt="1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.400_city_screen%20(2)_spec_break_corp.JPG" alt="1.400_city_screen (2)_spec_break_corp.JPG" width="250"></img>
@@ -755,7 +757,7 @@ The city screen has been heavily reworked, beautified, and enhanced, for example
 
 City billboard scaling follows the selected font size through [`SASBillboardScale.py`](/Assets/Python/SASBillboardScale.py).
 
-Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for unit stack and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
+Outside the city screen, UI has been reworked too: moved away the flag from production buttons bars (was needless and cumbersome there: better show more buttons instead: moved optionally to top panel as detailed in main changes guide), added buttons for the selected unit group and currently selected unit, moved and reordered end turn buttons and other controls, now near the map in a very pretty end turn group with a curved visual effect. Screenshots visible in the other ingame previews.
 
 Besides these and other changes in the main changes guide or code only, a notable change is the new toggle or scroll buttons in map view.
 

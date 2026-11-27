@@ -157,6 +157,21 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - "Demographics" → "Info Screen" (correct advisor name: does not only show the Demographics tab of the Info Screen) (Sevopedia Shortcuts)
 - "Victory Status" and "Victory Conditions" → "Victory Screen" (similar inconsistent naming in Sevopedia Shortcuts)
 - "Units" -> "Start Scroll at Units (Production Chooser Bar)" (City Screen) (clearer and so it is not confused with the new AdvCiv-SAS Building Filter buttons' behaviour (filter on click vs set default scroll position))
+- (Requires AdvCiv-SAS 6884+) "Unit Stack" → "Unit Group" on the selected unit's panel, such as "Unit Group (2):" for a group of two units, as it shows a group, not a stack.
+  - A stack is all the units that happen to be on one plot, selected or not, such as 20 Swordsmen, 5 Catapults and 2 Workers sitting next to a city, about to attack the city.
+  - A group is one, a few, or all of the units on one plot, joined to move together, which the game selects and moves as one. A unit on its own is a group of one.
+  - So that stack of 20 Swordsmen, 5 Catapults and 2 Workers may be:
+    - one group of all 27 units;
+    - one group of 20 Swordsmen, another group of 5 Catapults, and yet another group of 2 Workers, so 3 groups in total;
+    - one group of 12 Swordsmen, another group of 8 Swordsmen and 4 Catapults, another group of 1 Catapult and 1 Worker, and yet another group of 1 Worker, so 4 groups in total;
+    - or 27 groups containing one unit each.
+  - Therefore, units are not a group just because they sit on the same plot: they form a stack, and become a group only once selected together, with Shift-click or the Group button; no order, such as move, fortify or skip turn, is needed. They then stay joined, turn after turn, until you split them.
+  - So "Unit Group" names what the panel shows: the units the game selects, moves and counts together, as in the waiting count.
+    - It is also the game's own name: the code calls a group a selection group, `CvSelectionGroup` in [CvSelectionGroup.cpp](/CvGameCoreDLL/CvSelectionGroup.cpp), and has no "stack" object, as "Bonus" above matches the code's `CvBonusInfo` where the text said "Resource".
+  - The BUG options for that panel follow, such as "Group Movement Points" and "Group Promotions" under "Unit/Group Info:".
+  - Not renamed: the AI's code and defines, such as `AI_stackAttackCity` or `SAS_MIN_ATK_CITY_STACK_UNITS`, BUG's saved option keys, such as "Stack Movement Points", and BtS's "Stack Attack" option.
+    - In the AI, "stack" often means all the units on a plot, so each name would need checking against what its code counts; inherited names would no longer match BtS, BBAI, K-Mod and base AdvCiv when comparing; renamed defines would no longer match players' edited XML; and BUG stores players' choices under those keys.
+  - Note: BtS usually did the same, but when the current selection was not exactly one group, Shift-click only added a unit to the selection without joining it; K-Mod made Shift-click always join, which AdvCiv and SAS inherit.
 
 ### XML Asset Naming and Taxonomy
 
@@ -3360,6 +3375,20 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - The lower row separately and permanently shows Build Culture and No-Espionage's transferred Espionage as post-modifier additions (including zero values), followed by the exact final Culture rate and progress.
   - Integral values omit redundant `.00`, while nonzero hundredths remain exact.
   - See [KI#1063](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1063).
+- (Requires AdvCiv-SAS 6884+) **Main Interface - Cycling units or cities tells how many are left:** the selected unit's panel shows how many of your units still wait for orders, out of all your units, such as `Worker  (52 / 151 waiting)`, and the city screen's title shows the city's place in your city list, such as `[4/17]` in `Nuremberg: 12 - 1779 (1120 BC)  [4/17]`.
+  - Cities show their place: `[4/17]` means this is the 4th of your 17 cities, in the order the city screen's left and right arrows go through them.
+    - Why: going through your cities one by one, remembering which one this is, the 1st, the 4th, or nearly the last, was tedious.
+    - That order is the order the cities became yours, founded or captured, except that a new city takes the place of one you lost. It stays the same from turn to turn, so a city keeps its number.
+  - Units show a count instead: `52 / 151 waiting` means 52 units have not had orders yet this turn, out of your total 151 units.
+    - Why: with many units, what matters is how many are left before your turn can end; 3 of 15 and 3 of 200 tell very different stories. Cities never hold up the end of a turn, so they need no such count.
+    - The count does not depend on which unit you move first: each unit given orders lowers it by one, whatever the order.
+    - Units show no place, unlike cities, as they have no fixed list: when one unit is done, the game selects the waiting unit closest to it on the map. Finish with a Worker in the west, and the Tank beside it comes next; start with an Archer in the east instead, and the Tank comes much later.
+      - A place such as `[3/151]` would therefore have shown the same Tank as `[3/151]` one turn and `[40/151]` the next, depending only on which unit you started with, and told nothing.
+    - So units do not mirror the cities' place and use totals instead, waiting units out of all units, because that better helps you know how far you are from having played all your units and ending the turn.
+    - A waiting group of 10 units, units joined to move together (see "Unit Group" under [Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)), adds 10 to the waiting count, not 1, even if one of them is already out of moves, as the game selects the whole group at once.
+    - The total, such as `151`, counts every unit you own, cargo, Great People and spies included.
+  - Both serve agents playing from screenshots as well as players: one look at the panel tells how much of the turn is left, or which city of the list is open.
+  - `SAS_MAIN_UI_UNITS_WAITING_ON` and `SAS_MAIN_UI_CITY_POSITION_ON` turn each off; both ship as `1`. See [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py) and [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml).
 - (Requires AdvCiv-SAS 6732+) **Main Interface (City Screen) - City health from surroundings is broken down:** the help showed only a rounded total, so a city with one Marsh seemed unaffected, and it named Forest but lumped Jungle and Marsh together as "Features" with no tile counts.
   - It now lists each feature and improvement with its count and value, and the exact total before the city rounds it to whole points; for example `+2 from Features (2.25 before rounding)`, then `Jungle: 4 x 0.50` and `Marsh: 1 x 0.25`. See [KI#1077](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1077).
   - `SAS_MAIN_UI_CITY_HEALTH_HELP_DETAIL` chooses the detail: 0 keeps the base AdvCiv rounded total, 1 adds the exact total, 2 also lists each source.
@@ -3369,7 +3398,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes.
   - These changes allow to now display more information and reduce the need for scrolling or hovering.
   - Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**.
-  - Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`.
+  - Enhanced the **city bar** and **other bars**, e.g., `Growing - 30/43 (4 Turns)`; the city bar's example is under **Main Interface - Cycling units or cities tells how many are left** above.
   - Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`.
   - And other changes.
   - See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-101).
@@ -3383,7 +3412,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - Add **commerce sliders fast increment buttons** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view) (not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view).
   - Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
 - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**.
-  - Added buttons to unit stack, selected unit.
+  - Added buttons to the selected unit group and the selected unit.
   - Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it).
   - Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)).
   - Make **left-click on GP bar** open the **corresponding city's city screen**.

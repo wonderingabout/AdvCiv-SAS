@@ -5140,6 +5140,40 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENLARGEHUD_HOVER</Tag>
 		<English>When checked, the size of panels, buttons and the minimap is increased based on the rendering resolution. No effect when the resolution is set to the minimum (1024 x 768). Takes effect the next time a game is loaded or the resolution changes.</English>
 	</TEXT>
+	<!-- custom: Beside the selected unit's name: how many units still wait for orders this turn, out of all the player's units (CvMainInterface._sasUnitsWaitingSuffix). (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNITS_WAITING</Tag>
+		<English>waiting</English>
+	</TEXT>
+	<!-- custom: was "Unit Stack (%d1):" (vanilla).
+	The panel shows a selection group, units joined to move together, while players also call all the units on a plot a stack, which may hold several groups; "Group" names what is selected and counted. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_UNIT_STACK</Tag>
+		<English>Unit Group (%d1):</English>
+	</TEXT>
+	<!-- custom: BUG's options for the same panel said "stack" for the selected group too, so they follow "Unit Group"; was "Stack Movement Points", "Stack Promotions" and "the selected stack" (BUG Main Interface Options.xml).
+	Moved from that file, where AdvCiv's advc.004 had shortened the German and reworded the hovers; its now stale notes went with them.
+	The settings' keys in BUG Main Interface.xml keep "Stack", as players' saved choices are stored under them. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKMOVEMENTPOINTS_TEXT</Tag>
+		<English>Group Movement Points</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_TEXT</Tag>
+		<English>Group Promotions</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONS_HOVER</Tag>
+		<English>When checked, shows all promotions possessed by at least one unit in the selected group on the Info pane.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOUNTS_HOVER</Tag>
+		<English>When checked, the group promotion icons on the Info pane show the number of units in the selected group that possess each promotion (if that number is greater than one).</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__STACKPROMOTIONCOLORALL_HOVER</Tag>
+		<English>If all units in a group possess a given promotion, use this color instead of the one above.</English>
+	</TEXT>
 	<!-- custom: Vanilla's PbWizard.py asks this in the Pitboss server's patch dialog, but base-game text lacked it; wording from Caveman2Cosmos's PitBoss_CIV4GameText.xml. See KI#1085.2. (Claude code Opus 5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_PITBOSS_PATCH_AVAILABLE_DESC</Tag>

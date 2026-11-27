@@ -822,6 +822,7 @@ Clear, accurate explanations help users and developers understand the code and i
     - In C++, for a SAS define the DLL reads by name outside a static, that note is a `ci_define_uncached:` comment, which CI checks (see the C++ caching rules below).
     - In Python, a read by name goes through `SASCurrentDefines` instead, even once per map or popup, about 80 ns a read against 279 ns through `gc`; only a define other code sets during play, which it would miss, keeps `gc` with that comment. [`python_define_reads_cached.py`](/.github/workflows/README.md#buildsourcepython_define_reads_cachedpy) checks both (KI#128.9).
       - A kept `self.x` is faster still, 18 ns, so it stays the choice for a hot path, such as a loop over every plot.
+      - It is one or the other: a kept attribute is filled with `gc`, as `SASCurrentDefines` in front of it would be a second cache that also seems to follow overrides, which it does not; `python_define_reads_cached.py` fails on that mix (2026-11-27).
 
 #### Naming, diagnostics and text encoding
 
@@ -894,6 +895,9 @@ Clear, accurate explanations help users and developers understand the code and i
 #### Runtime compatibility
 
 - Assume Python 2.4 constraints: avoid closures and ternary operators, define variables before use, and prefer tabs for indentation.
+- Python has no block scope: a name set in a loop, an `if` branch, a Python 2.4 list comprehension or an `except X, e` stays set until the function returns, so reusing a name for a similar but separate step can silently read the earlier step's value instead of failing.
+  - So in a function with several similar steps, give each its own names (e.g. `leader_type_1`, `leader_type_2`), so that a slip fails with `NameError`. This happened in the old `generate_leaders_data.py`, where a loop read the previous loop's last value (see KI#165.2).
+  - At module level, `import *` brings another module's names in the same silent way; see [Modules, shared constants and helper ownership](#modules-shared-constants-and-helper-ownership).
 
 #### Visual resources and UI fonts
 

@@ -901,6 +901,16 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_MAIN_UI_UNIT_INFO_BUTTON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: 1 shows beside the selected unit's name how many of our units still wait for orders, out of all of them, such as "(52 / 151 waiting)"; cycling units, nothing said how many were left (2026-11-27). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_UNITS_WAITING_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 shows in the city screen's title the city's place in our city list, the order its arrows cycle through, such as "[4/17]" (2026-11-27). (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_MAIN_UI_CITY_POSITION_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 	<!-- custom: enable compact top-left civ flag (hover/click) and matching left-text spacing shift (e.g. treasury); set to 0 to hide the flag and keep left text at base position. (GPT-5.3-Codex (summarized)) -->
 	<Define>
 		<DefineName>SAS_MAIN_UI_TOP_LEFT_FLAG_TEXT_SHIFT</DefineName>

@@ -91,6 +91,23 @@ class PythonDefineReadsCachedTests(unittest.TestCase):
 		text = 'X = gc.getDefineINT("A")\ndef f(name):\n\treturn gc.getDefineINT(name)\n'
 		self.assertEqual(checker.uncached_reads(text), [])
 
+	def test_current_defines_read_kept_in_a_cache_fails(self):
+		# <!-- custom: A SASCurrentDefines read filling a lazy attribute, a lazy global or an __init__ attribute is kept twice; a read at each use and a gc fill pass. (Claude code Opus 5.5) -->
+		text = 'class A:\n\tdef f(self):\n\t\tif self.b is None:\n\t\t\tself.b = (SASCurrentDefines.getInt("X") > 0)\n\t\treturn self.b\n'
+		self.assertEqual(checker.kept_current_reads(text), [(4, "f")])
+		text = 'def f():\n\tglobal g_x\n\tif g_x is None:\n\t\tg_x = SASCurrentDefines.getFloat("X")\n'
+		self.assertEqual(checker.kept_current_reads(text), [(4, "f")])
+		text = 'class A:\n\tdef __init__(self):\n\t\tself.b = SASCurrentDefines.getString("X")\n'
+		self.assertEqual(checker.kept_current_reads(text), [(3, "__init__")])
+		text = 'class A:\n\tdef f(self):\n\t\tif self.b is None:\n\t\t\tself.b = (gc.getDefineINT("X") > 0)\n\t\treturn SASCurrentDefines.getInt("Y")\n'
+		self.assertEqual(checker.kept_current_reads(text), [])
+		self.assertEqual(checker.uncached_reads(text), [])
+		# <!-- custom: A guarded read that stores nothing keeps nothing, as Codex's review (GPT-6.2-Sol) reproduced against the first version; a one-line guarded store still fails. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		text = 'class A:\n\tdef f(self):\n\t\tif self.screen is None:\n\t\t\treturn SASCurrentDefines.getInt("X")\n'
+		self.assertEqual(checker.kept_current_reads(text), [])
+		text = 'class A:\n\tdef f(self):\n\t\tif self.b is None: self.b = SASCurrentDefines.getInt("X")\n'
+		self.assertEqual(checker.kept_current_reads(text), [(3, "f")])
+
 
 if __name__ == "__main__":
 	unittest.main()
