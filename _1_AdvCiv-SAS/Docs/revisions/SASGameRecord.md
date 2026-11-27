@@ -129,7 +129,7 @@ Only the listed collections use this convention; other compact fields retain the
 ### Revision 216 - SAS practical 6882
 
 - **Date:** 2026-11-26
-- **Git commit:** `dedf25ece98c4a837a20b3f998556564852c62bf`
+- **Git commit:** `8f217d9b3d85cadffd90d622d0974875cf298c13`
 - **Functional:** No (the same goody outcome fields; which units spawn changed in gameplay, not in the recorder)
 - **Change:** `CvPlayer::receiveGoody` skips a hostile hut's Barbarian when `initUnit` returns NULL before the SGR outcome and spawn rows, rather than testing `pBarbarian != NULL` inside the outcome push, and no longer counts that skipped unit; the hut's units now go only onto plots they can enter ([KI#1076.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1076.2)).
 
