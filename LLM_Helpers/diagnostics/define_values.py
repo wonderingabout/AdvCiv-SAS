@@ -47,6 +47,11 @@ EXPECTED_RUNTIME_DEFAULTS = {
 
 EXPECTED_HANDS_FREE_VALUES = {
 	"SAS_UI_DAWN_OF_MAN_ON": 1,
+	"SAS_UI_TECH_SPLASH_ON": 1,
+	"SAS_UI_ERA_MOVIE_ON": 1,
+	"SAS_UI_WONDER_MOVIE_ON": 1,
+	"SAS_UI_RELIGION_MOVIE_ON": 1,
+	"SAS_UI_PROJECT_MOVIE_ON": 1,
 	"SAS_UI_TOP_CIVS_ON": 1,
 	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
 	"SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON": 1,
@@ -74,6 +79,12 @@ DEVELOPMENT_VALUES = {
 	"SAS_RUNTIME_SOURCE_WATCH_ON": 1,
 	# <!-- custom: Not a diagnostic but the same kind of local switch: skip the Dawn of Man screen during development and agent runs; players keep it. (Claude Code Opus 5.5) -->
 	"SAS_UI_DAWN_OF_MAN_ON": 0,
-	# <!-- custom: The Greatest Civilizations screen, skipped the same way; its ranking is recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
+	# <!-- custom: The same for the screens that only inform, one switch each, added after a traded tech's splash held up a pilot game (2026-11-13). (Claude code Opus 5.5) -->
+	"SAS_UI_TECH_SPLASH_ON": 0,
+	"SAS_UI_ERA_MOVIE_ON": 0,
+	"SAS_UI_WONDER_MOVIE_ON": 0,
+	"SAS_UI_RELIGION_MOVIE_ON": 0,
+	"SAS_UI_PROJECT_MOVIE_ON": 0,
+	# <!-- custom: The Greatest Civilizations screen, recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
 	"SAS_UI_TOP_CIVS_ON": 0,
 }

@@ -101,8 +101,9 @@ Alongside this observability, other changes move towards "hands-free" play and t
   - SAS adjusts several screens to such high player counts, such as the Glance tab's and the Debug Info screen's pages, the Espionage tab's compact rows, the Info graph's legend and the Military Advisor's leader buttons; see [UI (High player counts)](/README.md#ui-high-player-counts).
 - In particular, scoreboard scrolling and a height limit support long player lists, such as SAS48 games, so it no longer overflows vertically beyond the top of the screen.
 - On top of this (no pun or yes but anyway), scoreboard autocenter (default as of now ON) automatically keeps the active player in view, so that the new scoreboard scroll feature (up/down with +/- buttons as of now when Scoreboard is full) does not require a manual/tedious user intervention every while or if desired.
-- The Dawn of Man screen, still on by default, can now optionally be turned off, so a new or loaded game opens straight on the map, saving a click each time you start or load a game, for example before autoplaying by hand.
-- The Greatest Civilizations screen can likewise be turned off, so the game goes on without waiting for a click, while its rankings stay on the Timeline either way.
+- Screens that only inform, still on by default, can now optionally each be turned off on its own: e.g., the Dawn of Man screen, the Greatest Civilizations screen, the tech splash, and the era, wonder, religion and project movies.
+  - The game then goes on without waiting for a click on each, for example before autoplaying by hand: without Dawn of Man, a new or loaded game opens straight on the map.
+  - Nothing they tell is lost: the event log still says what the tech splash and movies announce, such as "You have discovered Navigation!", and the Greatest Civilizations rankings stay on the Timeline Tab either way.
 - `SASAssertions_*.log` (for diagnostic DLLs) adds automatic assertion logging and silent handling, so no user intervention is tediously needed to click them all one by one in their popup that pauses autoplay (sometimes ~10,000+ manual clicks per game). Silent option settings are e.g. "Ignore Once", or revert to base behaviour (logs are live-viewable, consistent with the "open-brain" point too).
 
 For local AI/LLM agents in particular:
@@ -569,7 +570,7 @@ We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 - shows a spoiler-free (religion founded by an unknown city, city founded but unexplored, etc.) if not known (not in debug, not yet revealed, etc.) account (based on the replay screen's data (except you don't need to retire to see it now), notably keeping its colored text for each player, but filtered) of the key moments that happened each turn.
 - unlike the Event Log (which was cumbersome to open and maximize as well btw), information is preserved on save reload.
 - has an optional "LOG" button you can click on ingame to optionally export to `PythonDbg.log` text file the output
-- keeps each Greatest Civilizations ranking, which otherwise was gone once its screen closed: a title row such as "The Greatest Civilizations, Wealthiest, by Herodotus", then one row per rank such as "1) Cyrus of Persia, player 4, team 4" or "3) An Unknown Civilization", seen only by the team that saw the screen; whether the tab lists them is tunable, see the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
+- keeps each Greatest Civilizations ranking, which otherwise was gone once its screen closed: a title row such as "The Greatest Civilizations, Wealthiest, by Herodotus", then one row per rank such as "1) Cyrus of Persia, player 4, team 4" or "3) An Unknown Civilization", seen only by the team that saw the screen, and kept even when that screen is turned off; whether the tab lists them is tunable, see the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md).
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
@@ -675,6 +676,8 @@ Some miscellaneous screens have been beautified, expanded and maximized to suppo
 - [CvReplayScreen.py](/Assets/Python/Screens/CvReplayScreen.py)
 - [CvDanQuayle.py](/Assets/Python/Screens/CvDanQuayle.py) ("you have displayed the leadership abilities" post-game screen), [CvHallOfFameScreen.py](/Assets/Python/Screens/CvHallOfFameScreen.py)
 - [CvSpaceShipScreen.py](/Assets/Python/Screens/CvSpaceShipScreen.py) (its parts panel grows with the window, and each part's name shows its button and opens its Sevopedia page).
+
+Some of these screens, such as the Dawn of Man screen and the tech splash, only inform at a moment of the game and need no decision, so they can now also each be turned off, for hands-free development and testing or for players who would rather skip them; see **Skip the other screens that only inform** under [System - Misc](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#system---misc) in the Main Changes Guide.
 
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.980_dawn_of_man_screen.JPG" alt="1.980_dawn_of_man_screen.JPG" width="250"></img>
 <img src="/_1_AdvCiv-SAS/Images/ui_other/1.981_tech_splash_screen.JPG" alt="1.981_tech_splash_screen.JPG" width="250"></img>
