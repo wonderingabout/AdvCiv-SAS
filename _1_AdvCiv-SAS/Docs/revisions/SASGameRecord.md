@@ -114,6 +114,31 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 219 - SAS practical 6986 (SASSaveTransplanter branch)
+
+- **Date:** 2026-11-27
+- **Git commit:** pending
+- **Functional:** No (comments only)
+- **Change:** No change to the record: merging saspilot into the SASSaveTransplanter branch brought this branch's own SASSaveTransplanterExport.py, whose comment notes that a 4986 build has no SASGameRecord; the check counts such a mention, so the merge takes the next revision after saspilot's.
+  - First taken as 206 in merge commit `94bf831d30e6cf8621026f189d41e8a59d2778d9`, then 205 in `4985acbe8bb133398e426366cf57d7b42c0e91cf` when saspilot folded its 205 into 204.
+  - Saspilot's entry became 205 on 2026-11-18, when main took 204, so this branch is 206 again, one above saspilot's, as both are squashed when they land.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made saspilot's entry 209 and this one 210.
+  - Merging saspilot on 2026-11-27, whose entry had become 217 after main used 210 to 216, made this one 218.
+  - Merging saspilot again on 2026-11-27, whose entry had become 218 after main used 217, made this one 219.
+
+### Revision 218 - SAS practical 6961 (SASPilot branch)
+
+- **Date:** 2026-11-27
+- **Git commit:** `6f723c12598532ff9f502174d9f247026fe042e0`
+- **Functional:** No (comments only)
+- **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
+  - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+  - Merging main on 2026-11-20, which used 209 for the Greatest Civilizations rows first made here, made it 210; those rows are now main's revision 209, below.
+  - Merging main on 2026-11-27, which used 210 to 216 meanwhile, made it 217.
+  - Merging main again on 2026-11-27, which used 217 for moving `SAS_SGR_BUG_STRING_VALS_ON` to `SASSessionTunables.py`, made it 218.
+
 ### Revision 217 - SAS practical 6888
 
 - **Date:** 2026-11-27

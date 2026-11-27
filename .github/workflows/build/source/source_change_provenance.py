@@ -128,6 +128,8 @@ def maintained_source_path(path: str) -> bool:
             lower.startswith("assets/python/")
             or lower.startswith("privatemaps/")
             or lower.startswith("llm_helpers/")
+            # <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20; Codex's review found it had left this check's scope. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            or lower.startswith("saspilot/")
             or lower.startswith("tests/")
             or lower.startswith(".github/workflows/")
         )
@@ -353,16 +355,21 @@ def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
 
 # <!-- custom: A Claude model's name alone, such as "Opus 5.5" or "code Opus 5.5", leaves out which family and app wrote the comment, so the credit reads "Claude code Opus 5.5" in full.
 # On 2026-11-26 Claude Code Opus 5.5 wrote "(Claude code Opus 4.6 + Opus 5.5)" while restoring an earlier credit, which the user caught in review; the credit parser skipped "Opus 5.5" as no known family, so no rule saw it. (Claude code Opus 5.5) -->
-INCOMPLETE_CREDIT_RE = re.compile(r"^(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable)\b", re.IGNORECASE)
+# <!-- custom: Merging main into the SASPilot branch on 2026-11-27 met that branch's own rule for the same slip, from 2026-11-20, whose tests main's rule failed: it missed a part with its own note, such as "+ Opus 5.5 (review)", and flagged a closing aside such as "(Opus 5.5 reproduced this)".
+# So a part's notes are dropped first and the whole remaining label must be a bare model name, as that rule did. (Claude code Opus 5.5) -->
+# <!-- custom: Codex's review of that merge found the first combined version too loose: it needed a version, so "+ Opus" and "+ code Sonnet" passed, which main's prefix check rejected, and it split on + before dropping notes, so "+ Opus 5.5 (review + test)" passed too.
+# The notes are now dropped from the whole list before it is split, and the version is optional. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+INCOMPLETE_CREDIT_RE = re.compile(r"(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable|Mythos)(?:[ \t-]+\d+(?:\.\d+)*)?", re.IGNORECASE)
 
 
 def incomplete_credit_errors(path: str, block: CommentBlock) -> list[str]:
     errors = []
-    for credit in re.finditer(r"\(([^()]*)\)\s*-->", block.raw):
-        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", credit.group(1)):
-            if INCOMPLETE_CREDIT_RE.match(part.strip()):
+    for credit in re.finditer(r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*-->", block.raw):
+        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", re.sub(r"\s*\([^()]*\)", "", credit.group(1))):
+            label = part.strip()
+            if INCOMPLETE_CREDIT_RE.fullmatch(label):
                 line = block.start + block.raw.count("\n", 0, credit.start())
-                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, part.strip()))
+                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, label))
     return errors
 
 

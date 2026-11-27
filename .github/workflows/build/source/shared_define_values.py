@@ -19,7 +19,8 @@ from define_values import DEVELOPMENT_VALUES, SHIPPED_VALUES
 from xml_defines import get_default_repo_root
 
 
-SCAN_RELATIVE_DIRS = (Path(".github"), Path("LLM_Helpers"), Path("tests"), Path("Assets/Python"), Path("PrivateMaps"))
+# <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20; Codex's review found it had left this check's scope. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+SCAN_RELATIVE_DIRS = (Path(".github"), Path("LLM_Helpers"), Path("SASPilot"), Path("tests"), Path("Assets/Python"), Path("PrivateMaps"))
 OWNER = Path("LLM_Helpers/diagnostics/define_values.py")
 # <!-- custom: Tests feed chosen values to the checks, such as {"SAS_RUNTIME_STATUS_ON": 1} to exercise an enabled recorder, rather than restating what ships; LLM_Helpers/outputs holds Git-ignored review copies. (Claude code Opus 5.5) -->
 SKIPPED_PREFIXES = (".github/workflows/tests/", "tests/", "LLM_Helpers/outputs/")

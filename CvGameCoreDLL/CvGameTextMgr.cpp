@@ -557,6 +557,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 		szString.append(L", ");
 		szString.append(gDLL->getText("TXT_KEY_UNIT_HELP_IMMOBILE", pUnit->getImmobileTimer()));
 	}
+	// <!-- custom: The state of a unit as text, in the one-line plot hover and the unit hover of the plot list alike: our own units only, as the game shows the states of rival units nowhere. (Claude code Opus 5.5) -->
+	static const bool bSAS_PLOT_HELP_UNIT_STATE_ON = GC.getDefineBOOL("SAS_PLOT_HELP_UNIT_STATE_ON");
+	if (bSAS_PLOT_HELP_UNIT_STATE_ON && pUnit->isActiveTeam())
+		setSASUnitStateHelp(szString, *pUnit);
 
 	/*if (!bOneLine) {
 		if (pUnit->getUnitCombatType() != NO_UNITCOMBAT) {
@@ -1374,6 +1378,89 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 /*	advc.004: Based on code cut from setUnitHelp.
 	Avoids showing units that are very slightly damaged at full strength
 	or units that are barely alive at 0 strength. */
+// <!-- custom: The window showed the state of a unit only as small marks in the plot list and through the buttons of the selected unit, so finding which units were fortified, asleep or on a move meant selecting each; in the islands replay (2026-11-15) the 'units' list of SASPilot lacked it too, and the user asked for the state as text for players and pilot alike.
+// In the terms of Civ4: automation (AutomateTypes), then the activity of the group, or the mission it is carrying out when it has none to show; commands such as Promote or Upgrade are one-off actions, not states.
+// The build of a Worker already shows with its turns before this, so MISSION_BUILD is skipped.
+// Fortify and sleep share ACTIVITY_SLEEP; CvUnit::canSleep refuses fortifiable units, so a sleeping fortifiable unit is fortified.
+// These comments avoid possessive apostrophes: with five such lines here, fastdep crashed before cl.exe ran. See KI#38.5. (Claude code Opus 5.5) -->
+void CvGameTextMgr::setSASUnitStateHelp(CvWStringBuffer& szString, CvUnit const& kUnit)
+{
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	if (pGroup == NULL)
+		return;
+	char const* szAutomateKey = NULL;
+	switch (pGroup->getAutomateType())
+	{
+	case AUTOMATE_BUILD: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_BUILD"; break;
+	case AUTOMATE_NETWORK: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_NETWORK"; break;
+	case AUTOMATE_CITY: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_CITY"; break;
+	case AUTOMATE_EXPLORE: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_EXPLORE"; break;
+	case AUTOMATE_RELIGION: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_RELIGION"; break;
+	default: break;
+	}
+	if (szAutomateKey != NULL)
+	{
+		szString.append(L", ");
+		szString.append(gDLL->getText(szAutomateKey));
+	}
+	CvWString szActivity;
+	switch (pGroup->getActivityType())
+	{
+	case ACTIVITY_SLEEP:
+		if (kUnit.isFortifyable())
+			szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_FORTIFIED", kUnit.getFortifyTurns());
+		else szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_SLEEP");
+		break;
+	// <!-- custom: CvSelectionGroup::startMission also sets ACTIVITY_HOLD when the group has no moves left for its new mission, so in the islands replay a Worker moving to 98,24 read "Skipping turn"; with a mission queued, the mission below shows instead. (Claude code Opus 5.5) -->
+	case ACTIVITY_HOLD:
+		if (pGroup->headMissionQueueNode() == NULL)
+			szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_HOLD");
+		break;
+	case ACTIVITY_HEAL: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_HEAL"); break;
+	case ACTIVITY_SENTRY: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_SENTRY"); break;
+	case ACTIVITY_INTERCEPT: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_INTERCEPT"); break;
+	case ACTIVITY_PATROL: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PATROL"); break;
+	case ACTIVITY_PLUNDER: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PLUNDER"); break;
+	case ACTIVITY_BOARDED: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_BOARDED"); break;
+	// <!-- custom: ACTIVITY_AWAKE and ACTIVITY_MISSION: the head mission below, if any. (Claude code Opus 5.5) -->
+	default: break;
+	}
+	if (szActivity.empty() && kUnit.getBuildType() == NO_BUILD)
+	{
+		CLLNode<MissionData> const* pNode = pGroup->headMissionQueueNode();
+		if (pNode != NULL)
+		{
+			MissionTypes const eMission = pNode->m_data.eMissionType;
+			// <!-- custom: The head mission target: the first version took the last destination of the queue (lastMissionPlot), so Move To A then Route To B read as moving to B (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			CvPlot const* pDest = getSASHeadMissionPlot(*pGroup, getActiveTeam());
+			// <!-- custom: A destination that is a city the team knows of is named too, the commonest target, as the user suggested (2026-11-15); bonus or territory would make the one-line hover too long. (Claude code Opus 5.5) -->
+			CvCity const* pDestCity = NULL;
+			if (pDest != NULL && pDest->isCity() && pDest->getPlotCity()->isRevealed(getActiveTeam()))
+				pDestCity = pDest->getPlotCity();
+			if (eMission == MISSION_MOVE_TO && pDestCity != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_MOVE_TO_CITY", pDest->getX(), pDest->getY(), pDestCity->getNameKey());
+			else if (eMission == MISSION_MOVE_TO && pDest != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_MOVE_TO", pDest->getX(), pDest->getY());
+			else if (eMission == MISSION_ROUTE_TO && pDestCity != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_ROUTE_TO_CITY", pDest->getX(), pDest->getY(), pDestCity->getNameKey());
+			else if (eMission == MISSION_ROUTE_TO && pDest != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_ROUTE_TO", pDest->getX(), pDest->getY());
+			else if (eMission != MISSION_BUILD)
+				szActivity = GC.getInfo(eMission).getDescription();
+		}
+	}
+	if (!szActivity.empty())
+	{
+		szString.append(L", ");
+		szString.append(szActivity);
+	}
+	if (kUnit.isPromotionReady())
+	{
+		szString.append(L", ");
+		szString.append(gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PROMOTION_READY"));
+	}
+}
+
 void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit, /* <advc.048c> */ int iHP)
 {
 	if (iHP < 0)

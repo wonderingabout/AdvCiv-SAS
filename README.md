@@ -6,6 +6,18 @@ AdvCiv-SAS is available at the [ModDB website](https://www.moddb.com/mods/advciv
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
+An important milestone is the addition of SASPilot, a new Civ4 CLI API that allows local agents (e.g. Claude Code, Codex) to control Civ 4 and analyze its game state perfectly, without having to rely on tedious and unclear UI. The video demos also feature autonomous peer-agentic ping-pong coding. Conceptual inspiration from [noreff's CivAI](https://github.com/noreff/civai). TODO writeup.
+
+It also helps debugging: its `py` command runs Python live inside the running game, for example to time a scoreboard redraw or check which screen is open.
+
+It also tests what play rarely reaches: its commands ask the game about every unit and mission, in combinations a player's clicks never send. On 2026-11-20 its `unit` command found an inherited vanilla bug, an airlift check that read past the map for a unit in a city ([KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)).
+
+Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests; the commands it runs and the agents' client live in [`SASPilot/`](/SASPilot/README.md).
+
+<a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>
+
+Parts [1](https://www.youtube.com/watch?v=hr-L3UdaKVk) and [3](https://www.youtube.com/watch?v=A1Yi7047ZI8) are currently also available on YouTube.
+
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
 As for in particular UI in Sevopedia, which now adjusts dynamically depending on current resolution without needing a restart anymore, notably but not only:
@@ -608,9 +620,11 @@ We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
-Note: a hybrid DLL compute + Python caching version was tried but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
+Note: a hybrid DLL compute + Python caching version was tried in the [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+
+Both were visual impressions, not measured. The [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md#the-same-question-for-the-timeline-tab-january-2026) compares them with the measured Python-or-DLL test of the agent pilot and the later finding that the tab's time went into the EXE building its table.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
 

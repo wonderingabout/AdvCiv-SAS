@@ -54,6 +54,8 @@ ROOT_SUBDIRS = (
     # <!-- custom: Keep inherited docs plus the curated base-AdvCiv UI reference screenshots in external review archives. (ChatGPT-5.6-Sol) -->
     "_0_Legacy",
     "LLM_Helpers",
+    # <!-- custom: SASPilot moved out of LLM_Helpers to the root on 2026-11-20. (Claude code Opus 5.5) -->
+    "SASPilot",
     # <!-- custom: Local platform-specific test sources moved out of LLM_Helpers; keep them in review archives so external agents can inspect the writer harness and its requirements. (GPT-6.1-Sol) -->
     "tests",
     "Resource",

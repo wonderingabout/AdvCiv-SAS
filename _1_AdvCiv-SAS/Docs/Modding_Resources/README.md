@@ -83,6 +83,10 @@ This is a non-exhaustive page containing some resources i found helpful and gene
 - [Logging flushing comparison](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Flushing_Comparison.md): revision 154 writer measurements
 - [Logging inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md): every log file, its controls and samples
 - [Release preparation/checklist](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Release_Process.md): for user + AI/LLM helpers
+- [SASPilot guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md): reading and driving a running game from the command line as JSON (unit and city orders, research, end turn, Python inside the game); for AI/LLM helpers
+- [SASPilot performance](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md): how fast it answers and what moving parts of it to C++ gained, as measured
+- [SASPilot playtests](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Playtests.md): games played through it as a person would, the mistakes found, the rules they became and the handoff for the next agent
+- [SASSaveTransplanter guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASSaveTransplanter.md): recreating the turn-0 world of a save the current build can no longer load, or carrying a world into base AdvCiv; for AI/LLM helpers
 
 ## LLM-assisted source analysis
 

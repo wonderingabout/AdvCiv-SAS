@@ -16,8 +16,12 @@ gc = CyGlobalContext()
 # <!-- custom: The sizes themselves were kept here in _SAS_UI_FONT_SIZE_CACHE, emptied on each override change; SASCurrentDefines now keeps them for every reader, and only which defines were logged is kept here.
 # An out-of-range size was cached as None after its first error, so later tags silently lost their size; it now raises at each read, as a bad value should stay loud. See KI#128.5. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 _SAS_UI_FONT_SIZE_LOGGED = {}
+_SAS_UI_FONT_PREVIEW = {}
 
 def _getSASUIFontSize(szDefineName):
+	# <!-- custom: A preview set by setUIFontPreview, such as SASPilot's uifont, wins over the define for this session; merging main's live define overrides kept it first, before the shared SASCurrentDefines read. (Claude code Opus 5.5) -->
+	if szDefineName in _SAS_UI_FONT_PREVIEW:
+		return _SAS_UI_FONT_PREVIEW[szDefineName]
 	iSize = SASCurrentDefines.getInt(szDefineName)
 	if iSize < 1 or iSize > 4:
 		raise RuntimeError("SASTextScale: %s=%d out of [1,4] - check GlobalDefines_advciv_sas.xml and SASLiveDefineOverrides.txt" % (szDefineName, iSize))
@@ -92,6 +96,31 @@ sasFontTagTiny = _DynamicFontTag("SAS_UI_FONT_TINY")
 sasFontTagBody = _DynamicFontTag("SAS_UI_FONT_BODY")
 sasFontTagLabel = _DynamicFontTag("SAS_UI_FONT_LABEL")
 sasFontTagTitle = _DynamicFontTag("SAS_UI_FONT_TITLE")
+
+# <!-- custom: SASPilot can preview the Python layout fonts within one game session.
+# Native widget tooltips do not follow the preview: since main's live define overrides (merged 2026-11-27), CvDLLWidgetData reads the label size from the define cache at each hover, while the preview stays in Python; the DLL no longer caches its own hover size. (GPT-6.2-Sol + Claude code Opus 5.5) -->
+# <!-- custom: Not gated on SASPilot's switch: nothing changes until a caller sets a preview, and another caller, such as an in-game font option shown live, could use it too; SASPilot's uifont is the first. (Claude code Opus 5.5) -->
+_PREVIEW_FONT_TAGS = {"tiny": sasFontTagTiny, "body": sasFontTagBody, "label": sasFontTagLabel, "title": sasFontTagTitle}
+
+
+def getUIFontSizes():
+	return dict((szRole, _getSASUIFontSize(tag.szDefineName)) for szRole, tag in _PREVIEW_FONT_TAGS.items())
+
+
+def setUIFontPreview(dSizes, bReset=False):
+	# <!-- custom: Validate the whole request before changing any size.
+	# Clear the normal and bold tags together so imports holding either object see the next size. (GPT-6.2-Sol) -->
+	for szRole, iSize in dSizes.items():
+		if szRole not in _PREVIEW_FONT_TAGS or type(iSize) is not int or not 1 <= iSize <= 4:
+			raise ValueError("expected tiny, body, label or title with a whole size from 1 to 4")
+	if bReset:
+		_SAS_UI_FONT_PREVIEW.clear()
+	for szRole, iSize in dSizes.items():
+		_SAS_UI_FONT_PREVIEW[_PREVIEW_FONT_TAGS[szRole].szDefineName] = iSize
+	for tag in _PREVIEW_FONT_TAGS.values():
+		tag._cachedTag = None
+		tag.bold._cachedTag = None
+
 
 SAS_FONT_OPEN_RE = re.compile(u"<font=[^>]*>", re.IGNORECASE)
 SAS_FONT_CLOSE_RE = re.compile(u"</font>", re.IGNORECASE)

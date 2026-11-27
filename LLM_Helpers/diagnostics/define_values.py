@@ -94,3 +94,9 @@ DEVELOPMENT_VALUES = {
 	# <!-- custom: The Greatest Civilizations screen, recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
 	"SAS_UI_TOP_CIVS_ON": 0,
 }
+
+# <!-- custom: Settings that agent runs want besides the toggled ones, which SASPilotClient.py lists in its greeting: informational popups dismissed during autoplay.
+# Moved here from SASPilotClient.py on 2026-11-19. (Claude code Opus 5.5) -->
+AGENT_RUN_VALUES = {
+	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
+}

@@ -295,7 +295,7 @@ npx markdownlint-cli2@0.24.0
 
 ## Python 2.4 compile workflow
 
-[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python` and `PrivateMaps` with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
+[`python24-compile.yml`](/.github/workflows/python24-compile.yml) runs [`build/python/python24_compile.py`](#buildpythonpython24_compilepy) inside `ghcr.io/wonderingabout/python-2.4:2.4.6`, built from the separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) Docker-image recipe. It checks `Assets/Python`, `PrivateMaps` and `SASPilot/game`, the SASPilot modules Civ4 loads, with the real CPython 2.4 parser/bytecode compiler, which is closer to Civ4's embedded Python than Ruff or modern Python 3.
 
 This is intentionally a syntax/compile compatibility check only: it does not launch Civ4, run gameplay code, import `CvPythonExtensions`, or validate engine-only runtime objects. It uses `docker run` after normal checkout instead of a job-level container so GitHub Actions and checkout still run on the ordinary runner, while the old image only needs to provide Python 2.4.
 
@@ -340,6 +340,8 @@ Keep `-t .github/workflows`: some tests import their helper as a package from th
 Local platform-specific game-code tests live separately under [`tests/`](/tests/README.md), including the Windows/VC2003 diagnostic writer harness; they are not part of this workflow.
 
 The `-t` argument keeps test package names distinct from standard-library modules such as `xml`. Source-tool tests also cover related manual helpers in `LLM_Helpers`; the commit-diff packaging tests live with repository tooling.
+
+SASPilot graph tests in the source suite cover tech prerequisite groups against the XML, promotion alternatives and reverse links, civilization-specific unit upgrades, directed diplomatic links, and visibility of historical series.
 
 ## Helper reference
 
@@ -634,6 +636,7 @@ Keeps folder indexes listing what their folders hold, in alphabetical order, so 
   - It found `light_source_python24_linux.py` undescribed when it was added on 2026-11-10.
   - Exception: a folder in `GUIDE_DOCUMENTED_FOLDERS` is documented only in its guide, so every helper file in it, Ghidra `.java` scripts included, must be named in that guide instead, and its README section must be a single line linking to the guide and its disclaimer, with no subsections.
     - Since 2026-11-12 `exe_analysis/` is documented in the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md): its technical details stay for agents in Git and the light-source ZIP, but out of player downloads, while the README, which ships, says only "See the EXE patches guide and the corresponding disclaimer", so a downloaded ZIP holds no description of the EXE work.
+- Every script and sequence in [`SASPilot/`](/SASPilot/README.md), which left `LLM_Helpers` for the root on 2026-11-20, is named in its README.
 - This README's helper reference subjects, the helpers within each subject (by file name), and the helper/test area table are alphabetical. Each check script in `build/` and shared module in `lib/` has a matching heading in the reference and appears in the menu. Private modules prefixed with `_` are exempt.
 - The short `build/` and `tests/` READMEs list each subject folder that exists in their own directory.
 - Every guide in `_1_AdvCiv-SAS/Docs/Modding_Resources/` is listed under its README's "Guides in this folder", by file name; a list that claims to cover its folder should not need remembering either.
@@ -757,7 +760,7 @@ Checks list layout in every tracked Markdown file, plus added/edited maintained 
 - Reject an apparent tab/four-space-indented list immediately after a prose paragraph, including in unchanged tracked docs: Markdown can merge its bullets into that paragraph. Separate a new top-level list with a blank line and leave its bullets unindented; valid nested lists and ordinary soft wrapping remain allowed.
 - Code, tables, blockquotes and HTML comments are excluded. The paragraph-length rule additionally excludes untouched historical prose, copied/generated context and numbered archived changelogs; the tracked-file list-layout scan has no historical-doc exemption.
 - An added or edited table row of 1000 characters or more fails: keep the row a short summary and move its details into a table of its own, one row per field or check, linked from the cell.
-  - Added on 2026-11-19, as tables were outside the prose rule and the SASPilot guide's `reminders` row, on the SASPilot branch, had reached 5710 characters, one check appended after another; it became the guide's Reminders table.
+  - Added on 2026-11-19, as tables were outside the prose rule and the SASPilot guide's `reminders` row had reached 5710 characters, one check appended after another; it became the guide's Reminders table.
   - Untouched long rows wait for their next edit; that day 13 rows of `README_Assets_Rebalancing.md` (rationale paragraphs in table cells, up to 1763 characters) and the guide's `relations` row were over the limit.
 - Reports affected paths and line numbers without rewriting files. Run locally with `python .github/workflows/build/documentation/markdown_prose_changes.py --base-ref HEAD`.
 
@@ -976,7 +979,9 @@ python .github/workflows/build/hygiene/text_blank_lines.py --base-ref main
 
 #### `build/python/python24_compile.py`
 
-Compile-checks runtime Civ4 Python files under `Assets/Python` and `PrivateMaps` with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml). It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
+Compile-checks runtime Civ4 Python files under `Assets/Python`, `PrivateMaps` and `SASPilot/game`, the SASPilot modules Civ4 loads, with CPython 2.4 through [`python24-compile.yml`](/.github/workflows/python24-compile.yml).
+
+It uses `py_compile` on each source file but redirects bytecode to a temporary directory so the workflow catches real Python 2.4 parser/bytecode errors without writing `.pyc` files into the mounted repository.
 
 This check complements Ruff: Ruff gives modern static diagnostics, while this workflow confirms the old parser still accepts the files Civ4 can load.
 
@@ -1503,7 +1508,7 @@ Verifies that no `// <!-- custom: ... -->` or `# <!-- custom: ... -->` comment i
 
 #### `build/source/float_format_int_division.py`
 
-Fails when runtime Python, including `LLM_Helpers/saspilot`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
+Fails when runtime Python, including `SASPilot/game`, applies a `%.Nf` format to arguments that divide with no float in them (no literal such as `100.0`, no `float()`). Python 2.4 divides two integers to an integer, so the decimals print as `.00`.
 
 - Vanilla Civ4's Victory screen showed the best rival's population and land shares this way, `2.00%` for 2.30% and 2.06% ([KI#290.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-290.2)).
 - A division by a value that is already a float passes only with one of those markers, so convert it at the division.
@@ -1589,7 +1594,7 @@ python .github/workflows/build/source/python_dead_stores.py
 
 #### `build/source/python_define_reads_cached.py`
 
-The Python counterpart of [`cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy): fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a define by name, such as `gc.getDefineINT("MAX_TRADE_ROUTES")`, inside a function and outside a cache, unless the function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists the exemptions of both checks; see [AGENTS.md](/AGENTS.md#xml-lookup-caching-and-validation).
+The Python counterpart of [`cpp_define_reads_cached.py`](#buildsourcecpp_define_reads_cachedpy): fails when runtime Python in `Assets/Python`, `PrivateMaps` or, on the SASPilot branch, `SASPilot/game` reads a define by name, such as `gc.getDefineINT("MAX_TRADE_ROUTES")`, inside a function and outside a cache, unless the function says why with a `ci_define_uncached:` comment, so `rg "ci_define_uncached:"` lists the exemptions of both checks; see [AGENTS.md](/AGENTS.md#xml-lookup-caching-and-validation).
 
 - Measured in game on 2026-11-26, best of 5 rounds of 20,000, a read through `gc` cost 279 ns and one through `SASCurrentDefines` 167 ns; once the bridge empties its caches rather than each read asking its change count, a read costs about 80 ns under Python 2.4, so even a read once per deal, hotkey press or map takes the cache; the marker is for a define other code sets during play, such as Water.py's `PLOTS_PER_RIVER_EDGE`, which `SASCurrentDefines` would miss.
 - A cache is `SASCurrentDefines`, a store into an attribute of `self` in `__init__` outside any loop, or a read under a lazy guard of the form `if self.x is None:`, `if getattr(self, "x", None) is None:` or `if NAME is None:` on a declared global, a one-line `if` included; a store in another method runs at each call, and a guard on a parameter, such as `CvMapGeneratorUtil`'s `if fracXExp is None:`, falls back to the define at each call, so both need a reason.
@@ -1607,7 +1612,7 @@ python .github/workflows/build/source/python_define_reads_cached.py
 
 #### `build/source/python_define_reads_import.py`
 
-Fails when runtime Python in `Assets/Python` or `PrivateMaps` reads a GlobalDefine at import, at module level or in a class body, through `getDefineINT`, `getDefineFLOAT`, `getDefineSTRING`, `getDefineBOOL` or `SASCurrentDefines`: the value is then kept for the session, so an override from [`SASLiveDefineOverrides.txt`](/README.md#live-define-overrides) never reaches it, and AGENTS.md prefers reading after setup, as early reads were linked to instability in [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128).
+Fails when runtime Python in `Assets/Python`, `PrivateMaps` or, on the SASPilot branch, `SASPilot/game` reads a GlobalDefine at import, at module level or in a class body, through `getDefineINT`, `getDefineFLOAT`, `getDefineSTRING`, `getDefineBOOL` or `SASCurrentDefines`: the value is then kept for the session, so an override from [`SASLiveDefineOverrides.txt`](/README.md#live-define-overrides) never reaches it, and AGENTS.md prefers reading after setup, as early reads were linked to instability in [KI#128](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128).
 
 - Added on 2026-11-26 for [KI#128.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-128.6). Run repo-wide first, it found 16 such reads, 15 SAS switches in the Sevopedia and BUG's `PEACE_TREATY_LENGTH` in `MoreCiv4lerts.py`, all now read at use; [`audit_define_timing.py`](/LLM_Helpers/README.md#audit_define_timingpy) found the same 16.
 - Files are tokenized, so a define's name in a comment or string is no read, and scope comes from the tokens rather than the indentation: a def whose signature spans several lines, with comments at another indent between them, still encloses its body, as in `CvMapGeneratorUtil.py`.
@@ -1815,7 +1820,7 @@ Diff-aware source-history guard for maintained C/C++, Python and XML source. It 
 Every rule it applies is listed in `REPO_WIDE_RULES` or, with the reason, in `DIFF_ONLY_RULES`; a rule in neither fails the check (added 2026-11-21).
 
 - A rule must hold across the whole repository from the commit that adds it, then it may be checked on changed files only. The user asked for a check rather than trusting AGENTS.md's written rule alone.
-- The repo-wide rules also run over every maintained source file on each run, about 10 seconds: a comment line starting with "See KI#", blank-line runs, credit spelling and cascading comments.
+- The repo-wide rules also run over every maintained source file on each run, about 10 seconds: a comment line starting with "See KI#", blank-line runs, credit spelling, bare Claude credits and cascading comments.
 - The diff-only ones list why the repository does not meet them, such as the 188 untouched inherited files without a SAS header, which AGENTS.md allows.
 - A comment line may not start with a KI reference, such as `# See KI#1103 for ...`; the reference ends the line before. One scan found a single older case, CvDeal.cpp's KI#605 line, fixed with the rule.
 
