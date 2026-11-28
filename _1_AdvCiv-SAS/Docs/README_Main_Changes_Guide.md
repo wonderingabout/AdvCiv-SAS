@@ -50,6 +50,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;&emsp;[Runtime status and history](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history)\
 &emsp;&emsp;[SAS assertion diagnostics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sas-assertion-diagnostics)\
 &emsp;&emsp;[Python and engine diagnostic logs](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#python-and-engine-diagnostic-logs)\
+&emsp;&emsp;[SASPilot command and console logs](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#saspilot-command-and-console-logs)\
 &emsp;&emsp;[Logging (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-common)\
 &emsp;&emsp;[BBAI log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log)\
 &emsp;&emsp;[SASGameRecord log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log)\
@@ -787,6 +788,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - These changes cover DLL-controlled rows; EXE-owned writers retain their formats.
 
 See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
+
+#### SASPilot command and console logs
+
+- (Requires AdvCiv-SAS 6892+) **What agents did through SASPilot is logged, as SASGameRecord logs the game:** each piloted Civ4 client gets its own files in `Logs`, named by its start time and process ID.
+  - `SASPilot_<start>_<pid>.jsonl`, the command log: one row per request an agent sent, with its arguments, the agent's note on why, the operator, the turn, and the result or error. Since 2026-11-28 it also holds the Python errors a reply reported and the client's own failures. [`SASPilotClient.py`](/SASPilot/SASPilotClient.py) writes it.
+  - `SASPilotConsole_<start>_<pid>.log`: what [`SASPilotConsole.py`](/SASPilot/SASPilotConsole.py), the window that shows that log to a person watching, printed, with its own notices and warnings. Its crashes go to `SASPilotConsole_errors.log`.
+  - See the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log) for the fields and why each file exists.
 
 #### Logging (Common)
 

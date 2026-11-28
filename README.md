@@ -93,6 +93,7 @@ Python-written rows in logs such as PythonDbg.log, PythonErr.log and PythonErr2.
 Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested. Runtime diagnostics are default-off, with separate switches for source and screenshot observation:
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
+- `SASPilot_*.jsonl` keeps every request an agent sent through SASPilot, with its reason and result, and `SASPilotConsole_*.log` what the console watching it printed ([Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
   - `SASRuntimeSourceChanges_*.jsonl` records live saves/edits to Python/XML, map scripts, themes and mod settings; `SASRuntimeSourceWatch_*.json` reports watcher health and host versions. A disk change does not prove an engine reload; the source watcher runs only when enabled alongside runtime diagnostics.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
 - `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. A hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
