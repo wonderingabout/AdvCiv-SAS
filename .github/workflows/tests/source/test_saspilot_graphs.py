@@ -40,7 +40,10 @@ class PilotGraphTests(unittest.TestCase):
         # <!-- custom: The graph tests load the command module outside Civ4, with stand-ins for the advisor history and strict XML accessor. (GPT-6.2-Sol) -->
         utils = ModuleType("SASUtils")
         utils.getInfoTypeOrFail = lambda name: self.scope["gc"].getInfoTypeForString(name)
-        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface"),
+        # <!-- custom: CvScreenEnums too, whose PEDIA_ITEM_KINDS the commands take at import since 2026-11-28 (KI#1110.2); these graph tests use no Sevopedia kind. (Claude code Opus 5.5) -->
+        enums = ModuleType("CvScreenEnums")
+        enums.PEDIA_ITEM_KINDS = ()
+        with patch.dict(sys.modules, {"CvPythonExtensions": extension, "CvScreensInterface": ModuleType("CvScreensInterface"), "CvScreenEnums": enums,
                                      "SASCurrentDefines": ModuleType("SASCurrentDefines"), "SASBattleHistory": ModuleType("SASBattleHistory"),
                                      "SASUtils": utils}):
             commands = runpy.run_path(str(COMMANDS))

@@ -39,7 +39,7 @@ LOGS_DIR = MAILBOX_ROOT.parent / "Logs"
 # <!-- custom: The ui* commands that only read or redraw what is shown; uiopen, uipress and uiselect act as clicks do, and uiplot gives a mission with x and y. Before 2026-11-20 none was listed, so the log and SASPilotConsole called uistate or uihover orders. (Claude code Opus 5.5) -->
 READ_COMMANDS = frozenset(("pyerrors", "uifont", "uioptions", "uiopen", "uiscreens", "uiwidgets", "uitabs", "uiread", "uihover", "uiitems", "uistate", "uimain", "uirecord", "uibench", "uiprobe", "uiplot", "help", "ping", "advise", "role", "demographics", "trainable", "bonustrade", "tech", "graph", "deals", "scores", "player", "players", "units", "unit", "cities", "city", "plot", "plots", "grid", "fog", "path", "targets", "wartargets", "messages", "todo", "info", "routes", "group", "diplo", "trade", "techs", "odds", "sites", "builds", "look", "finance", "domestic", "military", "battles", "relations", "espionage", "spy", "turn", "popups", "civics", "sliders", "religion", "types", "pedia", "citizens", "greatpeople", "workers", "map", "scout", "resources", "reminders", "research", "hurry", "freetech"))
 # <!-- custom: Codex's review found 'popups held=' (it switches holding) and 'profile' (it can run any command repeatedly) logged as reads, and the query forms of 'research', 'hurry' and 'freetech' as orders. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-ORDER_ARGS = {"fog": ("on",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close"), "uifont": ("tiny", "body", "label", "title", "reset"), "uiopen": ("name",)}
+ORDER_ARGS = {"fog": ("on",), "resolution": ("size",), "espionage": ("weight",), "sliders": ("percent",), "citizens": ("automated",), "civics": ("set",), "religion": ("convert",), "popups": ("held",), "research": ("tech",), "hurry": ("hurry",), "freetech": ("tech",), "role": ("set",), "uirecord": ("on",), "uiprobe": ("on", "clear"), "uiplot": ("x", "y", "cancel"), "uiscroll": ("dir",), "pyerrors": ("clear",), "uioptions": ("open", "close"), "uifont": ("tiny", "body", "label", "title", "reset"), "uiopen": ("name",)}
 # <!-- custom: A logged result longer than this is cut, so a 1.6 MB plot reply does not flood the log; its size is still recorded. (Claude code Opus 5.5) -->
 LOG_RESULT_CHARS = 1500
 # <!-- custom: Set by main for this invocation: the top-level command, so wait_for_turn's pings are not logged under 'endturn', and its note=, written on the first logged request only. (Claude code Opus 5.5) -->
@@ -118,6 +118,9 @@ def _log_request(pid, command, args, reply, error, kind=None):
 			record["turn"] = reply.get("gameTurn")
 			record["ok"] = bool(reply.get("ok"))
 			record["ms"] = round(reply.get("roundTripMs", 0.0), 3)
+			# <!-- custom: The Python errors a reply carried go in the log too, so a session's errors can be read back with the orders around them (the user's question, 2026-11-28). (Claude code Opus 5.5) -->
+			if reply.get("pythonErrors"):
+				record["pythonErrors"] = reply["pythonErrors"]
 			if reply.get("ok"):
 				text = json.dumps(reply.get("result"), ensure_ascii=False, separators=(",", ":"))
 				record["bytes"] = reply.get("replyBytes")
@@ -446,6 +449,12 @@ def request(pid, command, args=None, timeout=60.0):
 		_log_request(pid, command, args, None, "%s: %s" % (type(error).__name__, error))
 		raise
 	_log_request(pid, command, args, reply, None)
+	# <!-- custom: The game puts in any reply the Python errors its client wrote since the previous one, raised by the command or by code the EXE ran in between; printed here, to stderr, so every command and script shows them, whatever it prints of the result.
+	# The user's idea (2026-11-28), after seeing an error (KI#123.7) that no reply had shown while testing went on; 'pyerrors' keeps the last 400 writes. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if reply.get("pythonErrors"):
+		print("Civ4 %d: %d Python error output writes since the last reply ('pyerrors' keeps the last 400):" % (pid, reply["pythonErrors"]["writes"]), file=sys.stderr)
+		for line in reply["pythonErrors"]["lines"]:
+			print("  " + line, file=sys.stderr)
 	return reply
 
 
@@ -723,6 +732,16 @@ def start(args):
 	# <!-- custom: --watch opens the command console laid out beside the new Civ4 at once, rather than a second command after it (the user, 2026-11-14); see SASPilotConsole.py --window. (Claude code Opus 5.5) -->
 	# <!-- custom: On by default since the user asked that SASPilot start with its console (2026-11-14).
 	# --no-watch was removed the same day: Codex started a scouting trial with it, so the user, watching, saw one console for two clients and could not follow that one. Every client now has its console, as the user asked; SAS_PILOT_CONSOLE_ON in SASSessionTunables.py replaced the SAS_PILOT_WATCH=0 environment variable on 2026-11-27 (see ensure_watcher). (Claude code Opus 5.5) -->
+	# <!-- custom: Before the console opens, so its layout sees the window as it stays: a game started at its monitor's size goes borderless (fit_screen_sized). See KI#7. (Claude code Opus 5.5) -->
+	# <!-- custom: desktop_windows for the game picture's size, found under LLM_Helpers/desktop as at the top of this file. (Claude code Opus 5.5) -->
+	import desktop_windows
+	# <!-- custom: A failure here is reported in the reply rather than raised: Civ4 is already running, and raising would lose the PID the caller needs to drive or close it (Codex's review, 2026-11-28). See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	try:
+		(_x, _y, picture_width, picture_height) = desktop_windows.client_rect(desktop_windows.find_window(pid))
+		state["borderless"] = fit_screen_sized(pid, picture_width, picture_height)
+	except (OSError, RuntimeError) as error:
+		state["borderless"] = None
+		state["borderlessError"] = str(error)
 	state["watch"] = ensure_watcher(pid, args.watch_slots, args.watch_slot)
 	# <!-- custom: A second client's console opened full height in band 1 of 1 over the first one's (2026-11-15), so with --multiple and no --watch-slots every running client is laid out again, one band each. (Claude code Opus 5.5) -->
 	if args.multiple and args.watch_slots == 1 and state["watch"]:
@@ -818,6 +837,130 @@ def _bridge(pid, command, command_args, timeout):
 	if not reply.get("ok"):
 		raise PilotError("%s: %s" % (command, reply.get("error")))
 	return reply["result"]
+
+
+# <!-- custom: How long the window must keep the new size before it counts as kept: an unanswered "keep this resolution" dialog put the old size back within 23 seconds on 2026-11-28. (Claude code Opus 5.5) -->
+RESOLUTION_REVERT_SECONDS = 25.0
+# <!-- custom: Points of the keep dialog, from the centre of the game picture, and what each shows: its dark blue panel or its tan Yes and No bars.
+# The dialog keeps its pixel size and place at any resolution (its Yes sat 63, 14 from the window's centre in 2566 x 1480 and 1926 x 1120 windows), so these hold at any size; measured on a 2566 x 1480 capture, 2026-11-28.
+# First taken from the window's centre, which the title bar puts 17 px above the picture's, so a borderless window, whose centre is the picture's, would have missed them; now 17 px higher, from the picture's centre. See KI#7. (Claude code Opus 5.5) -->
+RESOLUTION_DIALOG_POINTS = (
+	(215, -37, "panel"),
+	(180, -37, "panel"),
+	(225, 15, "panel"),
+	(60, 15, "panel"),
+	(-80, 0, "bar"),
+	(200, 0, "bar"),
+	(-80, 30, "bar"),
+	(200, 30, "bar"),
+)
+
+
+def keep_dialog_shown(hwnd):
+	# <!-- custom: Whether the EXE's keep dialog is up, by the colours at RESOLUTION_DIALOG_POINTS in a capture of the window: Enter must reach only that dialog, as Enter is also Civ4's End Turn key (Codex's review, 2026-11-28).
+	# A panel point must be dark blue and a bar point tan; the map behind rarely gives all eight at once. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import desktop_windows
+	image = desktop_windows.print_window_image(hwnd)
+	(left, top, width, height) = desktop_windows.client_rect(hwnd)
+	(centre_x, centre_y) = (left + width // 2, top + height // 2)
+	for (offset_x, offset_y, kind) in RESOLUTION_DIALOG_POINTS:
+		(red, green, blue) = image.getpixel((centre_x + offset_x, centre_y + offset_y))[:3]
+		if kind == "panel" and not (red < 90 and blue > red + 15):
+			return False
+		if kind == "bar" and not (140 <= red <= 230 and red > blue + 25):
+			return False
+	return True
+
+
+def set_resolution(pid, resolution_args, timeout):
+	# <!-- custom: The in-game command switches the mode, but the EXE then shows its "keep this resolution" dialog (TXT_KEY_OPTIONS_CONFIRM_RESOLUTION, a text only the EXE uses) and, with no answer, puts the old size back.
+	# Seen on 2026-11-28: the window went to 2566 x 1480 and back to 1926 x 1120 within 23 seconds, while the profile stayed on 2560 x 1440.
+	# The dialog is drawn inside the game window, which is the process's only window, and is no game popup, so neither 'popups' nor desktop_windows' find_button reaches it; Enter answers Yes.
+	# But Enter is also the End Turn key: the first version pressed it once the window had the size, and with no dialog up, as when the size had not changed, it could end the turn (Codex's review).
+	# So the client presses Enter only while keep_dialog_shown sees the dialog, then checks that it went and that the size held past the revert as the game reports it; the console lays itself out again for the new size (SASPilotConsole.follow). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	reply = request(pid, "resolution", resolution_args, timeout)
+	if not reply.get("ok"):
+		raise PilotError("resolution: %s" % reply.get("error"))
+	result = reply["result"]
+	if resolution_args.get("size") is None:
+		return result
+	iTurnBefore = reply.get("gameTurn")
+	import desktop_windows
+	(width, height) = [int(part) for part in str(resolution_args["size"]).lower().replace(" ", "").split("x")]
+	# <!-- custom: An unchanged mode still gets its window fitted, with no key pressed: it returned before the fit, so a framed 4K game on a 4K monitor stayed framed (Codex's review, 2026-11-28). See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if result.get("unchanged"):
+		borderless = fit_screen_sized(pid, width, height)
+		if borderless is not None:
+			result["borderless"] = borderless
+		return result
+	hwnd = desktop_windows.find_window(pid)
+	started = time.monotonic()
+
+	def fits():
+		(left, top, right, bottom) = desktop_windows.window_rect(hwnd)
+		# <!-- custom: The window is the game area plus its frame, such as 2566 x 1480 for 2560 x 1440, or the game area alone when borderless. (Claude code Opus 5.5) -->
+		return (0 <= right - left - width <= 20 and 0 <= bottom - top - height <= 60, "%dx%d" % (right - left, bottom - top))
+
+	(bFits, szWindow) = fits()
+	while not bFits and time.monotonic() - started < 15.0:
+		time.sleep(0.25)
+		(bFits, szWindow) = fits()
+	if not bFits:
+		raise PilotError("the window did not take %dx%d within 15 s; it is %s" % (width, height, szWindow))
+	# <!-- custom: The dialog also comes when the screen already had the size and only the profile changed, so it is looked for either way. (Claude code Opus 5.5) -->
+	shown = False
+	while not shown and time.monotonic() - started < 15.0:
+		shown = keep_dialog_shown(hwnd)
+		if not shown:
+			time.sleep(0.25)
+	if not shown:
+		raise PilotError("switched to %dx%d, but the keep dialog was not seen, so no key was pressed (Enter also ends the turn); answer it in the window within about 20 s, or it puts the old size back" % (width, height))
+	# <!-- custom: The window comes to the front first and the dialog is looked for again just before the key, as key() raises the window itself: checked earlier, the dialog could close in between, by a person's answer or its timer, and Enter reach the map (Codex's third review, 2026-11-28).
+	# The key is then tapped in the same focus grab, with the window checked to be in front: desktop_windows.key() raised the window again and slept at least 150 ms after that last look, and Codex's fourth review sent Enter with the dialog gone in that gap (2026-11-28).
+	# A person answering the dialog by hand between the last look and the tap can still let Enter reach the map, so the game turn is compared afterwards, and a changed turn is reported as an error rather than a kept size. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	previous = desktop_windows.USER32.GetForegroundWindow()
+	# <!-- custom: With the title-bar click key() used when Windows refuses the focus: without it the game stayed behind and no key was sent (2026-11-28). (Claude code Opus 5.5) -->
+	desktop_windows.bring_to_front(hwnd, pid)
+	try:
+		if desktop_windows.window_pid(desktop_windows.USER32.GetForegroundWindow()) != pid or not keep_dialog_shown(hwnd):
+			raise PilotError("the keep dialog went, or the game lost the front, before Enter could be pressed, so none was; read 'resolution' to see the size the game kept")
+		desktop_windows.tap(*desktop_windows.parse_key("enter"))
+		time.sleep(0.2)
+	finally:
+		desktop_windows.give_focus_back(previous, pid)
+	time.sleep(0.8)
+	if keep_dialog_shown(hwnd):
+		raise PilotError("the keep dialog is still up after Enter; answer it in the window")
+	time.sleep(max(0.0, RESOLUTION_REVERT_SECONDS - (time.monotonic() - started)))
+	(result["kept"], result["window"]) = fits()
+	after = request(pid, "resolution", {}, timeout)
+	result["game"] = after["result"]["current"]
+	if after.get("gameTurn") != iTurnBefore:
+		raise PilotError("the game turn went from %s to %s while the keep dialog was answered: Enter, also End Turn, may have ended the turn" % (iTurnBefore, after.get("gameTurn")))
+	if not result["kept"] or result["game"].replace(" ", "").lower() != "%dx%d" % (width, height):
+		raise PilotError("the game reverted to %s in a %s window: the keep dialog was not answered in time" % (result["game"], result["window"]))
+	borderless = fit_screen_sized(pid, width, height)
+	if borderless is not None:
+		result["borderless"] = borderless
+	return result
+
+
+def fit_screen_sized(pid, width, height):
+	# <!-- custom: A game at its monitor's own size goes borderless, so it fits the monitor pixel for pixel and Civ4's Print Screen works, and a smaller one gets its frame back (the user's choice, 2026-11-28).
+	# Framed, 3840 x 2160 on a 3840 x 2160 monitor ran past its bottom and Print Screen saved nothing; maximized, the picture was scaled and the Sevopedia's text lost pixel rows.
+	# Shared by 'resolution' and 'start', so a game started at the monitor's size fits it too; returns True or False when it changed the window, None when not. See KI#7. (Claude code Opus 5.5) -->
+	import desktop_windows
+	hwnd = desktop_windows.find_window(pid)
+	(left, top, right, bottom) = desktop_windows.monitor_rect(hwnd)
+	if (width, height) == (right - left, bottom - top):
+		# <!-- custom: A borderless window moved off its monitor's rectangle is placed again, as a check of the style alone skipped it (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not desktop_windows.is_borderless(hwnd) or desktop_windows.window_rect(hwnd) != (left, top, right, bottom):
+			desktop_windows.borderless(pid, True)
+			return True
+	elif desktop_windows.is_borderless(hwnd):
+		desktop_windows.borderless(pid, False)
+		return False
+	return None
 
 
 def _reply_with(pid, screen, comments, timeout, bound=None):
@@ -1243,6 +1386,12 @@ def main():
 					key, value = item.split("=", 1)
 					price_args[key] = parse_value(value)
 				result = ask_price(pid, price_args, args.timeout or 60.0)
+			elif args.command == "resolution":
+				resolution_args = {}
+				for item in args.arguments:
+					key, value = item.split("=", 1)
+					resolution_args[key] = value
+				result = set_resolution(pid, resolution_args, args.timeout or 60.0)
 			elif args.command == "bench":
 				if not args.arguments:
 					raise PilotError("bench needs a command, e.g. SASPilotClient.py bench ping")

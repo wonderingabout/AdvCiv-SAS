@@ -28,6 +28,7 @@ The video demos cover two stages of the playtest.
 &emsp;[Graph queries](#graph-queries)\
 &emsp;[Plot grid and trade network](#plot-grid-and-trade-network)\
 &emsp;&emsp;[Roles](#roles)\
+&emsp;[Game settings](#game-settings)\
 &emsp;[SASPilotConsole](#saspilotconsole)\
 &emsp;[Watching a person play](#watching-a-person-play)\
 &emsp;[Running Python in the game](#running-python-in-the-game)\
@@ -48,6 +49,7 @@ The video demos cover two stages of the playtest.
 &emsp;[A turn by name, tested on a SAS48 game](#a-turn-by-name-tested-on-a-sas48-game)\
 &emsp;[Sweeping the screens, tested on a late game](#sweeping-the-screens-tested-on-a-late-game)\
 &emsp;&emsp;[Python errors and their dialogs](#python-errors-and-their-dialogs)\
+&emsp;[A city's screen, audited on a late game](#a-citys-screen-audited-on-a-late-game)\
 &emsp;[BUG's options screen, tested on a late game](#bugs-options-screen-tested-on-a-late-game)\
 &emsp;[Transitions, tested on a late game](#transitions-tested-on-a-late-game)\
 &emsp;[What stays the EXE's, and what covers it](#what-stays-the-exes-and-what-covers-it)\
@@ -447,6 +449,39 @@ The scouting helpers built on `grid` came from the [scouting trial](/_1_AdvCiv-S
   - `role set=<role> lock=1` holds the role until Civ4 closes. `start --role` writes it into the per-run INI, which the bridge applies, locked, before its first request: set by a request after the game was ready, a second client could act first (Codex's review, round 33), and `role set=all` could lift it (round 32).
   - A refusal names the roles that would allow the command.
 
+### Game settings
+
+The game's own settings, first the screen resolution, which a test at two sizes needs; Civ4's other options and BUG's are not commands yet.
+
+```text
+python SASPilotClient.py resolution
+python SASPilotClient.py resolution size=1920x1080
+```
+
+- Without `size`, `resolution` gives the screen's real size (`current`), the mode the profile names (`profile`) and the modes the Options screen offers.
+- With `size`, it switches during play through `CyUserProfile().setResolution`, as the Options screen's dropdown does; SAS's screens follow the change ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) to [KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)), so the game and the client's state stay. It took about 27 seconds each way on 2026-11-28.
+  - Nothing is switched, and no key pressed, when the screen and the profile already have the size: the reply says `unchanged`. The window is still fitted then, so a framed game at its monitor's size goes borderless, and a borderless one moved off its monitor's rectangle is put back (Codex's review, 2026-11-28).
+  - The first switch of a client raised a Python error in the Options screen's refresh, which the EXE calls after a change, as that screen had never been drawn ([KI#123.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7)); fixed the same day.
+  - A size equal to the monitor's, such as 3840 x 2160 on a 3840 x 2160 monitor, goes borderless (`"borderless": true`), so the game fits the monitor pixel for pixel and Civ4's Print Screen works; a smaller size gets the frame back; `start --resolution` at the monitor's size does the same, and the console then opens behind the game ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7)).
+  - The console follows any change of the game window's size, by this command or in the Options screen, when it still fits beside the game on the same monitor, in width and height; otherwise, as with a 3840 x 2160 game on a 3840 x 2160 monitor, both windows stay where they are.
+    - Only with one client, and not while the game is minimized: with two, a 2560 x 1440 game was squeezed into its band in Codex's test, so their layout from the start stays.
+    - After a relayout the console's text buffer keeps its old width, so long lines scroll sideways, with a horizontal scrollbar, instead of wrapping at the window's edge (the user's screenshot, 2026-11-28).
+      - Narrowing the buffer to the window with `SetConsoleScreenBufferSize`, from the console itself every 2 s, was tried the same day. After the next resolution switch the console host went away, and the console's next write failed with `WinError 233` (no process at the other end of the pipe), closing its window.
+      - With that call removed, the same switches left it running, so it was taken out; the sideways scrolling remains.
+      - The user's screenshots, cropped to the console: beside a 1920 x 1080 game the lines wrap at the window's edge; after a switch to 2560 x 1440 narrowed the console, they run past it, cut at the left, with a scrollbar at the bottom. <img src="/_1_AdvCiv-SAS/Images/tools/1.990_saspilot_console_buffer_width (1).PNG" alt="1.990_saspilot_console_buffer_width (1).PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/tools/1.990_saspilot_console_buffer_width (2).PNG" alt="1.990_saspilot_console_buffer_width (2).PNG" width="250">
+- The EXE then asks "Do you wish to keep this resolution?" (`TXT_KEY_OPTIONS_CONFIRM_RESOLUTION`, a text no Python or DLL code uses), and with no answer puts the old size back within about 20 seconds.
+  - The dialog is drawn inside the game window, the process's only window, and is no game popup, so neither `popups` nor `desktop_windows.py`'s `find_button` sees it.
+  - Enter answers Yes, but Enter is also Civ4's End Turn key: the first version pressed it once the window had the size, and with no dialog up, as when the size had not changed, it could end the turn (Codex's review).
+  - So the client presses Enter only while it sees the dialog, by the colours of its panel and its Yes and No bars at fixed points from the window's centre, then checks that the dialog went and that the size held past the revert as the game reports it. When it does not see the dialog, it presses nothing and says to answer it in the window.
+    - It brings the window to the front and looks once more just before the key, as a dialog that closed in between, by a person's answer or its timer, would let Enter reach the map (Codex's third review).
+    - The key is tapped in that same focus grab: `desktop_windows.key()` raised the window again and slept at least 150 ms after the last look, and Codex's fourth review sent Enter with the dialog gone in that gap.
+    - A person answering the dialog by hand in the instant between the last look and the tap can still let Enter end the turn, so the game turn is compared afterwards and a changed one is reported as an error, not as a kept size.
+  - Tested on 2026-11-28 at 1920 x 1080, 2560 x 1440 and 3840 x 2160: the game stayed on turn 307 throughout. At 3840 x 2160 on a 3840 x 2160 monitor the window, 3846 x 2200, ran about 100 pixels below the work area, and the console stayed behind the game.
+  - This is the first EXE-only dialog SASPilot answers. The keyboard reaches what Python cannot, which may hold for the EXE's other dialogs; it was tested only on this one.
+- An unanswered dialog leaves the two apart: the screen goes back to the old size while the profile keeps the new mode. Setting that mode again then does nothing, so the command refuses and says to switch to the screen's real size first.
+- Written on 2026-11-28, after an agent restarted the client to go from 2560 x 1440 to 1920 x 1080, as nothing it ran told it the screens follow a change during play.
+  - The first attempt pressed Yes by its offset from the window's centre, measured in two window sizes; Enter replaced it, as a key needs no coordinates.
+
 ### SASPilotConsole
 
 SASPilotConsole shows the command log for a running Civ4 client. This full console capture from the England playthrough shows orders, results, numbered `why` notes, and a refused mission. It predates the SASPilotConsole title bar.
@@ -534,6 +569,8 @@ python SASPilotClient.py py "print player.getName(); result = [c.getName() for c
     - A redraw took 133 ms instead of 88, which led to reusing the last name cap; the same call then gave 62 ms. Another call had first confirmed that `CyInterface().isScreenUp` reports the open screen.
 - When a `py` snippet proves useful twice, make it a `cmd_<name>` function in the command file.
 - `pyerrors` gives this client's Python error output since SASPilot started, the one read that is surely this client's, as `PythonErr.log` is shared; see [Python errors and their dialogs](#python-errors-and-their-dialogs).
+  - Any reply also carries `pythonErrors`, the writes since the previous reply and their last 12 lines, and the client prints them to stderr, so an agent learns of an error without thinking to look (the user's idea, 2026-11-28). The command log keeps them on the same row, so a session's errors can be read back beside its orders.
+  - Why: that day the Options screen's refresh raised after `resolution` ([KI#123.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7)). The EXE ran that code between requests, so no reply showed the error, and the user saw it while testing went on.
 
 ### Using it from a script
 
@@ -625,7 +662,7 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | Command | What it does |
 | --- | --- |
 | `uiscreens` | The screens it knows, with `open` and the number of recorded widgets; the short names `uiopen` takes. |
-| `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. `tab=` switches to a footer tab by its registry key or label in the same call, such as `uiopen name=victory tab=members`, which took `uiopen`, `uitabs` and `uipress` before (2026-11-22). |
+| `uiopen name=military` | Opens a screen as its key does, through its control such as `CONTROL_MILITARY_SCREEN` (tech, policy, religion, corporation, foreigntrade, foreigndiplomacy, domestic, military, espionage, info, world, victory, halloffame, pedia; religion and corporation, which have no control since SAS moved them into the Policy Advisor, by their show function). Under the play role it passes the same check as `screen`. `tab=` switches to a footer tab by its registry key or label in the same call, such as `uiopen name=victory tab=members`, which took `uiopen`, `uitabs` and `uipress` before (2026-11-22). `name=pedia item=UNIT_WARRIOR` opens one Sevopedia page by its XML type (see below the table). |
 | `uisplash name=era item=ERA_RENAISSANCE` | Shows a screen the game shows on an event, without the event: era, dawnofman, wonder, religion, project and techsplash, the item by its XML type. It bypasses the SAS splash switches, respects the player's own options, and returns the close button for `uipress` when the preview draws. Movie previews leave the map camera in place. The create role, as it shows what the player has not reached. |
 | `uitabs` | The open advisor's footer tabs: widget name, label and the active one, as the screen last drew them. `all=1` reads the shared advisor tab registry without opening screens. It gives each tab's key, label, API command and whether the current game and advisor options show it ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)). |
 | `uiscroll dir=down` | Scrolls a list with its arrow buttons: up, down, pageup, pagedown, top, bottom, such as the Foreign Advisor's Bonuses grid; an arrow at its end is hidden, so it is refused. Without `dir`, the arrows shown. |
@@ -639,7 +676,7 @@ The user's idea (2026-11-20): click what a player clicks, by name, without memor
 | `uihover widget=TechAdvisorButton` | The tooltip the window shows for a widget, an item or a cell, read from the DLL, such as "Technology Advisor <F6>". |
 | `uiselect unit=65543` | Selects a unit, as a map click does, or with `city=` opens that city's screen; `close=1` closes it, as Esc does. |
 | `uimain` | Records the main interface as it is now: the selected unit's actions, the open city screen, sliders, research, the scoreboard. |
-| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, which `about=INTERFACEMODE_GO_TO` can name instead, each named: an action, unit, building, project or process. A list box's entries too, named by their text, such as the Sevopedia's categories: `uipress widget=PediaMainCategoryList about=Leaders`. |
+| `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` | A multi-list's items, numbered for `uipress item=`, which `about=INTERFACEMODE_GO_TO` can name instead, each named: an action, unit, building, project or process, a build button with the order it gives (`order=ORDER_TRAIN`). A list box's entries too, named by their text, such as the Sevopedia's categories: `uipress widget=PediaMainCategoryList about=Leaders`. |
 | `uiplot x=85 y=17` | Clicks a map plot while a unit action such as Go To, Paradrop or Air Strike waits for one: the mode's mission goes to the selected group. Without `x` and `y`, the plots the mode accepts, for the modes the game checks plot by plot (Paradrop, Air Strike, Recon and the like); `cancel=1` leaves the mode, as Esc does. |
 | `uitype text=grass` | Types into the open screen as the keyboard does, such as the Sevopedia's search; `keys=backspace` sends named keys. |
 | `uioptions open=1` | Opens BUG's options screen and lists its controls: tab, title, kind, option `id`, value; `tab=` and `match=` filter, `close=1` presses its Exit, which saves the options. |
@@ -653,6 +690,15 @@ SASPilotClient.py uiwidgets match=Tab
 SASPilotClient.py uipress widget=MilitaryAdvisorTabButton2
 SASPilotClient.py uiread widget=MilitaryAdvisorBattleTable
 ```
+
+For one Sevopedia page, `uiopen name=pedia item=UNIT_WARRIOR` opens it by its XML type, through `pediaJump` with its kind's category, and returns the category and item shown, checked against the type. Before (2026-11-28) it took a press on the category list and one on the item list.
+
+- The kinds, `types` lists them, are [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py)'s `PEDIA_ITEM_KINDS`, the table the Sevopedia's own link matching reads too ([KI#1110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110.2)). A kind added there reaches `types`, `pedia` and `item=` with no SASPilot change.
+- `CONCEPT_` names both concept tables; a type is found in its own one, and `types kind=CONCEPT_` lists both.
+
+- A type whose link opens a chart, such as `ERA_ANCIENT` for the Era chart, comes back with `chart`, as a chart has no item list.
+- Handicaps have only their chart and no link, so `HANDICAP_` types fail, as do class types such as `UNITCLASS_WARRIOR`.
+- Tested on 2026-11-28 on all 19 kinds that had a page then, from `UNIT_WARRIOR` to `CORPORATION_1`; `BUILDING_PYRAMID` opens under World Wonders. The shared table's four added kinds, unit categories, concepts, votes and event triggers, were tested the same day ([KI#1110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110.2)).
 
 For a Sevopedia movie, use `uiopen name=pedia` and `uipress widget=PediaMainCategoryList about=Movies`. Read the entries with `uiread widget=PediaMainItemList cells=1` and select the movie's cell with `uipress`. Find its Play image in `uiwidgets` (the `WIDGET_PYTHON` button with `Play_Button` art), then press it by widget name. Once playing, `uihover widget=MoviePlayerCurrentLabel` reads the title's tooltip and `uipress widget=MoviePlayerCurrentLabel` follows the link when it has one. For music, use the Music category and `MusicPlayerQueueList` with `row=` and `column=`.
 
@@ -901,6 +947,34 @@ python SASPilot/SASPilotUISweep.py --dry-run
   - The errors are not cleared, so a run that stopped leaves them for the next one to see.
   - To retry in the same game, read the error, close its dialogs by hand, then run `pyerrors clear=1`: closing a dialog alone leaves the record, so the next sweep stops on it again (Codex's review, 2026-11-27).
   - Tested by making the main interface's update raise once: before the start, and after a few screen updates, which the sweep caught at the Military Advisor's Battles tab.
+
+### A city's screen, audited on a late game
+
+[`SASPilotCityScreenAudit.py`](/SASPilot/SASPilotCityScreenAudit.py) does what a player does in one city, through the UI, and checks each step against the commands that give the same facts. The tab audit and the sweep show that every screen opens and reads; this route shows that an agent can also act there, from "this city needs a Worker" to a queued Worker.
+
+```text
+python SASPilot/SASPilotCityScreenAudit.py --city Vienna --item BUILDING_AQUEDUCT
+```
+
+- The steps:
+  - `uiselect city=` opens the city screen and must select that city, and `uimain` records it.
+  - `uiitems widget=BottomButtonList screen=MAIN_INTERFACE` lists the build buttons, those with an `order`, whose enabled ones must equal the `city` command's options.
+  - `uipress about=<type>` presses one, and `city` must show it first in the queue.
+  - `dequeue index=0` takes the pressed order out unless `--keep`, leaving the other orders as they were, and `uiselect close=1` closes the screen, also after a failed step.
+- After `uiselect city=` and `uimain`, the screen reads as a player sees it (`uiwidgets screen=MAIN_INTERFACE`, `uiread`), checked against a screenshot of Vienna on 2026-11-28:
+  - Texts: `CityNameText` ("Vienna: 12 - 1274 (2120 BC) [3/17] : +60%"), `PopulationText` ("Stagnant - 26 / 44"), `ProductionText` ("Stealth Bomber - 211 / 230 (1 Turns)"), health, happiness, the commerce rates, maintenance, culture, Great People with their sources and nationality.
+  - Tables: `BuildingListTable` (each building with its effect, such as `Hospital +1[HEALTHY]`), `TradeRouteTable` and `SelectedCityText`, the production queue with each order's turns, such as "Aqueduct (3)".
+  - Buttons: the build buttons in `BottomButtonList` with the three `CityTab` filters, hurry, emphasize and automation, and the specialist buttons, which carry their specialist as `about` (`IncreaseSpecialist3` is `SPECIALIST_SCIENTIST`); pressing it adds a Scientist, as `citizens` then shows.
+  - Three of these looked missing at first and were not: the building effects (only the first four rows, which have none, had been printed), the queue (taken for an EXE-drawn list until CvMainInterface's `WIDGET_HELP_SELECTED` rows pointed to its table) and the specialists, whose buttons had only numbers until `about` named them.
+- The audit also compares `SelectedCityText`'s rows with the `city` queue after the press, each row with the name of the order at its place, so the screen's queue is checked too; a process, which has no Sevopedia name to compare in the play role, is listed as unchecked.
+- Tested on 2026-11-28 at turn 307 of the ASOKA Huge save in the play role with fog: on six cities, the screen's 34 to 52 enabled buttons matched the options exactly.
+  - A plain press replaces the current order only while no production is invested in it, and otherwise puts the new one first and keeps the queue, as K-Mod's `CvGame::cityPushOrder` does.
+    - The first two presses looked contradictory: Aachen, with none, had its Worker replaced by a Settler, while Vienna, with 211, got its Aqueduct before its Stealth Bomber. The press step now reports `productionBefore` beside both queues.
+  - The first restore rebuilt the queue by type with `produce`, which loses repeat flags while reporting success and cannot empty a queue (Codex's review); `dequeue` keeps both.
+    - Only a change the audit can name is undone, an insert before the old queue or a replacement of its head; a head the press replaced, with nothing invested in it, goes back by type, and the step says so (Prague's Wealth process, 2026-11-28).
+  - The audit stops before pressing if the wrong city opened, and the undo runs in its cleanup on a fresh read of the queue, so a failed read after the press still undoes it; an unchanged queue is left alone.
+  - Pressing the unit already first, with nothing invested, put a second one in front (Mainz's Worker), as K-Mod's rule for the same unit does; the audit took exactly that one out.
+  - The first run that refused an unavailable item, `BUILDING_PYRAMID` in Mainz, left the city screen open; the audit now closes it on every path.
 
 ### BUG's options screen, tested on a late game
 

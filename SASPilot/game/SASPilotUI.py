@@ -336,15 +336,6 @@ def _activeScreens():
 
 # <!-- custom: Screens (Claude code Opus 5.5) -->
 
-# <!-- custom: The screens a player opens from the window, by a short name after SAS's titles (BtS's single Foreign Advisor is SAS's Foreign Trade and Foreign Diplomacy Advisors, as the user pointed out), with the CvScreensInterface function their button calls (pediaShow for the Sevopedia, which reopens the last page); under the play role, 'uiopen' passes the same check as 'screen'. (Claude code Opus 5.5) -->
-_OPENERS = (("tech", "showTechChooser"), ("policy", "showPolicyAdvisorScreen"), ("religion", "showReligionScreen"), ("corporation", "showCorporationScreen"), ("foreigntrade", "showForeignAdvisorScreen"), ("foreigndiplomacy", "showForeignDiplomacyAdvisor"), ("domestic", "showDomesticAdvisor"), ("military", "showMilitaryAdvisor"), ("espionage", "showEspionageAdvisor"), ("info", "showInfoScreen"), ("world", "showWorldAdvisorScreen"), ("victory", "showVictoryScreen"), ("halloffame", "showHallOfFame"), ("pedia", "pediaShow"))
-
-
-# <!-- custom: The control each short name's key sends (CvGame::doControl in CvGameInterface.cpp).
-# Not the Policy Advisor's: CONTROL_CIVICS_SCREEN first kills every waiting change-civic popup (advc.004x), so opening it could remove a popup before a check saw it (Codex's review); its show function draws it fully. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-_OPENER_CONTROLS = {"tech": "CONTROL_TECH_CHOOSER", "foreigntrade": "CONTROL_FOREIGN_SCREEN", "foreigndiplomacy": "CONTROL_FOREIGN_DIPLOMACY_SCREEN", "domestic": "CONTROL_DOMESTIC_SCREEN", "military": "CONTROL_MILITARY_SCREEN", "espionage": "CONTROL_ESPIONAGE_SCREEN", "info": "CONTROL_INFO", "world": "CONTROL_WORLD_ADVISOR_SCREEN", "victory": "CONTROL_VICTORY_SCREEN", "halloffame": "CONTROL_HALL_OF_FAME", "pedia": "CONTROL_CIVILOPEDIA"}
-
-
 def _screenNames():
 	# <!-- custom: Each screen ID's CvScreenEnums name, such as MILITARY_ADVISOR. (Claude code Opus 5.5) -->
 	# <!-- custom: Sevopedia's IDs (class SevoScreenEnums) overlap the vanilla pedia's, and SAS uses Sevopedia, so its names win: its main screen, 200, read PEDIA_TECH, the vanilla name, in the first test. (Claude code Opus 5.5) -->
@@ -389,7 +380,7 @@ _HELP["uiscreens"] = "The screens SASPilotUI knows: each with its CvScreenEnums 
 def cmd_uiscreens(args):
 	names = _screenNames()
 	openers = {}
-	for (szShort, szShow) in _OPENERS:
+	for (szShort, szShow, szOpenerControl) in saspilot._OPENERS:
 		openers[szShow] = szShort
 	result = []
 	for iScreen in CvScreensInterface.HandleInputMap.keys():
@@ -397,7 +388,7 @@ def cmd_uiscreens(args):
 			continue
 		result.append({"screen": names.get(iScreen, str(iScreen)), "id": iScreen, "open": _isOpen(iScreen), "widgets": len(_registry().get(iScreen, {}))})
 	result.sort(lambda a, b: cmp(a["screen"], b["screen"]))
-	return {"screens": result, "open": [szShort for (szShort, szShow) in _OPENERS], "recorderMethods": len(saspilot._state.get("uiOriginals", {})), "recorder": cmd_uirecord({}), "recorderError": saspilot._state.get("uiRecordError")}
+	return {"screens": result, "open": [opener[0] for opener in saspilot._OPENERS], "recorderMethods": len(saspilot._state.get("uiOriginals", {})), "recorder": cmd_uirecord({}), "recorderError": saspilot._state.get("uiRecordError")}
 
 
 _HELP["uirecord"] = "The widget recorder: installed (now recording), always, the screen opened by 'uiopen' or 'uipress' that keeps it installed, and startRecord, the widgets recorded when the main interface was built at game start (0 if the client started with SASPilot off). By default it records only while that screen is up, so screens a person opens are not recorded; on=1 keeps it installed for good (each main interface redraw then costs more), on=0 goes back to the default and removes it. args: on."
@@ -426,7 +417,7 @@ def _prepareTechOpen():
 	CyInterface().setDirty(InterfaceDirtyBits.Tech_Screen_DIRTY_BIT, True)
 
 
-_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its recorded widget count. Without a name lists the screen shortcuts. With tab=, switches to that footer tab by registry key, label (any case), or widget name, as 'uitabs' lists them. args: name, tab."
+_HELP["uiopen"] = "Open a screen as its button in the window does, by short name ('uiscreens' lists them: tech, military, domestic, foreigntrade, foreigndiplomacy, ...). Returns the screen and its recorded widget count. Without a name lists the screen shortcuts. With tab=, switches to that footer tab by registry key, label (any case), or widget name, as 'uitabs' lists them. With name=pedia item=<XML type>, such as UNIT_WARRIOR or TECH_WRITING, opens that Sevopedia page, as a link does, and returns the category and item shown. args: name, tab, item."
 
 
 def cmd_uiopen(args):
@@ -434,9 +425,13 @@ def cmd_uiopen(args):
 	if args.get("name") is None:
 		if args.get("tab") is not None:
 			raise ValueError("tab= needs name=<screen>")
-		return {"open": [szShort for szShort, _ in _OPENERS]}
+		return {"open": [opener[0] for opener in saspilot._OPENERS]}
 	if args.get("tab") is not None:
 		_requireHudInput()
+	# <!-- custom: item= opens one Sevopedia page by its XML type, such as UNIT_WARRIOR, through pediaJump with the category CvScreenEnums.PEDIA_ITEM_KINDS gives its kind.
+	# Before (2026-11-28) a page was reached only by pressing the category list and then the item list, two presses and a lookup of the right row; the reply says which category and item the Sevopedia then shows. (Claude code Opus 5.5) -->
+	if args.get("item") is not None:
+		return _openPediaItem(args["name"], args["item"])
 	result = _openScreen(args["name"], True)
 	# <!-- custom: tab= switches to a footer tab by its label (or widget name) in the same call: reading the Victory screen's Members tab at the turn-305 U.N. election (2026-11-22) took uiopen, uitabs and uipress, three round trips, and the user recalled agents guessing tab numbers before uitabs existed. (Claude code Opus 5.5) -->
 	if args.get("tab") is not None:
@@ -475,15 +470,55 @@ def cmd_uiopen(args):
 	return result
 
 
+def _openPediaItem(szName, szType):
+	# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts stable keys independent of displayed text. (Claude code Opus 5.5) -->
+	if szName != "pedia":
+		raise ValueError("item= opens a Sevopedia page, so it needs name=pedia")
+	# <!-- custom: _pediaKind checks the entry's own type, as a BUILDINGCLASS_ or UNITCLASS_ type also starts with BUILDING or UNIT. (Claude code Opus 5.5) -->
+	kind = saspilot._pediaKind(szType)
+	if kind[3] is None:
+		raise ValueError("%s has no Sevopedia page of its own" % szType)
+	iType = saspilot._infoIndex(szType)
+	# <!-- custom: The old Civilopedia, used when BUG's Sevopedia option is off, has none of the Sevopedia's fields read below (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not CvScreensInterface.bUsingSevopedia:
+		raise ValueError("item= needs BUG's Sevopedia; the old Civilopedia is in use")
+	result = _openScreen(szName, True)
+	pedia = CvScreensInterface.pediaMainScreen
+	# <!-- custom: The jump is checked through SAS_lastPediaJump, which pediaJump sets to the category and item it shows, cleared first so a jump that does nothing is seen.
+	# The first check compared the screen's item with the type, which passed a tech jump that did nothing after a chart and failed ERA_ANCIENT, whose Era chart shows item -1 but records the era (Codex's review, 2026-11-28).
+	# The category is the one pediaJump settled on, so BUILDING_PYRAMID's World Wonders, moved there from Buildings, passes as itself. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	previous = pedia.SAS_lastPediaJump
+	pedia.SAS_lastPediaJump = None
+	# <!-- custom: The marker is put back if the jump raises too, and the category must be one _PEDIA_KINDS names for the kind, as an index alone matched a jump to the wrong category (Codex's second review, 2026-11-28).
+	# Putting the marker back does not undo a page the failed jump half drew. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: Was a call of the kind's pediaJumpTo* entry point by name; those call pediaJump with the kind's category when the Sevopedia is in use, which is checked above, so the shared table's category is enough and SASPilot keeps no list of entry point names. See KI#1110.2. (Claude code Opus 5.5) -->
+	try:
+		pedia.pediaJump(kind[3], iType, True, False)
+	except:
+		pedia.SAS_lastPediaJump = previous
+		raise
+	jumped = pedia.SAS_lastPediaJump
+	if jumped is None or jumped[1] != iType or jumped[0] not in kind[4]:
+		pedia.SAS_lastPediaJump = previous
+		raise ValueError("the Sevopedia did not open %s; it shows %s" % (szType, jumped is None and "the page it had" or "item %s of %s" % (jumped[1], _screenNames().get(jumped[0], str(jumped[0])))))
+	result["item"] = szType
+	result["pedia"] = {"category": _screenNames().get(jumped[0], str(jumped[0])), "item": jumped[1]}
+	if jumped[0] in pedia.SAS_CATEGORIES_WITHOUT_ITEM_LIST:
+		result["chart"] = True
+	return result
+
+
 def _openScreen(szName, bRecord):
 	# <!-- custom: bRecord False opens without installing the recorder, for 'uibench''s runs without it. (Claude code Opus 5.5) -->
 	args = {"name": szName}
 	szShow = None
-	for (szShort, szCandidate) in _OPENERS:
+	szControl = None
+	for (szShort, szCandidate, szCandidateControl) in saspilot._OPENERS:
 		if szShort == args["name"]:
 			szShow = szCandidate
+			szControl = szCandidateControl
 	if szShow is None:
-		raise ValueError("unknown screen %s; one of %s" % (args["name"], ", ".join([szShort for (szShort, szShow) in _OPENERS])))
+		raise ValueError("unknown screen %s; one of %s" % (args["name"], ", ".join([opener[0] for opener in saspilot._OPENERS])))
 	saspilot._checkRole("screen", {"name": szShow})
 	# <!-- custom: sas-ci-string-compare-exemption: The UI command accepts or emits stable keys independent of displayed text. (GPT-6.2-Sol) -->
 	if szName == "tech":
@@ -497,8 +532,7 @@ def _openScreen(szName, bRecord):
 	if bRecord:
 		_install()
 	# <!-- custom: Through the screen's control, as its key does, where it has one: opened by calling showMilitaryAdvisor from the bridge, the Military Advisor's Map tab showed an empty minimap, black or blue, until the tab was pressed again, while F5 and 'control control=CONTROL_MILITARY_SCREEN' drew it at once (2026-11-20).
-	# Religion and Corporation have no control since SAS moved them into the Policy Advisor, so they keep the call, as does the Policy Advisor (see _OPENER_CONTROLS). (Claude code Opus 5.5) -->
-	szControl = _OPENER_CONTROLS.get(args["name"])
+	# Religion and Corporation have no control since SAS moved them into the Policy Advisor, so they keep the call, as does the Policy Advisor (see SASPilotCommands' _OPENERS). (Claude code Opus 5.5) -->
 	if szControl is not None:
 		gc.getGame().doControl(getattr(ControlTypes, szControl))
 	else:
@@ -630,6 +664,11 @@ def cmd_uiwidgets(args):
 				item[szKey] = value
 		if entry.has_key("widget"):
 			item["widgetType"] = saspilot._enumName(WidgetTypes, entry["widget"])
+			# <!-- custom: A widget whose data1 is an XML index, such as a specialist button, gets its type as about, as list items do, so a reader need not map numbers. (Claude code Opus 5.5) -->
+			if entry.get("data1") is not None:
+				szAbout = _itemAbout(entry)
+				if szAbout is not None:
+					item["about"] = szAbout
 		result.append(item)
 	return {"screen": _screenNames().get(iScreen, str(iScreen)), "widgets": result}
 
@@ -1260,6 +1299,9 @@ def cmd_uiitems(args):
 				row["category"] = _screenNames().get(item["data1"], str(item["data1"]))
 		if szAbout is not None:
 			row["about"] = szAbout
+		# <!-- custom: A build button says the order it gives, so SASPilotCityScreenAudit.py filters on it rather than keeping its own list of the four widgets (2026-11-28). See KI#1110.2. (Claude code Opus 5.5) -->
+		if _ORDER_WIDGETS.has_key(row["widget"]):
+			row["order"] = _ORDER_WIDGETS[row["widget"]]
 		result.append(row)
 	if entry.get("options") is not None:
 		# <!-- custom: The selection is read from the box itself, as screens read it (getSelectedPullDownID gives the entry's index): the recorded flags are those it was built with, which a mouse choice or a rebuild while the recorder was off left stale (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -1269,7 +1311,25 @@ def cmd_uiitems(args):
 
 
 # <!-- custom: What an item's data1 names, by its widget type, read from the XML info the screen took it from. (Claude code Opus 5.5) -->
-_ITEM_INFOS = (("WIDGET_ACTION", "getActionInfo", "getNumActionInfos"), ("WIDGET_CREATE", "getProjectInfo", "getNumProjectInfos"), ("WIDGET_MAINTAIN", "getProcessInfo", "getNumProcessInfos"))
+# <!-- custom: The city screen's specialist buttons carry the specialist's index in data1, so they are named the same way; before (2026-11-28) uiwidgets listed them only as IncreaseSpecialist5 or FreeSpecialist0 with a number. (Claude code Opus 5.5) -->
+_ITEM_INFOS = (
+	("WIDGET_ACTION", "getActionInfo", "getNumActionInfos"),
+	("WIDGET_CREATE", "getProjectInfo", "getNumProjectInfos"),
+	("WIDGET_MAINTAIN", "getProcessInfo", "getNumProcessInfos"),
+	("WIDGET_CHANGE_SPECIALIST", "getSpecialistInfo", "getNumSpecialistInfos"),
+	("WIDGET_DISABLED_CITIZEN", "getSpecialistInfo", "getNumSpecialistInfos"),
+	("WIDGET_FREE_CITIZEN", "getSpecialistInfo", "getNumSpecialistInfos"),
+	("WIDGET_CITIZEN", "getSpecialistInfo", "getNumSpecialistInfos"),
+)
+
+
+# <!-- custom: The city screen's build widgets and the OrderTypes each pushes, as CvDLLWidgetData's doTrain, doConstruct, doCreate and doMaintain do. See KI#1110.2. (Claude code Opus 5.5) -->
+_ORDER_WIDGETS = {
+	"WIDGET_TRAIN": "ORDER_TRAIN",
+	"WIDGET_CONSTRUCT": "ORDER_CONSTRUCT",
+	"WIDGET_CREATE": "ORDER_CREATE",
+	"WIDGET_MAINTAIN": "ORDER_MAINTAIN",
+}
 
 
 def _actionAbout(info):

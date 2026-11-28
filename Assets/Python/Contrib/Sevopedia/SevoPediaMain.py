@@ -18,6 +18,8 @@ import CvUtil
 import ScreenInput
 # <!-- custom: SevoScreenEnums.py was removed; import its unchanged page IDs from the SevoScreenEnums class in CvScreenEnums.py, keeping them distinct from vanilla Civilopedia pages. (GPT-6.1-Sol) -->
 from CvScreenEnums import SevoScreenEnums
+# <!-- custom: The Sevopedia's item kinds, shared with SASPilot, for link()'s matching. See KI#1110.2. (Claude code Opus 5.5) -->
+from CvScreenEnums import PEDIA_ITEM_KINDS
 
 import CvPediaScreen
 import SevoPediaTech
@@ -370,32 +372,9 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = tuple(terrainGraphicalOnlyHighIds)
 
 		# <!-- custom: Link matching is persistent runtime dispatch state read directly by link(), not construction-only metadata; build it once with the Sevopedia instance instead of recreating it whenever the screen widgets are rebuilt. (ChatGPT-5.6-Sol) -->
-		self.SAS_linkMatchDefs = (
-			("getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS),
-			("getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS),
-			("getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES),
-			("getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS),
-			("getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS),
-			("getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS),
-			("getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS),
-			("getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS),
-			("getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES),
-			("getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES),
-			("getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS),
-			("getNumRouteInfos", "getRouteInfo", SevoScreenEnums.PEDIA_ROUTES),
-			("getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS),
-			("getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS),
-			("getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS),
-			# <!-- custom: Add traits to link matching so clicking <link=literal>TraitName</link> in Sevopedia Leader (or anywhere else) navigates to the Sevopedia Traits page.
-			# The DLL wraps trait names in <link=literal> tags (see CvGameTextMgr.cpp parseTraits), and this entry tells the link() method to search TraitInfo for a match and jump to PEDIA_TRAITS.
-			# Without this, clicking trait links had no effect. (Claude Opus 4.5) -->
-			("getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS),
-			("getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS),
-			("getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS),
-			("getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS),
-			("getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS),
-			("getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS),
-		)
+		# <!-- custom: Derived from CvScreenEnums.PEDIA_ITEM_KINDS, which SASPilot reads too, instead of a copy here; the same 21 rows in the same order, so link() matches as before.
+		# A Python 2.4 list comprehension leaves its loop name set in __init__, hence one distinctive name rather than the row's six. See KI#1110.2. (Claude code Opus 5.5) -->
+		self.SAS_linkMatchDefs = tuple([(linkMatchKind[1], linkMatchKind[2], linkMatchKind[3]) for linkMatchKind in PEDIA_ITEM_KINDS if linkMatchKind[5]])
 
 		# <!-- custom: Cache Sevopedia grouping/layout defines on screen construction; shared highlight colors are resolved by SASVisualUtils instead of a screen-owned color cache. (GPT-6.1-Sol) -->
 		# <!-- custom: Read once per screen instance: SAS_rebuildLayout re-runs __init__ on this same object at a new resolution, and these XML settings are treated as fixed in normal play, so the values derived from them are kept rather than read again.

@@ -1341,7 +1341,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
 [KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)\
 [KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)\
-[KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)
+[KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)\
+[KI#1110.2 - (Centralized SAS lists) The Sevopedia's item kinds were listed twice, for its links and for SASPilot, whose copy lacked unit categories, concepts, votes and event triggers, so `uiopen name=pedia item=UNITCOMBAT_RECON` failed although the Sevopedia has that page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110.2)
 
 <a id="ki-1"></a>
 
@@ -1648,6 +1649,35 @@ Update (2026-11-24): the rule is broader than a second screen. The user noticed 
 - Saved: a window fully on the primary monitor, at 1920 x 1080 and at 2560 x 1440, and one resized over the work area with `move full` or maximized with `move maximize`.
 - Not saved: a window fully on the second monitor, one straddling onto it (2000 to 5844 px with the second monitor from 3840 px), and one running past the primary monitor's bottom edge, where no monitor is.
 - So Civ4 saves a screenshot only while its window lies entirely on the primary monitor. A game as large as the screen, such as 4K on a 4K monitor, overflows at the bottom unless maximized, likely because Civ4's window is not borderless: its title bar and frame add to its size; a smaller one, such as 1440p there, needs nothing.
+
+Update (2026-11-28): fitting the window has a cost, so no option is free. Switched to 3840 x 2160 during play with SASPilot's `resolution` command, on the same 3840 x 2100 work area:
+
+- As it is, the window was 3846 x 2200: the text stays sharp, pixel for pixel, but about 100 pixels of the game run below the screen, so a person watching misses them and Print Screen saves nothing.
+- Fitted to the work area, as maximizing or the SASPilot console's start-up layout does, it was 3844 x 2102: the 2160 lines of the game picture are scaled into about 2062, some 5% smaller, so the text is softer; screenshots work. The Game Runs Guide's 2026-11-20 note saw the same stretching, with blurry text, when a game window was resized to 1920 x 1080.
+- The same holds at any game resolution equal to the monitor's, such as 1080p on a 1080p monitor, not only at 4K.
+- Agents' window captures (`desktop_windows.py screenshot`, PrintWindow) show the whole game either way, the part below the screen included, so the choice matters for a person watching and for Civ4's own screenshots.
+- Tried the same day, with Print Screen pressed through `desktop_windows.py` in each state and a window capture of the scoreboard compared side by side:
+  - Native, 3846 x 2200: sharp text; Print Screen saved nothing.
+  - Maximized, 3846 x 2106: the scoreboard's text about 5% smaller and a little softer and thinner, still readable; Print Screen saved.
+  - Borderless, the title bar and frame removed through the window's style and the window placed at the monitor's exact 3840 x 2160: the picture 1:1, as sharp as native; Print Screen saved. The game kept running and went back to its normal style and to 1920 x 1080 afterwards.
+  - Repeated with a Sevopedia page open, whose small text shows it more clearly (the user's suggestion): India's history read the same in native and borderless, and smaller and a little softer maximized; Print Screen gave the same results.
+  - The borderless window also covers the taskbar's strip: a capture of the screen's bottom 180 pixels, with the taskbar at the bottom, showed the game's own Sevopedia footer (BACK, NEXT, EXIT) and no taskbar, so the whole game was in view.
+- So the rule is about the player's screen, not 4K: whenever the game's window does not fit the monitor's work area, a borderless window at the monitor's size keeps both the sharp text and Civ4's screenshots, where maximizing keeps only the screenshots.
+  - The worst spot was small text: maximized, the Sevopedia's city list lost whole pixel rows, half the "m" of Bombay and the middle of Madras (first image, zoomed twice); the second shows India's history and the third the scoreboard, native, maximized and borderless in each.
+  - Each crop is taken at the same place in the game picture. The first crops took the same fractions of each window, but a framed window starts its picture 3 pixels right and 37 down, under its title bar, so the borderless crop began 37 pixels further down the game and seemed to show less text (the user noticed); a comparison of framed and borderless captures must offset by the frame, as `desktop_windows.client_rect` gives it.
+  - The labels sit on a purple strip with white text, a colour neither the game's panels nor a window's frame use, so no strip reads as part of what is compared: on white it looked like the title bar the images are about, Windows' blue was too close to its own frames, the game's tan close to amber, and white on dark red hard to read (the user's review, 2026-11-28).
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (1).PNG" alt="1.989_window_modes_4k_game_4k_screen (1).PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (2).PNG" alt="1.989_window_modes_4k_game_4k_screen (2).PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (3).PNG" alt="1.989_window_modes_4k_game_4k_screen (3).PNG" width="250">
+
+- Workaround, the same day: [`desktop_windows.py borderless --pid <pid>`](/LLM_Helpers/README.md#desktop_windowspy) drops the window's title bar and frame and places it on its whole monitor; `--off` gives back the frame it had, around the same picture.
+  - SASPilot's `resolution` command does it by itself when the new size equals the monitor's, and gives the frame back at a smaller size: at 3840 x 2160 the window became exactly 3840 x 2160 and Print Screen saved, and back at 1920 x 1080 it was again the original 1926 x 1120.
+  - The first `--off` added a resizable frame Civ4's window never had, and sized the frame for an unscaled display, so on the user's 150% one the window came back 1942 x 1136; the frame styles are now kept on the window and the size measured.
+  - `SASPilotClient.py start --resolution` does the same for a game started at the monitor's size: started at 3840 x 2160, the window came up borderless at exactly 3840 x 2160, with no step by hand, and Print Screen saved.
+  - The SASPilot console no longer shrinks a game that fills its monitor, nor moves to the next monitor: it opens just behind the game and gives it the focus back, as it first opened in front of it, and the taskbar then showed over the game (the user).
+- Codex's (GPT-6.2-Sol) review the same day found three slips, fixed and retested at turn 307 of the Asoka save:
+  - `desktop_windows.py borderless` read the style before restoring the window, so a maximized window got `WS_MAXIMIZE` written back, and it reported the old rectangle as success when a Win32 call failed. It now reads the style after the restore, checks each call and the final geometry, and removes the saved frame property after `--off`.
+  - `resolution` returned before fitting the window when the mode was unchanged, and skipped a borderless window moved off its monitor. Both are fitted now: moved to (40,30), the window went back to (0,0,3840,2160), with no key pressed. A fitting failure at `start` is reported in the reply rather than raised, as the client would otherwise lose the PID of a running Civ4.
+  - The console counted a game as filling its monitor when it reached either dimension; it now needs the game's own monitor's full width and work-area height, so a tall narrow game keeps its console beside it.
 
 <a id="ki-7.2"></a>
 
@@ -40345,3 +40375,35 @@ Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5 and 
     - The rerun opened all 943 linked pages across 36 categories, with no sweep problems or Python errors.
 
 Rechecked, and the mailbox fixed, by Codex (GPT-6.2-Sol), 2026-11-27.
+
+<a id="ki-1110.2"></a>
+
+## KI#1110.2 - (Centralized SAS lists) The Sevopedia's item kinds were listed twice, for its links and for SASPilot, whose copy lacked unit categories, concepts, votes and event triggers, so `uiopen name=pedia item=UNITCOMBAT_RECON` failed although the Sevopedia has that page
+
+- Two lists named the XML tables the Sevopedia has a page per entry for:
+  - [`SevoPediaMain.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)'s `SAS_linkMatchDefs`, the count and info getters and the category that `link()` searches to follow a `<link>` in game text;
+  - [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py)'s `_PEDIA_KINDS`, written on 2026-11-28 for `types`, `pedia` and `uiopen name=pedia item=`, with the same getters plus an XML type prefix, the name of a `pediaJumpTo*` entry point and the categories a page lands in.
+- How the Sevopedia got there, the same step repeated as its tables were shared more widely:
+  - BUG's Sevopedia, as base AdvCiv has it, matched links in `link()` with an `if/elif` per category key (`PEDIA_MAIN_TECH`, `PEDIA_MAIN_UNIT`...), then one loop per XML table.
+  - SAS practical 5298 (`aca1924815`, 2026-01-05) made the categories one `SAS_CATEGORY_DEFS` table, with order, list, page and link key per row. The per-table loops became `SAS_linkMatchDefs`, so a category is added or moved in one row.
+  - Practical 5345 (`44f109a5ab`, 2026-01-16) added the traits row, so a trait name in game text opens its page.
+  - Practical 6687 (`70d73a41e1`, 2026-10-26) kept only what each consumer needs and built the link matching once per Sevopedia instance.
+  - On 2026-11-28 SASPilot wrote its own copy, which is the duplication this entry removes. The table moved out of the Sevopedia into `CvScreenEnums.py`, as the advisors' tabs had in KI#1110.
+- Each lacked kinds the other had: SASPilot had no `UNITCOMBAT_` or concepts, and `link()` has no eras or handicaps. Neither had votes or event triggers, whose pages the Sevopedia has.
+- Fix (the user's idea, 2026-11-28, after `ADVISOR_TABS` in KI#1110): [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py)'s `PEDIA_ITEM_KINDS` holds one row per kind: prefix, getters, the category `pediaJump` takes, the categories the page may land in, and whether `link()` matches it.
+  - `link()` takes the rows it matches from there, the same 21 in the same order, checked against the old list, as the first match wins.
+  - SASPilot reads the table directly. It now jumps through `pediaJump` with the row's category, as each `pediaJumpTo*` entry point does when the Sevopedia is in use, so it keeps no list of entry point names.
+  - `CONCEPT_` starts the types of both concept tables, so SASPilot finds a type's table by the entry's own type rather than by its prefix alone, and `types kind=CONCEPT_` lists both tables, 103 types.
+  - The landing column exists because `pediaJump` moves a building into a Wonders category and a new concept that is a shortcut into Shortcuts.
+- Two other duplicated SASPilot lists went with it:
+  - The screens a player opens were one list in [`SASPilotUI.py`](/SASPilot/game/SASPilotUI.py) and their controls a second. The play role's allowed `screen` calls were a third, in `SASPilotCommands.py`. They are now one `_OPENERS` table (short name, show function, control), and the play role's list is derived from it.
+  - `uiitems` now gives each build button the order it pushes, such as `order=ORDER_TRAIN`, as `CvDLLWidgetData`'s `doTrain` to `doMaintain` do. [`SASPilotCityScreenAudit.py`](/SASPilot/SASPilotCityScreenAudit.py) filters on it instead of keeping its own list of the four widgets.
+- Tested on 2026-11-28 at turn 307 of the ASOKA Huge save, play role with fog, at 1920 x 1080:
+  - `uiopen name=pedia item=` landed on the expected category for 12 types: one of each new kind, both concept tables with `CONCEPT_SHORTCUTS_UNITS` under Shortcuts, `BUILDING_PYRAMID` under World Wonders, `BUILDING_PALACE` under National Wonders, and `ERA_ANCIENT` in the Era chart.
+  - `HANDICAP_NOBLE` and `BUILDINGCLASS_PALACE` were refused with their reasons.
+  - The Sevopedia's `link()`, called on Aggressive, Mysticism, Pyramids and Recon, opened the Traits, Techs, World Wonders and Unit Categories pages, from its 21 derived rows.
+  - The city screen audit passed on Aachen, with 45 build buttons found through `order`.
+  - The advisors opened by control or show function as before, and the play role still refused `screen name=showReplay`.
+- [`pedia_item_kinds.py`](/.github/workflows/README.md#buildsourcepedia_item_kindspy) guards the table from then on: a `pediaJumpTo*` entry point whose Sevopedia page has no row fails CI, the rule that would have caught the missing votes and event triggers, as does either consumer writing a list of its own.
+
+Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5, 2026-11-28.

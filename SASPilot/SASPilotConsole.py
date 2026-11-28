@@ -224,6 +224,8 @@ def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 	# <!-- custom: One horizontal band per piloted client, top to bottom: its Civ4 at its own size in the band's top-left corner (shrunk only to fit the band), its watcher console filling the rest of the band to the right.
 	# First set up on 2026-11-14 at the user's 3840x2160 monitor (work area 3840x2100, taskbar excluded) with a 1920x1110 Civ4 window: halving the screen had stretched Civ4 to 1920x2100, which the user called a "monster chicken", and they wanted Civ4 untouched and the console stretched.
 	# Two bands are meant for two clients side by side (`multiple`); other resolutions were not tried. (Claude code Opus 5.5) -->
+	# <!-- custom: ctypes for SetWindowPos, which puts the console behind a game that fills its monitor. (Claude code Opus 5.5) -->
+	import ctypes
 	import desktop_windows
 	areas = desktop_windows.monitors()
 	left, top, right, bottom = areas[monitor - 1]
@@ -234,6 +236,17 @@ def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 	civ_height = min(frame[3] - frame[1], band_height)
 	# <!-- custom: The console took whatever width Civ4 left, so a Civ4 window nearly as wide as the monitor left it a sliver whose text wrapped into spaghetti (2026-11-20); the user asked that the tools never shrink a window to unreadable.
 	# So the console keeps CONSOLE_MIN_WIDTH: on the next monitor when there is one, as Civ4 stays untouched, else by narrowing Civ4. (Claude code Opus 5.5) -->
+	# <!-- custom: A game that fills its monitor, such as a borderless 3840 x 2160 one, is left as it is with the console behind it: the branches below shrank it, which scales its picture and cuts pixel rows from its text, or moved the console onto the next monitor, where the user keeps other windows (2026-11-28). See KI#7. (Claude code Opus 5.5) -->
+	# <!-- custom: Filling means the game's own monitor's whole width and its work area's height, which a framed, maximized or borderless game at that size all reach: either dimension alone, on the selected monitor, also took a tall narrow game with room for its console beside it (Codex's review, 2026-11-28). See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	civ_hwnd = desktop_windows.find_window(civ_pid)
+	civ_monitor = desktop_windows.monitor_rect(civ_hwnd)
+	civ_work = [area for area in areas if civ_monitor[0] <= area[0] and area[2] <= civ_monitor[2] and civ_monitor[1] <= area[1] and area[3] <= civ_monitor[3]]
+	civ_work_height = civ_work and civ_work[0][3] - civ_work[0][1] or civ_monitor[3] - civ_monitor[1]
+	if frame[2] - frame[0] >= civ_monitor[2] - civ_monitor[0] and frame[3] - frame[1] >= civ_work_height:
+		# <!-- custom: The console goes just behind the game, without taking the focus, and the game gets the focus back: opened over a 3840 x 2160 borderless game, the console sat in front of it at its default spot and, holding the focus, let the taskbar show over the game (the user, 2026-11-28). See KI#7. (Claude code Opus 5.5) -->
+		ctypes.windll.user32.SetWindowPos(console_hwnd, civ_hwnd, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010)
+		desktop_windows.bring_to_front(civ_hwnd, civ_pid, allow_click=False)
+		return
 	if right - (left + civ_width) < CONSOLE_MIN_WIDTH:
 		if monitor < len(areas):
 			other_left, other_top, other_right, other_bottom = areas[monitor]
@@ -244,6 +257,30 @@ def arrange(civ_pid, console_hwnd, slot, slots, monitor):
 		civ_width = (right - left) - CONSOLE_MIN_WIDTH
 	desktop_windows.place_frame(civ_pid, left, band_top, left + civ_width, band_top + civ_height)
 	desktop_windows.place_window(console_hwnd, left + civ_width, band_top, right, band_top + band_height)
+
+
+def follow(civ_pid, console_hwnd, slot, slots, monitor, last_size):
+	# <!-- custom: Lay the windows out again when the game window's size changes, as after a resolution switch, whether by 'resolution' or in the Options screen, but only when the console still fits beside it on the same monitor (the user's ask, 2026-11-28).
+	# When it does not, as with a 3840 x 2160 game on a 3840 x 2160 monitor, both windows stay as they are: arrange would then narrow Civ4 or move the console onto the next monitor, where the user keeps other windows.
+	# Returns the size seen, so the caller acts only on a change. (Claude code Opus 5.5) -->
+	# <!-- custom: Only for a lone client, a game window that is shown and has a size, and a fit in both width and height: Codex reproduced two clients' bands, where a 2560 x 1480 game was squeezed to 2560 x 1050, and a minimized window would be restored and moved (third review, 2026-11-28).
+	# With two clients, the layout made at start stays; layout_clients lays them out again. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import ctypes
+	import desktop_windows
+	if slots != 1:
+		return last_size
+	hwnd = desktop_windows.find_window(civ_pid)
+	if hwnd is None or ctypes.windll.user32.IsIconic(hwnd):
+		return last_size
+	frame = desktop_windows.visible_frame(civ_pid)
+	size = (frame[2] - frame[0], frame[3] - frame[1])
+	if size == last_size or size[0] <= 0 or size[1] <= 0:
+		return last_size
+	left, top, right, bottom = desktop_windows.monitors()[monitor - 1]
+	if right - (left + size[0]) >= CONSOLE_MIN_WIDTH and size[1] <= bottom - top:
+		arrange(civ_pid, console_hwnd, slot, slots, monitor)
+	# <!-- custom: When the game leaves no room, as at 3840 x 2160, the console is left where it is: it sits behind the game, out of sight, so minimizing it, tried the same day, added nothing (the user's remark, 2026-11-28). (Claude code Opus 5.5) -->
+	return size
 
 
 def open_window(args):
@@ -290,6 +327,9 @@ def main():
 		_style["html"] = []
 	elif not args.no_color:
 		console_colors.enable()
+	# <!-- custom: The console window and the game window's size at its last layout, for follow; None when nothing was arranged, so nothing follows. (Claude code Opus 5.5) -->
+	follow_hwnd = None
+	follow_size = None
 	if args.arrange_self:
 		try:
 			# <!-- custom: The console is resolved before Civ4 is moved, so a console that cannot be placed leaves Civ4 where it was (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
@@ -298,6 +338,11 @@ def main():
 				print("no visible console window; the windows were left as they were", file=sys.stderr)
 			else:
 				arrange(args.pid, hwnd, args.slot - 1, args.slots, args.monitor)
+				# <!-- custom: desktop_windows for the game window's size after this layout, which follow compares against. (Claude code Opus 5.5) -->
+				import desktop_windows
+				frame = desktop_windows.visible_frame(args.pid)
+				follow_hwnd = hwnd
+				follow_size = (frame[2] - frame[0], frame[3] - frame[1])
 		except Exception as error:
 			print("could not arrange the windows: %s" % error, file=sys.stderr)
 	path = Path(args.log) if args.log else newest_log(args.pid)
@@ -362,7 +407,15 @@ def main():
 		last_date = None
 		idle_polls = 0
 		instance = args.pid and process_instance(args.pid)
+		followed_at = time.monotonic()
 		while True:
+			# <!-- custom: Every 2 s, whether lines arrive or not, the windows follow a change of the game window's size (see follow); a failure, such as a closing Civ4, is skipped. (Claude code Opus 5.5) -->
+			if follow_hwnd is not None and time.monotonic() - followed_at >= 2.0:
+				followed_at = time.monotonic()
+				try:
+					follow_size = follow(args.pid, follow_hwnd, args.slot - 1, args.slots, args.monitor, follow_size)
+				except Exception:
+					pass
 			chunk = handle.readline()
 			if not chunk:
 				if args.html:

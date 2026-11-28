@@ -126,6 +126,7 @@ These scripts run outside Civ4, so they may use modern Python 3. They do not nee
     - [`build/source/float_format_int_division.py`](#buildsourcefloat_format_int_divisionpy)
     - [`build/source/inherited_files.py`](#buildsourceinherited_filespy)
     - [`build/source/lint_suppressions.py`](#buildsourcelint_suppressionspy)
+    - [`build/source/pedia_item_kinds.py`](#buildsourcepedia_item_kindspy)
     - [`build/source/python_aligned_columns.py`](#buildsourcepython_aligned_columnspy)
     - [`build/source/python_binding_targets.py`](#buildsourcepython_binding_targetspy)
     - [`build/source/python_dead_stores.py`](#buildsourcepython_dead_storespy)
@@ -1558,6 +1559,14 @@ Fails on any `noqa`, `type: ignore` or `pyright: ignore` comment in our Python t
 
 - Added on 2026-11-12, when two late imports after a `sys.path` entry each needed a `noqa`, one with no reason. Both were fixed at the cause by loading the module with `importlib`, and the check's first run found one more, a `type: ignore` around `re.match`, fixed by slicing.
 - Comments are read with Python's tokenizer, so suppression text inside strings, such as test fixtures, is not counted; verbatim third-party copies under `LLM_Helpers/context/` and `_0_Legacy/` are skipped.
+
+#### `build/source/pedia_item_kinds.py`
+
+Fails when the Sevopedia's item kinds stop coming from one place, `PEDIA_ITEM_KINDS` in [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py): when a row's category or landing categories are not `SevoScreenEnums` names, when its category is not among its landing ones, when a `pediaJumpTo*` entry point of `CvScreensInterface.py` jumps to a Sevopedia page no row has, or when `SevoPediaMain.py`'s `SAS_linkMatchDefs` or SASPilot's `_PEDIA_KINDS` is written out instead of taken from the table.
+
+- Added on 2026-11-28 with the table ([KI#1110.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110.2)). The two lists it replaced each lacked kinds the other had, and neither had votes or event triggers, though their entry points existed; the entry-point rule is the one that would have caught that.
+- `JUMPS_WITHOUT_ROW` names the page whose item is not an index of one XML table, with why: the game-speed chart, whose item packs a speed and a culture level.
+- The test feeds it a small table: an unknown category, a category outside its landing ones, an entry point with no row and a consumer with its own list each fail.
 
 #### `build/source/python_aligned_columns.py`
 

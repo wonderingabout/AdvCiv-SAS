@@ -254,3 +254,41 @@ def getSASScreenName(iScreen, bUsingSevopedia=False):
 	else:
 		names = _SAS_SCREEN_NAMES
 	return names.get(iScreen, "UNREGISTERED_SCREEN")
+
+
+# <!-- custom: The XML tables the Sevopedia has a page per entry for, in one place, as ADVISOR_TABS is for the advisors' tabs (the user's idea, 2026-11-28).
+# Two copies had grown apart: SevoPediaMain's SAS_linkMatchDefs (count and info getters on gc, category) for link(), and SASPilotCommands' _PEDIA_KINDS (XML type prefix, the same getters, a pediaJumpTo* name, the categories a page lands in) for 'types', 'pedia' and 'uiopen item='; each lacked kinds the other had, such as UNITCOMBAT_ in SASPilot and ERA_ in link().
+# Each row is (XML type prefix, gc count method, gc info method, category pediaJump takes or None for no page, categories the page may land in, whether link() matches it); pediaJump moves a building into a Wonders category and a new concept into Shortcuts, hence the landing column.
+# Row order is link()'s order, first match wins, so keep it when adding a row; the kinds link() does not match come last.
+# CONCEPT_ starts both concept tables' types, so a prefix alone does not name the table: a reader checks the entry's own type, as SASPilot's _pediaKind does. See KI#1110.2. (Claude code Opus 5.5) -->
+PEDIA_ITEM_KINDS = (
+	("TECH_", "getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS, (SevoScreenEnums.PEDIA_TECHS,), True),
+	("UNIT_", "getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS, (SevoScreenEnums.PEDIA_UNITS,), True),
+	("UNITCOMBAT_", "getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES, (SevoScreenEnums.PEDIA_UNIT_CATEGORIES,), True),
+	("PROMOTION_", "getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS, (SevoScreenEnums.PEDIA_PROMOTIONS,), True),
+	("BUILDING_", "getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS, (SevoScreenEnums.PEDIA_BUILDINGS, SevoScreenEnums.PEDIA_NATIONAL_WONDERS, SevoScreenEnums.PEDIA_WORLD_WONDERS), True),
+	("PROJECT_", "getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS, (SevoScreenEnums.PEDIA_PROJECTS,), True),
+	("SPECIALIST_", "getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS, (SevoScreenEnums.PEDIA_SPECIALISTS,), True),
+	("TERRAIN_", "getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS, (SevoScreenEnums.PEDIA_TERRAINS,), True),
+	("FEATURE_", "getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES, (SevoScreenEnums.PEDIA_FEATURES,), True),
+	("BONUS_", "getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES, (SevoScreenEnums.PEDIA_BONUSES,), True),
+	("IMPROVEMENT_", "getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS, (SevoScreenEnums.PEDIA_IMPROVEMENTS,), True),
+	("ROUTE_", "getNumRouteInfos", "getRouteInfo", SevoScreenEnums.PEDIA_ROUTES, (SevoScreenEnums.PEDIA_ROUTES,), True),
+	("BUILD_", "getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS, (SevoScreenEnums.PEDIA_BUILDS,), True),
+	("CIVILIZATION_", "getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS, (SevoScreenEnums.PEDIA_CIVS,), True),
+	("LEADER_", "getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS, (SevoScreenEnums.PEDIA_LEADERS,), True),
+	# <!-- custom: Traits are matched so that clicking <link=literal>TraitName</link> in Sevopedia Leader (or anywhere else) navigates to the Sevopedia Traits page.
+	# The DLL wraps trait names in <link=literal> tags (see CvGameTextMgr.cpp parseTraits); without this row, clicking trait links had no effect. (Claude Opus 4.5) -->
+	("TRAIT_", "getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS, (SevoScreenEnums.PEDIA_TRAITS,), True),
+	("CIVIC_", "getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS, (SevoScreenEnums.PEDIA_CIVICS,), True),
+	("RELIGION_", "getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS, (SevoScreenEnums.PEDIA_RELIGIONS,), True),
+	("CORPORATION_", "getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS, (SevoScreenEnums.PEDIA_CORPORATIONS,), True),
+	("CONCEPT_", "getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS, (SevoScreenEnums.PEDIA_CONCEPTS,), True),
+	("CONCEPT_", "getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS, (SevoScreenEnums.PEDIA_BTS_CONCEPTS, SevoScreenEnums.PEDIA_SHORTCUTS), True),
+	("VOTE_", "getNumVoteInfos", "getVoteInfo", SevoScreenEnums.PEDIA_VOTES, (SevoScreenEnums.PEDIA_VOTES,), False),
+	("EVENTTRIGGER_", "getNumEventTriggerInfos", "getEventTriggerInfo", SevoScreenEnums.PEDIA_EVENT_TRIGGERS, (SevoScreenEnums.PEDIA_EVENT_TRIGGERS,), False),
+	# <!-- custom: An era's page is its column of the Era chart, which records the era as its item. (Claude code Opus 5.5) -->
+	("ERA_", "getNumEraInfos", "getEraInfo", SevoScreenEnums.PEDIA_ERA_CHART, (SevoScreenEnums.PEDIA_ERA_CHART,), False),
+	# <!-- custom: Handicaps are shown only in the Handicap chart, with no page per handicap. (Claude code Opus 5.5) -->
+	("HANDICAP_", "getNumHandicapInfos", "getHandicapInfo", None, (), False),
+)

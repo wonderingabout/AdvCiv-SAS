@@ -1098,6 +1098,7 @@ python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --
   - `click` on an elevated window, such as the user's Task Manager, fails: Windows keeps a normal program's input out of it, and the tool says the target runs elevated (2026-11-26).
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `maximize` (a real Windows maximize, added on 2026-11-24, as `full` only resizes the window), `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+  - `borderless --pid` drops a window's title bar and frame and places it on its whole monitor, and `--off` gives back the frame it had, around the same picture (2026-11-28): a game at its monitor's own resolution then fits it pixel for pixel and Civ4's Print Screen works, where maximizing scaled the picture and cut pixel rows from its text ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7)). SASPilot's `resolution` uses it.
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
   - `save-download` answers the Save As dialog the Claude app opens for each download from the agent's browser pane, which blocks the app until answered; run `wait-idle` before the click that starts the download, then `save-download --title https://drive.usercontent.google.com/ --expect Civ4ScreenShot5385.JPG` (any start of the dialog's title, the download's URL, and the file name the site shows). Added on 2026-11-23, tried with the user on single Drive files and a Drive folder ZIP.
     - It saves into `Downloads` (`--folder` for another) by the absolute path, so the clash check holds whatever folder the dialog opened in, and never replaces a file: a name already there gets the time, `Civ4ScreenShot5385_20261123T091130.JPG`, the user's idea. Success is that exact file arriving.
@@ -1242,9 +1243,13 @@ python LLM_Helpers/desktop/git_bash_history.py --vscode --since today
 - Tiles the same regions of several screenshots into one labelled PNG, so a capture series is read in one image instead of one full-size file each. `--region L,T,R,B` repeats to keep several parts of each capture side by side, such as a panel and the icons at the top right; `--columns` and `--scale` set the layout.
 - Written on 2026-11-12 while mapping WorldBuilder, after the same crop-and-tile code had been retyped for each round of `capture_screens.py` captures.
 - `--black-to-white MAX` paints pixels whose channels are all at most MAX white. The world-picker globe draws its own black inside a black panel, so on 2026-11-12 its size could not be judged until the user suggested painting the black white.
+- `--offset X,Y`, one per image, says where the game picture starts in each capture, so `--region` is counted in the picture; `--zoom N` enlarges pixel for pixel.
+  - Why: on 2026-11-28 the [KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7) comparison of framed and borderless windows first cropped both at the same window spot. The title bar and border push a framed window's picture to (3,37), so the borderless crop seemed to show less game text, as the user noticed.
+  - The ad-hoc script that redid it became these two options. The same 4K captures now crop identically, pixel for pixel. `desktop_windows.client_rect` gives the offset of a live window.
 
 ```bash
 python LLM_Helpers/desktop/contact_sheet.py --out sheet.png --region 0,30,760,560 --region 1500,30,1926,300 --columns 3 a.png b.png c.png
+python LLM_Helpers/desktop/contact_sheet.py --out compare.png --region 3516,51,3823,403 --offset 3,37 --offset 0,0 --zoom 2 --columns 2 framed.png borderless.png
 ```
 
 #### `sound_check.py`

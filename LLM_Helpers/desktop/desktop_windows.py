@@ -1243,6 +1243,99 @@ def place_frame(pid, left, top, right, bottom):
 	return place_window(hwnd, left, top, right, bottom)
 
 
+# <!-- custom: The title bar and the resizable frame, the two window styles a borderless window drops: WS_CAPTION and WS_THICKFRAME. See KI#7. (Claude code Opus 5.5) -->
+FRAME_STYLES = 0xC00000 | 0x40000
+# <!-- custom: The window property that keeps which of FRAME_STYLES the window had, so --off gives back exactly those: Civ4's window has no WS_THICKFRAME, and the first --off, adding both, left a 1920 x 1080 game in a 1942 x 1136 window instead of 1926 x 1120 (2026-11-28). See KI#7. (Claude code Opus 5.5) -->
+FRAME_PROPERTY = "SASFrameStyles"
+
+
+def monitor_rect(hwnd):
+	# <!-- custom: The whole monitor holding most of the window, taskbar included, where monitors() gives work areas without it: a borderless game covers the whole monitor. See KI#7. (Claude code Opus 5.5) -->
+	class MONITORINFO(ctypes.Structure):
+		_fields_ = [("cbSize", wt.DWORD), ("rcMonitor", wt.RECT), ("rcWork", wt.RECT), ("dwFlags", wt.DWORD)]
+
+	make_dpi_aware()
+	info = MONITORINFO()
+	info.cbSize = ctypes.sizeof(MONITORINFO)
+	if not USER32.GetMonitorInfoW(USER32.MonitorFromWindow(hwnd, 2), ctypes.byref(info)):
+		raise OSError("GetMonitorInfo failed")
+	return info.rcMonitor.left, info.rcMonitor.top, info.rcMonitor.right, info.rcMonitor.bottom
+
+
+def client_rect(hwnd):
+	# <!-- custom: The game picture inside the window, as left, top, width and height counted from the window's corner, so a point can be taken from the picture's centre whether the window has a frame or not. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	client = wt.RECT()
+	if not USER32.GetClientRect(hwnd, ctypes.byref(client)):
+		raise OSError("GetClientRect failed")
+	origin = wt.POINT(0, 0)
+	if not USER32.ClientToScreen(hwnd, ctypes.byref(origin)):
+		raise OSError("ClientToScreen failed")
+	left, top, _right, _bottom = window_rect(hwnd)
+	return origin.x - left, origin.y - top, client.right, client.bottom
+
+
+def is_borderless(hwnd):
+	# <!-- custom: Whether the window lacks both of FRAME_STYLES, as borderless leaves it. See KI#7. (Claude code Opus 5.5) -->
+	USER32.GetWindowLongW.restype = ctypes.c_long
+	return not (USER32.GetWindowLongW(hwnd, -16) & FRAME_STYLES)
+
+
+def borderless(pid, on=True):
+	# <!-- custom: Drop a window's title bar and frame and place it on its whole monitor, or (on=False) give them back around the same picture size.
+	# Why: windowed Civ4 at the monitor's own resolution, such as 3840 x 2160 on a 3840 x 2160 monitor, runs past the screen's bottom with its title bar and frame, 3846 x 2200 there, so the player misses the bottom and Civ4's Print Screen saves nothing (KI#7).
+	# Maximizing fits it but scales the picture: at 4K, the Sevopedia's city list lost pixel rows, half the "m" of Bombay.
+	# Borderless, tested the same day (2026-11-28), kept the picture 1:1, saved Print Screen and covered the taskbar's strip; the game went on running and took its frame back without trouble. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	USER32.GetWindowLongW.restype = ctypes.c_long
+	# <!-- custom: A maximized window is restored first, as moving it while maximized keeps the maximized size. (Claude code Opus 5.5) -->
+	# <!-- custom: The style is read after the restore: read before it, it still had WS_MAXIMIZE, which writing it back set again (Codex's review, 2026-11-28).
+	# Each step's result is checked and the window measured at the end, as the first version returned the old rectangle as success when SetPropW or SetWindowPos failed. See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	USER32.ShowWindow(hwnd, 9)
+	style = USER32.GetWindowLongW(hwnd, -16)
+	if on:
+		left, top, right, bottom = monitor_rect(hwnd)
+		if style & FRAME_STYLES and not USER32.SetPropW(hwnd, FRAME_PROPERTY, style & FRAME_STYLES):
+			raise OSError("SetPropW failed, so --off could not give back the frame; the window is unchanged")
+		USER32.SetWindowLongW(hwnd, -16, style & ~FRAME_STYLES)
+		if not USER32.SetWindowPos(hwnd, None, left, top, right - left, bottom - top, 0x0020 | 0x0004):
+			raise OSError("SetWindowPos failed")
+		# <!-- custom: The picture is checked too, as an exact outer rectangle can still hold an inset picture (Codex's second review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not is_borderless(hwnd) or window_rect(hwnd) != (left, top, right, bottom) or client_rect(hwnd) != (0, 0, right - left, bottom - top):
+			raise OSError("the window is %s with style 0x%08x, not borderless on its monitor %s" % (window_rect(hwnd), USER32.GetWindowLongW(hwnd, -16) & 0xFFFFFFFF, (left, top, right, bottom)))
+		return window_rect(hwnd)
+	# <!-- custom: The frame goes back around the current picture, which fit_client keeps the same size, and the window keeps its top-left corner.
+	# Only the styles the window had come back, from FRAME_PROPERTY, which is then removed; a window borderless before this helper knew it gets a title bar alone. See KI#7. (Claude code Opus 5.5) -->
+	(_x, _y, width, height) = client_rect(hwnd)
+	kept = USER32.GetPropW(hwnd, FRAME_PROPERTY) or 0xC00000
+	# <!-- custom: The frame bits are set to exactly the saved ones, as OR-ing them in kept any the EXE had added meanwhile (Codex's second review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	USER32.SetWindowLongW(hwnd, -16, (style & ~FRAME_STYLES) | (kept & FRAME_STYLES))
+	if not USER32.SetWindowPos(hwnd, None, 0, 0, 0, 0, 0x0020 | 0x0004 | 0x0001 | 0x0002):
+		raise OSError("SetWindowPos failed")
+	rect = fit_client(hwnd, width, height)
+	if is_borderless(hwnd) or client_rect(hwnd)[2:] != (width, height):
+		raise OSError("the frame did not come back around a %d x %d picture: window %s, picture %s" % (width, height, rect, client_rect(hwnd)[2:]))
+	USER32.RemovePropW(hwnd, FRAME_PROPERTY)
+	return rect
+
+
+def fit_client(hwnd, width, height):
+	# <!-- custom: Size a window so its picture is width x height, by measuring the frame rather than computing it: AdjustWindowRectEx gave frame sizes for an unscaled display, and on the user's 150% one a framed 1920 x 1080 game came out with a 1933 x 1096 picture (2026-11-28).
+	# Two passes at most: set, measure the picture, correct by the difference.
+	# The window keeps its top-left corner. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	for _attempt in range(2):
+		(left, top, right, bottom) = window_rect(hwnd)
+		(_x, _y, picture_width, picture_height) = client_rect(hwnd)
+		if (picture_width, picture_height) == (width, height):
+			break
+		USER32.SetWindowPos(hwnd, None, left, top, right - left + width - picture_width, bottom - top + height - picture_height, 0x0004)
+	return window_rect(hwnd)
+
+
 def place_window(hwnd, left, top, right, bottom):
 	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so SASPilotConsole.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	make_dpi_aware()
@@ -1451,6 +1544,9 @@ def main():
 	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
 	keep.add_argument("--apps", nargs="+", choices=sorted(POSITION_APPS), default=sorted(POSITION_APPS), help="save: which windows (default all three)")
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
+	edges = sub.add_parser("borderless", help="drop the window's title bar and frame and place it on its whole monitor, so a game at the monitor's own resolution fits it pixel for pixel and Civ4's Print Screen works (KI#7); --off gives them back")
+	edges.add_argument("--pid", type=int, required=True)
+	edges.add_argument("--off", action="store_true", help="give the title bar and frame back around the same picture size")
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
@@ -1578,6 +1674,8 @@ def main():
 			print(format_json(restore_positions(args.name), indent=1))
 		else:
 			print(format_json(load_positions(), indent=1, sort_keys=True))
+	elif args.command == "borderless":
+		print("window now at %s" % (borderless(args.pid, not args.off),))
 	elif args.command == "move":
 		# <!-- custom: The user asked that the tools never shrink a window to unreadable, after a SASPilot console was squeezed into a sliver (2026-11-20); refuse a size below 640 x 400 rather than place it.
 		# Growing a window, such as a 1920 x 1080 Civ4 to fill a 4K monitor, is useful: on 2026-11-20 the user's 4K view showed the few px left between advisors and the scoreboard, which took the scoreboard's width from 395 to 393, and windows close to the 4K screen's size measured how the main-menu setup screens scale for the EXE patch of KI#1082 (2026-11-12).

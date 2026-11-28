@@ -25,6 +25,8 @@ import sys
 import time
 import traceback
 import CvScreensInterface
+# <!-- custom: CvScreenEnums for MAIN_INTERFACE, the screen 'resolution' reads its real size from, and for PEDIA_ITEM_KINDS, the Sevopedia's item kinds (2026-11-28). (Claude code Opus 5.5) -->
+import CvScreenEnums
 # <!-- custom: SASCurrentDefines reads the inherited defines the geography, deal and builds commands show, as main's python_define_reads_cached.py requires once it covered SASPilot/game (Codex's review of the 2026-11-27 merge); a leaf module, so no cycle. See KI#128.9. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 import SASCurrentDefines
 # <!-- custom: SASBattleHistory holds the Military Advisor's Battles tab rows, saved in the game through BugData; 'battles' reads them.
@@ -233,9 +235,13 @@ def poll(state, szReloadError):
 			continue  # <!-- custom: still being written, withdrawn or already taken; the next tick retries (Claude code Fable 5.2) -->
 		reply = _serve(text)
 		state["served"] = state["served"] + 1
+		iPyErrorWritesThrough = reply.pop("_pyErrorWritesThrough", None)
 		szReply = toJson(reply)
 		szReply = szReply[:-1] + ',"gameMs":' + repr((time.clock() - fStart) * 1000.0) + ',"tick":"' + state.get("lastTick", "") + '"}'
 		_writeAtomic(os.path.join(mailbox, "rep_" + name[4:]), szReply)
+		# <!-- custom: Marked as reported only once the reply is written: marked while building it, a failed write lost the errors from the next reply too (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if iPyErrorWritesThrough is not None:
+			state["pyErrorWritesReported"] = iPyErrorWritesThrough
 		try:
 			os.remove(running)
 		except OSError:
@@ -403,7 +409,36 @@ def _serve(text):
 		reply["traceback"] = "".join(traceback.format_exception(kind, error, trace))
 	game = gc.getGame()
 	reply["gameTurn"] = game.getGameTurn()
+	_reportNewErrors(reply)
 	return reply
+
+
+def _reportNewErrors(reply):
+	# <!-- custom: Any reply carries the Python errors this client wrote since the previous reply, so an agent learns of one without thinking to read the log (the user's idea, 2026-11-28).
+	# Found by the user that day: the options screen's refresh raised after 'resolution' (KI#123.7), code the EXE ran between requests, so no reply showed it while the agent went on testing. (Claude code Opus 5.5) -->
+	count = _state.setdefault("pyErrorWrites", [0])
+	iSeen = _state.get("pyErrorWritesReported", 0)
+	# <!-- custom: 'pyerrors clear=1' sets the count back to 0. (Claude code Opus 5.5) -->
+	if count[0] < iSeen:
+		iSeen = 0
+	if count[0] > iSeen:
+		rows = [row for row in _errorText(_state.setdefault("pyErrors", [])[-(count[0] - iSeen):]).split(u"\n") if row.strip()]
+		reply["pythonErrors"] = {"writes": count[0] - iSeen, "lines": rows[-12:]}
+	reply["_pyErrorWritesThrough"] = count[0]
+
+
+def _errorText(writes):
+	# <!-- custom: The writes as one Unicode text, which toJson escapes: encoded to UTF-8 bytes first, as both this and 'pyerrors' did, the JSON writer read them as Windows-1252 and turned an e acute into two characters (Codex's review, 2026-11-28).
+	# A byte write is decoded as UTF-8 when it is valid, else with Windows' ANSI code page (mbcs), in which the game's French error messages come. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	parts = []
+	for part in writes:
+		if not isinstance(part, unicode):
+			try:
+				part = part.decode("utf-8")
+			except UnicodeError:
+				part = part.decode("mbcs", "replace")
+		parts.append(part)
+	return u"".join(parts)
 
 
 # <!-- custom: Lookups (Claude code Opus 5.5) -->
@@ -1549,9 +1584,30 @@ def _adviceAllowed():
 	return not szRole or "advice" in _ROLE_ALLOWED[szRole]
 
 
+# <!-- custom: The screens a player opens from the window, by a short name after SAS's titles (BtS's single Foreign Advisor is SAS's Foreign Trade and Foreign Diplomacy Advisors, as the user pointed out), with the CvScreensInterface function their button calls (pediaShow for the Sevopedia, which reopens the last page); under the play role, 'uiopen' passes the same check as 'screen'. (Claude code Opus 5.5) -->
+# <!-- custom: The third column is the control each short name's key sends (CvGame::doControl in CvGameInterface.cpp), which 'uiopen' prefers to the show function; None where there is none or where it is not used: CONTROL_CIVICS_SCREEN first kills every waiting change-civic popup (advc.004x), so opening the Policy Advisor by it could remove a popup before a check saw it (Codex's review); its show function draws it fully. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+# <!-- custom: Moved here from SASPilotUI.py with its controls, which were a second table, on 2026-11-28, so _PLAY_SCREENS below is derived from it rather than a third list of the same show functions. See KI#1110.2. (Claude code Opus 5.5) -->
+_OPENERS = (
+	("tech", "showTechChooser", "CONTROL_TECH_CHOOSER"),
+	("policy", "showPolicyAdvisorScreen", None),
+	("religion", "showReligionScreen", None),
+	("corporation", "showCorporationScreen", None),
+	("foreigntrade", "showForeignAdvisorScreen", "CONTROL_FOREIGN_SCREEN"),
+	("foreigndiplomacy", "showForeignDiplomacyAdvisor", "CONTROL_FOREIGN_DIPLOMACY_SCREEN"),
+	("domestic", "showDomesticAdvisor", "CONTROL_DOMESTIC_SCREEN"),
+	("military", "showMilitaryAdvisor", "CONTROL_MILITARY_SCREEN"),
+	("espionage", "showEspionageAdvisor", "CONTROL_ESPIONAGE_SCREEN"),
+	("info", "showInfoScreen", "CONTROL_INFO"),
+	("world", "showWorldAdvisorScreen", "CONTROL_WORLD_ADVISOR_SCREEN"),
+	("victory", "showVictoryScreen", "CONTROL_VICTORY_SCREEN"),
+	("halloffame", "showHallOfFame", "CONTROL_HALL_OF_FAME"),
+	("pedia", "pediaShow", "CONTROL_CIVILOPEDIA"),
+)
+
+
 # <!-- custom: showTopCivs left the list on 2026-11-19: a player has no button for the Greatest Civilizations screen, which comes only on its schedule, so calling it under play gave a fresh ranking of unmet civs at will, and each call uses a draw of the synchronized random number; under all it stays, for tests. (Claude code Opus 5.5) -->
 # <!-- custom: The screens a player opens from the window's buttons, the play role's 'screen' calls, without arguments. Round 32 had any show*/pedia* name pass, but showReplay forwards its args[0] to CyGame.saveReplay, so args=[9999,0,0,0,0] reached GET_PLAYER(9999) in CvGame::saveReplay (Codex's review, round 33). A list, and no args: the advisors take none from a player, and 'pedia' gives Sevopedia text without the pedia jumps' indices. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-_PLAY_SCREENS = ("showTechChooser", "showPolicyAdvisorScreen", "showReligionScreen", "showCorporationScreen", "showForeignAdvisorScreen", "showForeignDiplomacyAdvisor", "showDomesticAdvisor", "showMilitaryAdvisor", "showEspionageAdvisor", "showInfoScreen", "showWorldAdvisorScreen", "showVictoryScreen", "showHallOfFame", "pediaShow", "pediaMain", "pediaBack", "pediaForward")
+_PLAY_SCREENS = tuple([playOpener[1] for playOpener in _OPENERS]) + ("pediaMain", "pediaBack", "pediaForward")
 
 
 def _screenRole(szName, args):
@@ -8056,7 +8112,43 @@ def cmd_sliders(args):
 	return result
 
 
-_HELP["religion"] = "Without args: the state religion and the religions the player can convert to now, each candidate with our cities that have it (where the state religion's happiness, happinessFromCivics, applies), our holy city of it, and the met civs whose state religion it is (sharedWith, who like us for it) or who follow another (otherFaithOf, who dislike a different one), each with its power against ours and its closest city's distance: happiness against diplomacy, where a near or strong neighbour weighs most. With convert: convert to it (NO_RELIGION: none). args: convert (RELIGION_ type), player."
+_HELP["resolution"] = "Without args: the game's screen resolution and the modes the Options screen's Graphics tab offers. size=WIDTHxHEIGHT, such as 1920x1080 or 2560x1440, switches to that mode during play, as choosing it there does; SAS's screens follow such a change (KI#123.2 to KI#123.5). args: size."
+
+
+def cmd_resolution(args):
+	# <!-- custom: Through CyUserProfile, as the Options screen's handleResolutionDropdownInput does, so a test at another size keeps the running game.
+	# Before (2026-11-28) an agent restarted Civ4 to go from 2560 x 1440 to 1920 x 1080, losing the client's state, as nothing told it the screens follow a change made during play; switching in the Options by clicks works but needs coordinates per window size. (Claude code Opus 5.5) -->
+	# <!-- custom: current is the screen's real size, profile the mode the profile names: they can differ, as an unanswered "keep this resolution" dialog puts the old size back but leaves the profile on the new mode (2026-11-28).
+	# The switch applies after this reply, which so still shows the old size; SASPilotClient.py waits for the window and confirms the dialog. (Claude code Opus 5.5) -->
+	profile = CyUserProfile()
+	modes = [profile.getResolutionString(i) for i in range(profile.getResolutionMaxModes())]
+	iProfile = profile.getResolution()
+	screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
+	szCurrent = "%d x %d" % (screen.getXResolution(), screen.getYResolution())
+	result = {"current": szCurrent, "profile": modes[iProfile]}
+	if args.get("size") is None:
+		result["modes"] = modes
+		return result
+	szWanted = str(args["size"]).replace(" ", "").lower()
+	matches = [i for i in range(len(modes)) if modes[i].replace(" ", "").lower() == szWanted]
+	if not matches:
+		raise ValueError("no resolution mode %s; modes: %s" % (args["size"], ", ".join(modes)))
+	bScreenFits = szCurrent.replace(" ", "").lower() == szWanted
+	# <!-- custom: Nothing to do when the screen and the profile both have the size: no switch, so no keep dialog, and the client presses no key.
+	# The first version switched anyway and the client pressed Enter, which is also the End Turn key, with no dialog up (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if bScreenFits and matches[0] == iProfile:
+		result["unchanged"] = True
+		return result
+	# <!-- custom: Setting the mode the profile already names does nothing, so when an earlier revert left the profile on the wanted mode and the screen elsewhere, say so rather than reply as if it switched.
+	# Switching to the screen's own size realigns the profile (it shows the keep dialog too), after which the wanted size switches. (Claude code Opus 5.5) -->
+	if matches[0] == iProfile:
+		raise ValueError("the profile already names %s while the screen is %s, after an unanswered keep dialog; switch to %s first" % (modes[iProfile], szCurrent, szCurrent))
+	profile.setResolution(matches[0])
+	result["switched"] = modes[matches[0]]
+	return result
+
+
+_HELP["religion"] ="Without args: the state religion and the religions the player can convert to now, each candidate with our cities that have it (where the state religion's happiness, happinessFromCivics, applies), our holy city of it, and the met civs whose state religion it is (sharedWith, who like us for it) or who follow another (otherFaithOf, who dislike a different one), each with its power against ours and its closest city's distance: happiness against diplomacy, where a near or strong neighbour weighs most. With convert: convert to it (NO_RELIGION: none). args: convert (RELIGION_ type), player."
 
 
 def cmd_religion(args):
@@ -8123,35 +8215,34 @@ def _pediaEffects(szPrefix, iType):
 	return None
 
 
-_PEDIA_KINDS = (
-	("UNIT_", "getNumUnitInfos", "getUnitInfo"),
-	("BUILDING_", "getNumBuildingInfos", "getBuildingInfo"),
-	("PROJECT_", "getNumProjectInfos", "getProjectInfo"),
-	("TECH_", "getNumTechInfos", "getTechInfo"),
-	("PROMOTION_", "getNumPromotionInfos", "getPromotionInfo"),
-	("BONUS_", "getNumBonusInfos", "getBonusInfo"),
-	("IMPROVEMENT_", "getNumImprovementInfos", "getImprovementInfo"),
-	("TERRAIN_", "getNumTerrainInfos", "getTerrainInfo"),
-	("FEATURE_", "getNumFeatureInfos", "getFeatureInfo"),
-	("CIVIC_", "getNumCivicInfos", "getCivicInfo"),
-	("RELIGION_", "getNumReligionInfos", "getReligionInfo"),
-	("CORPORATION_", "getNumCorporationInfos", "getCorporationInfo"),
-	("SPECIALIST_", "getNumSpecialistInfos", "getSpecialistInfo"),
-	("LEADER_", "getNumLeaderHeadInfos", "getLeaderHeadInfo"),
-	("CIVILIZATION_", "getNumCivilizationInfos", "getCivilizationInfo"),
-	("TRAIT_", "getNumTraitInfos", "getTraitInfo"),
-	("BUILD_", "getNumBuildInfos", "getBuildInfo"),
-	("ROUTE_", "getNumRouteInfos", "getRouteInfo"),
-	("HANDICAP_", "getNumHandicapInfos", "getHandicapInfo"),
-	("ERA_", "getNumEraInfos", "getEraInfo"),
-)
+# <!-- custom: The kinds are CvScreenEnums.PEDIA_ITEM_KINDS, which the Sevopedia's link() reads too; this file kept its own copy until 2026-11-28, which lacked UNITCOMBAT_, CONCEPT_, VOTE_ and EVENTTRIGGER_.
+# Each row is (prefix, count method, info method, category, landing categories, link-matched). See KI#1110.2. (Claude code Opus 5.5) -->
+_PEDIA_KINDS = CvScreenEnums.PEDIA_ITEM_KINDS
+
+
+def _pediaPrefixes():
+	prefixes = []
+	for kind in _PEDIA_KINDS:
+		if kind[0] not in prefixes:
+			prefixes.append(kind[0])
+	return prefixes
+
+
+def _pediaKindsOf(szPrefixOrType):
+	kinds = [kind for kind in _PEDIA_KINDS if szPrefixOrType.startswith(kind[0])]
+	if not kinds:
+		raise ValueError("no Sevopedia kind for %s; kinds: %s" % (szPrefixOrType, " ".join(_pediaPrefixes())))
+	return kinds
 
 
 def _pediaKind(szType):
-	for kind in _PEDIA_KINDS:
-		if szType.startswith(kind[0]):
+	# <!-- custom: The kind whose table holds szType, checked by the entry's own type: a BUILDINGCLASS_ or UNITCLASS_ type also starts with BUILDING or UNIT, and a CONCEPT_ type is in one of two concept tables. See KI#1110.2. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
+	kinds = _pediaKindsOf(szType)
+	iType = _infoIndex(szType)
+	for kind in kinds:
+		if iType < getattr(gc, kind[1])() and getattr(gc, kind[2])(iType).getType() == szType:
 			return kind
-	raise ValueError("no Sevopedia kind for %s; kinds: %s" % (szType, " ".join([kind[0] for kind in _PEDIA_KINDS])))
+	raise ValueError("%s is not a %s type" % (szType, kinds[0][0]))
 
 
 _symbolNames = None
@@ -8183,9 +8274,12 @@ _HELP["types"] = "The XML types of one kind, to browse as the Sevopedia's lists:
 
 def cmd_types(args):
 	if args.get("kind") is None:
-		return [kind[0] for kind in _PEDIA_KINDS]
-	kind = _pediaKind(args["kind"])
-	return [getattr(gc, kind[2])(i).getType() for i in range(getattr(gc, kind[1])())]
+		return _pediaPrefixes()
+	# <!-- custom: CONCEPT_ lists both concept tables. See KI#1110.2. (Claude code Opus 5.5) -->
+	types = []
+	for kind in _pediaKindsOf(args["kind"]):
+		types.extend([getattr(gc, kind[2])(i).getType() for i in range(getattr(gc, kind[1])())])
+	return types
 
 
 _HELP["pedia"] = "A type's Sevopedia entry as text: its name, the effects text the Sevopedia shows beside it, and its help and strategy texts, with markup removed. 'info' gives the same type's raw getters. args: type (e.g. UNIT_WARRIOR), long (1 to include the Civilopedia text, default 0)."
@@ -8196,9 +8290,6 @@ def cmd_pedia(args):
 	kind = _pediaKind(szType)
 	iType = _infoIndex(szType)
 	info = getattr(gc, kind[2])(iType)
-	# <!-- custom: Checked by the entry's own type, as a BUILDINGCLASS_ or UNITCLASS_ type also starts with BUILDING or UNIT. (Claude code Fable 5.2) -->
-	if info is None or info.getType() != szType:
-		raise ValueError("%s is not a %s type" % (szType, kind[0]))
 	result = {"type": szType, "name": info.getDescription(), "effects": None}
 	szEffects = _pediaEffects(kind[0], iType)
 	if szEffects is not None:
@@ -8256,24 +8347,20 @@ class _Capture:
 		self.parts.append(text)
 
 
-_HELP["pyerrors"] = "This client's Python error output since SASPilot started, which the game also writes to PythonErr.log: the last lines, up to 400 writes kept, and how many writes there were. Every client shares PythonErr.log, and a Civ4 stuck while exiting can keep it locked, so this is the one read that is surely this client's. clear=1 empties it after this read, so the next shows only what came after. args: clear, lines (default 40)."
+_HELP["pyerrors"] = "This client's Python error output since SASPilot started, which the game also writes to PythonErr.log: the last lines, up to 400 writes kept, and how many writes there were. Every client shares PythonErr.log, and a Civ4 stuck while exiting can keep it locked, so this is the one read that is surely this client's. Any reply also carries pythonErrors, the last 12 lines written since the previous reply, when there are any. clear=1 empties it after this read, so the next shows only what came after. args: clear, lines (default 40)."
 
 
 def cmd_pyerrors(args):
 	lines = _state.setdefault("pyErrors", [])
 	count = _state.setdefault("pyErrorWrites", [0])
-	parts = []
-	for part in lines:
-		if isinstance(part, unicode):
-			part = part.encode("utf-8", "replace")
-		parts.append(part)
-	text = "".join(parts)
-	rows = [row for row in text.split("\n") if row.strip()]
+	rows = [row for row in _errorText(lines).split(u"\n") if row.strip()]
 	result = {"writes": count[0], "lines": rows[-int(args.get("lines", 40)):]}
 	# <!-- custom: Emptied after the reply is built: the first version emptied it first, so SASPilotUISweep.py, which reads with clear=1, never saw an error, while a raised test error stood open in the window (2026-11-20). (Claude code Opus 5.5) -->
 	if args.get("clear"):
 		del lines[:]
 		count[0] = 0
+		# <!-- custom: The replies' count starts over with it: left as it was, two writes reported, cleared, then two new ones, were not reported (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		_state["pyErrorWritesReported"] = 0
 	return result
 
 
