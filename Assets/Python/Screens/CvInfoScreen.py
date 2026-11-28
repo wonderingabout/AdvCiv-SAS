@@ -3950,33 +3950,10 @@ class CvInfoScreen:
 
 	# STATISTICS
 
-	def drawStatsTab(self):
-		screen = self.getScreen()
-
+	def collectStatsData(self):
+		# <!-- custom: Split from drawStatsTab on 2026-11-28, so SASPilot's 'statistics' reads the counts this tab draws from the same code, on a copy of this screen set to the player. (Claude code Opus 5.5) -->
 		iNumUnits = gc.getNumUnitInfos()
 		iNumBuildings = gc.getNumBuildingInfos()
-
-		self.iNumUnitStatsChartCols = 5
-		self.iNumBuildingStatsChartCols = 2
-
-		self.iNumUnitStatsChartRows = iNumUnits
-		self.iNumBuildingStatsChartRows = iNumBuildings
-
-# CALCULATE STATS
-
-		iMinutesPlayed = CyGame().getMinutesPlayed()
-		iHoursPlayed = iMinutesPlayed / 60
-		iMinutesPlayed = iMinutesPlayed - (iHoursPlayed * 60)
-
-		szMinutesString = str(iMinutesPlayed)
-		if (iMinutesPlayed < 10):
-			szMinutesString = "0" + szMinutesString
-		szHoursString = str(iHoursPlayed)
-		if (iHoursPlayed < 10):
-			szHoursString = "0" + szHoursString
-
-		szTimeString = szHoursString + ":" + szMinutesString
-
 		iNumCitiesBuilt = CyStatistics().getPlayerNumCitiesBuilt(self.iActivePlayer)
 
 		iNumCitiesRazed = CyStatistics().getPlayerNumCitiesRazed(self.iActivePlayer)
@@ -4010,6 +3987,36 @@ class CvInfoScreen:
 		for pUnit in apUnitList:
 			iType = pUnit.getUnitType()
 			aiUnitsCurrent[iType] += 1
+		return (iNumCitiesBuilt, iNumCitiesRazed, iNumReligionsFounded, aiUnitsBuilt, aiUnitsKilled, aiUnitsLost, aiBuildingsBuilt, aiUnitsCurrent)
+
+	def drawStatsTab(self):
+		screen = self.getScreen()
+
+		iNumUnits = gc.getNumUnitInfos()
+		iNumBuildings = gc.getNumBuildingInfos()
+
+		self.iNumUnitStatsChartCols = 5
+		self.iNumBuildingStatsChartCols = 2
+
+		self.iNumUnitStatsChartRows = iNumUnits
+		self.iNumBuildingStatsChartRows = iNumBuildings
+
+# CALCULATE STATS
+
+		iMinutesPlayed = CyGame().getMinutesPlayed()
+		iHoursPlayed = iMinutesPlayed / 60
+		iMinutesPlayed = iMinutesPlayed - (iHoursPlayed * 60)
+
+		szMinutesString = str(iMinutesPlayed)
+		if (iMinutesPlayed < 10):
+			szMinutesString = "0" + szMinutesString
+		szHoursString = str(iHoursPlayed)
+		if (iHoursPlayed < 10):
+			szHoursString = "0" + szHoursString
+
+		szTimeString = szHoursString + ":" + szMinutesString
+
+		(iNumCitiesBuilt, iNumCitiesRazed, iNumReligionsFounded, aiUnitsBuilt, aiUnitsKilled, aiUnitsLost, aiBuildingsBuilt, aiUnitsCurrent) = self.collectStatsData()
 
 		# <!-- custom: Improvements column removed from the Stats tab. Rationale: this tab tracks save-persistent history counters (Units Built/Killed/Lost, Buildings Built — all from CyStatistics). The Improvements column was a snapshot ("Current", live plot iteration) — inconsistent with the rest of the table and not from CyStatistics (BTS has no getPlayerNumImprovementsBuilt). Concrete example of the inconsistency: build a Farm on a plot, replace it with a Cottage, then replace it back with a Farm — Units/Buildings tables would show Built=2 for an analogous build/destroy/rebuild, but the Improvements column showed Current=1 (one Farm on the map right now), giving "total Farms 1" instead of "total Farms built 2". Current-state info is now covered by World Advisor's Territory tab — a better home: more exhaustive and thematically grouped with other current-geography views. (Claude code Opus 4.7) -->
 

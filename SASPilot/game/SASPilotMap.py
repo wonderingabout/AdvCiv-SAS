@@ -879,3 +879,69 @@ def cmd_routes(args):
 		cities.append({"name": city.getName(), "x": city.getX(), "y": city.getY(), "connectedToCapital": city.isConnectedToCapital(player.getID())})
 		(city, iterator) = player.nextCity(iterator, False)
 	return {"x0": x0, "y1": y1, "rows": rows, "cities": cities}
+
+
+def _worldAdvisorView(player):
+	# <!-- custom: The World Advisor's screen object copied and set to this player's perspective, as 'timeline' does the Info Screen's, so these commands count with the tab's own code and the open screen's state stays untouched.
+	# Its map observer stays the active human's team outside Debug Mode, as on the screen (KI#224). (Claude code Opus 5.5) -->
+	import copy
+	import CvScreensInterface
+	view = copy.copy(CvScreensInterface.worldAdvisorScreen)
+	view.iActivePlayer = player.getID()
+	view.pActivePlayer = player
+	view.iActiveTeam = player.getTeam()
+	return view
+
+
+def _revealDebug(args):
+	# <!-- custom: Debug Mode's reveal-all for the collectors only when the request's fog is off: with fog on, Debug Mode let 'bfc' count a plot the team never revealed (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	return bool(gc.getGame().isDebugMode() and saspilot._fogTeam(args) < 0)
+
+
+def _countsByType(counts, getInfo):
+	# <!-- custom: A per-type count list as {TYPE: count}, zeros left out, which the tab draws as columns with empty cells. (Claude code Opus 5.5) -->
+	result = {}
+	for i in range(len(counts)):
+		if counts[i]:
+			result[getInfo(i).getType()] = counts[i]
+	return result
+
+
+# <!-- custom: The order of the tabs' plot counts, from their comment in CvWorldAdvisorScreen.collectBFC1Data. (Claude code Opus 5.5) -->
+_BFC_PLOT_NAMES = ("total", "water", "peak", "hill", "flat", "river", "lake", "coastal")
+
+
+_HELP["bfc"] = "The World Advisor's BFC 1 and BFC 2 tabs: per city of the player, the plots of its fat cross we have revealed, as plot shapes (total, water, peak, hill, flat, river, lake, coastal land), terrains and features, then the resources, improvements and routes on them as we know them; zeros left out. A Grassland hill counts as hill and as Grassland. args: player."
+
+
+def cmd_bfc(args):
+	# <!-- custom: The 2026-11-22 tab audit left world/BFC1 and BFC2 with no command ('workers' and 'citizens' covered parts); the user's rule: what the game shows a player belongs in the API. (Claude code Opus 5.5) -->
+	player = saspilot._player(args)
+	saspilot._requireOwnTeamUnderFog(args, player, "city plots")
+	view = _worldAdvisorView(player)
+	bReveal = _revealDebug(args)
+	(rows1, plotTotals, terrainCounts, featureCounts) = view.collectBFC1Data(bReveal)
+	(rows2, bonusCounts, improvementCounts, routeCounts) = view.collectBFC2Data(bReveal)
+	cities = []
+	for i in range(len(rows1)):
+		(szName, iOwner, iCity, iPopulation, iYear, plotCounts) = rows1[i][:6]
+		if rows2[i][2] != iCity:
+			raise ValueError("the BFC 1 and BFC 2 lists differ in city order at %d" % i)
+		cities.append({"city": szName, "cityId": iCity, "population": iPopulation, "foundedYear": iYear, "plots": dict(zip(_BFC_PLOT_NAMES, plotCounts)), "terrains": _countsByType(terrainCounts[i], gc.getTerrainInfo), "features": _countsByType(featureCounts[i], gc.getFeatureInfo), "bonuses": _countsByType(bonusCounts[i], gc.getBonusInfo), "improvements": _countsByType(improvementCounts[i], gc.getImprovementInfo), "routes": _countsByType(routeCounts[i], gc.getRouteInfo)})
+	return {"player": player.getID(), "totals": dict(zip(_BFC_PLOT_NAMES, plotTotals)), "cities": cities}
+
+
+_HELP["territory"] = "The World Advisor's Territory tab: the plots the player owns as we know them, each count split into those within its cities' fat crosses (bfc) and the rest (outside): plot shapes (total, water, peak, hill, flat, river, lake, coastal land), terrains, features, resources, improvements and routes; zeros left out. args: player."
+
+
+def _splitCounts(counts, getInfo):
+	return {"bfc": _countsByType([pair[0] for pair in counts], getInfo), "outside": _countsByType([pair[1] for pair in counts], getInfo)}
+
+
+def cmd_territory(args):
+	# <!-- custom: Reads CvWorldAdvisorScreen.collectTerritoryCounts, split from the tab's row building for this on 2026-11-28; 'geography' covered parts of the tab before. (Claude code Opus 5.5) -->
+	player = saspilot._player(args)
+	saspilot._requireOwnTeamUnderFog(args, player, "territory")
+	(plotCounts, terrainCounts, featureCounts, routeCounts, bonusCounts, improvementCounts) = _worldAdvisorView(player).collectTerritoryCounts(_revealDebug(args))
+	plots = {"bfc": dict(zip(_BFC_PLOT_NAMES, [pair[0] for pair in plotCounts])), "outside": dict(zip(_BFC_PLOT_NAMES, [pair[1] for pair in plotCounts]))}
+	return {"player": player.getID(), "plots": plots, "terrains": _splitCounts(terrainCounts, gc.getTerrainInfo), "features": _splitCounts(featureCounts, gc.getFeatureInfo), "bonuses": _splitCounts(bonusCounts, gc.getBonusInfo), "improvements": _splitCounts(improvementCounts, gc.getImprovementInfo), "routes": _splitCounts(routeCounts, gc.getRouteInfo)}

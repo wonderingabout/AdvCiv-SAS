@@ -748,3 +748,25 @@ def cmd_step(args):
 				if other.getTeam() != iTeam and not other.isInvisible(iTeam, False):
 					foreign.append({"owner": other.getOwner(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "x": plot.getX(), "y": plot.getY(), "atWar": bool(gc.getTeam(iTeam).isAtWar(other.getTeam()))})
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "movesLeft": unit.movesLeft(), "stepsLeft": len(path["steps"]) - 1, "newlyRevealed": after - before, "foreignNear": foreign}
+
+
+_HELP["composition"] = "The Military Advisor's Composition tab: the player's units that can fight, counted by unit type, by combat type and by promotion held, most first, as the tab's three tables. args: player."
+
+
+def _sortedCounts(counts, getInfo):
+	rows = [{"type": getInfo(i).getType(), "count": counts[i]} for i in counts.keys()]
+	rows.sort(lambda a, b: cmp(b["count"], a["count"]) or cmp(a["type"], b["type"]))
+	return rows
+
+
+def cmd_composition(args):
+	# <!-- custom: The 2026-11-22 tab audit left military/COMPOSITION with no command, as it was countable from 'units'; the user's rule since: what the game shows a player belongs in the API.
+	# Counted by the tab's own collectCompositionData on a new advisor object set to this player, whose constructor sets only constants, so the open screen's state stays untouched; BUG's Military Advisor, the other choice in its options, has no such tab. (Claude code Opus 5.5) -->
+	import CvMilitaryAdvisor
+	import CvScreenEnums
+	player = saspilot._player(args)
+	saspilot._requireOwnTeamUnderFog(args, player, "unit composition")
+	view = CvMilitaryAdvisor.CvMilitaryAdvisor(CvScreenEnums.MILITARY_ADVISOR)
+	view.iActivePlayer = player.getID()
+	(units, promotions, combats) = view.collectCompositionData()
+	return {"player": player.getID(), "units": _sortedCounts(units, gc.getUnitInfo), "combatTypes": _sortedCounts(combats, gc.getUnitCombatInfo), "promotions": _sortedCounts(promotions, gc.getPromotionInfo)}

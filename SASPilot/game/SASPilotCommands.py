@@ -4614,6 +4614,62 @@ def cmd_battles(args):
 	return {"player": iPlayer, "total": len(entries), "battles": [_battleRow(entry, iPlayer) for entry in entries[:iLimit]]}
 
 
+_HELP["environment"] = "The World Advisor's Environment tab: global warming's severity (low, medium or high, as the tab's title), the player's pollution by source (population, buildings, resources, power) and in total, its offsets, impact and sustainability threshold, the world's pollution, offsets, threshold and change rate, the player's share of the responsibility, the warming index, the expected events per turn (as the tab's one-decimal text, exact with the Debug Mode values), the events so far and the player's anger from warming (from 2%, as the tab). As the tab, the severity rating, the warming chances and, before the first event, the responsibility are given in Debug Mode only. args: player."
+
+
+def cmd_environment(args):
+	# <!-- custom: The 2026-11-22 tab audit left world/ENVIRONMENT with no command.
+	# Read through CvWorldAdvisorScreen.collectEnvironmentData, split from the tab's drawing for this on 2026-11-28, on a copy of the screen set to the player, so the change rate, responsibility and expected events come from the tab's own formulas. (Claude code Opus 5.5) -->
+	import copy
+	player = _player(args)
+	_requireOwnTeamUnderFog(args, player, "pollution")
+	view = copy.copy(CvScreensInterface.worldAdvisorScreen)
+	view.iActivePlayer = player.getID()
+	data = view.collectEnvironmentData()
+	# <!-- custom: The tab's Debug Mode-only values only when the request's fog is off too, as for 'bfc' (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	bDebug = gc.getGame().isDebugMode() and _fogTeam(args) < 0
+	# <!-- custom: The tab's own thresholds for its LOW, MEDIUM and HIGH title (advc.137). (Claude code Opus 5.5) -->
+	szSeverity = "high"
+	if data["severityRating"] < 30:
+		szSeverity = "low"
+	elif data["severityRating"] < 75:
+		szSeverity = "medium"
+	result = {"player": player.getID(), "severity": szSeverity, "pollution": {"population": data["population"], "buildings": data["buildings"], "resources": data["resources"], "power": data["power"], "total": data["localPollution"]}, "offsets": data["localDefence"], "impact": data["localPollution"] - data["localDefence"], "threshold": data["localThreshold"], "world": {"pollution": data["globalPollution"], "offsets": data["globalDefence"], "threshold": data["threshold"], "changeRate": max(0, data["changeRate"])}, "warmingIndex": data["globalWarmingIndex"], "expectedEventsPerTurn": u"%0.1f" % data["expectedEvents"]}
+	# <!-- custom: The tab shows one decimal, and the exact value is the hidden warming chance times a known factor (72 gave 1.44 at Normal speed), so the exact one only with the Debug Mode values (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	# <!-- custom: The tab shows the anger row from 2% only; the command first gave 1, which the tab hides (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if data["gwPercentAnger"] >= 2:
+		result["angerPercent"] = data["gwPercentAnger"]
+	if data["gwEventTally"] >= 0:
+		result["events"] = data["gwEventTally"]
+	if data["gwEventTally"] >= 0 or bDebug:
+		result["responsibilityPercent"] = data["responsibility"]
+	if bDebug:
+		result["severityRating"] = data["severityRating"]
+		result["warmingChances"] = data["globalWarmingChances"]
+		result["expectedEventsPerTurn"] = data["expectedEvents"]
+	return result
+
+
+_HELP["statistics"] = "The Info Screen's Statistics tab: minutes played, the player's cities built and razed, religions founded, and per unit type built, killed, lost and current, per building type built; zeros left out. args: player."
+
+
+def cmd_statistics(args):
+	# <!-- custom: The 2026-11-22 tab audit left info/STATISTICS with no command.
+	# Read through CvInfoScreen.collectStatsData, split from the tab's drawing for this on 2026-11-28, on a copy of the screen set to the player, as 'timeline' does. (Claude code Opus 5.5) -->
+	import copy
+	player = _player(args)
+	_requireOwnTeamUnderFog(args, player, "statistics")
+	view = copy.copy(CvScreensInterface.infoScreen)
+	view.iActivePlayer = player.getID()
+	(iCitiesBuilt, iCitiesRazed, iReligionsFounded, unitsBuilt, unitsKilled, unitsLost, buildingsBuilt, unitsCurrent) = view.collectStatsData()
+	units = []
+	for i in range(len(unitsBuilt)):
+		if unitsBuilt[i] or unitsKilled[i] or unitsLost[i] or unitsCurrent[i]:
+			units.append({"type": gc.getUnitInfo(i).getType(), "built": unitsBuilt[i], "killed": unitsKilled[i], "lost": unitsLost[i], "current": unitsCurrent[i]})
+	buildings = [{"type": gc.getBuildingInfo(i).getType(), "built": buildingsBuilt[i]} for i in range(len(buildingsBuilt)) if buildingsBuilt[i]]
+	return {"player": player.getID(), "minutesPlayed": gc.getGame().getMinutesPlayed(), "citiesBuilt": iCitiesBuilt, "citiesRazed": iCitiesRazed, "religionsFounded": iReligionsFounded, "units": units, "buildings": buildings}
+
+
 _HELP["military"] ="The Military Advisor's summary as decisions need it: unit counts by domain, military and civilian; where they stand (own cities, own land, neutral land, enemy land, other land); the wounded by ID; every unit that can upgrade now with its targets and cheapest cost, and the total; Great General progress and generals created; cities with walls and castles. args: player."
 
 
@@ -5242,6 +5298,75 @@ def cmd_resolution(args):
 	# The name came from the user's review: "requested", the first one, read as asking permission, and of "attempted" and "initiated" the user chose "initiated", as the switch has begun but awaits its answer. (Claude code Opus 5.5) -->
 	result["initiated"] = modes[matches[0]]
 	return result
+
+
+_HELP["corporations"] = "The Policy Advisor's Corporations tab: per corporation, when it was founded (turn, or null), the unit that founds it, the resources it consumes and produces, and what each resource it consumes yields in a city, scaled to the map size as the tab shows it (yieldsPerResource and commercesPerResource, in hundredths as the tab's rows store them: 50 is +0.5); then per city of the player, whether it is the capital, the headquarters it holds, the corporations in it with whether each is active and the yields and commerces each gives that city now, and the gold the city pays for them per turn in hundredths (maintenanceX100, an estimate of the sum of the tab's per-corporation figures: the tab rounds each corporation's share down, so its sum can be lower, by up to one gold per corporation; Python cannot read them one by one). args: player."
+
+
+def cmd_corporations(args):
+	# <!-- custom: The 2026-11-22 tab audit left policy/CORPORATIONS with no command ('world' lists corporations, not this tab's per-city detail); Codex suggested it next on 2026-11-28, for spread decisions.
+	# The inputs and per-resource outputs come from the tab's own helpers on a copy of the screen, so their world-size scaling (KI#231) is the tab's; the per-city numbers are the city's own per-corporation getters, as the tab's text comes from CyGameTextMgr. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import copy
+	player = _player(args)
+	_requireOwnTeamUnderFog(args, player, "corporations in cities")
+	view = copy.copy(CvScreensInterface.policyAdvisorScreen)
+	# <!-- custom: The screen reads this define when it first draws the tab, so it was None in a session where the tab had not been opened, and the first run raised "range() integer end argument expected, got NoneType"; read here through SASCurrentDefines, the shared cache CI asks for, on the copy only. (Claude code Opus 5.5) -->
+	if view.NUM_CORPORATION_PREREQ_BONUSES is None:
+		view.NUM_CORPORATION_PREREQ_BONUSES = SASCurrentDefines.getInt("NUM_CORPORATION_PREREQ_BONUSES")
+	iWorldPercent = gc.getWorldInfo(gc.getMap().getWorldSize()).getCorporationMaintenancePercent()
+	game = gc.getGame()
+	corporations = []
+	for iCorp in range(gc.getNumCorporationInfos()):
+		info = gc.getCorporationInfo(iCorp)
+		iTurn = game.getCorporationGameTurnFounded(iCorp)
+		szBuiltBy = None
+		for iBuilding in range(gc.getNumBuildingInfos()):
+			if gc.getBuildingInfo(iBuilding).getFoundsCorporation() == iCorp:
+				for iUnit in range(gc.getNumUnitInfos()):
+					if gc.getUnitInfo(iUnit).getBuildings(iBuilding) or gc.getUnitInfo(iUnit).getForceBuildings(iBuilding):
+						szBuiltBy = gc.getUnitInfo(iUnit).getType()
+						break
+				break
+		yields = {}
+		for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+			iValue = view.getScaledCorporationGeneratedValue(info.getYieldProduced(iYield), iWorldPercent)
+			if iValue:
+				yields[_enumName(YieldTypes, iYield)] = iValue
+		commerces = {}
+		for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+			iValue = view.getScaledCorporationGeneratedValue(info.getCommerceProduced(iCommerce), iWorldPercent)
+			if iValue:
+				commerces[_enumName(CommerceTypes, iCommerce)] = iValue
+		# <!-- custom: Turn 0 is founded too: 'iTurn >= 0 and iTurn or None' gave None for it, as 0 is false (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		iFoundedTurn = None
+		if iTurn >= 0:
+			iFoundedTurn = iTurn
+		corporations.append({"type": info.getType(), "foundedTurn": iFoundedTurn, "builtBy": szBuiltBy, "consumes": [gc.getBonusInfo(eBonus).getType() for eBonus in view.getCorporationConsumedBonuses(info)], "produces": _typeOrNone(gc.getBonusInfo, info.getBonusProduced()), "yieldsPerResource": yields, "commercesPerResource": commerces})
+	cities = []
+	for city in _cities(player):
+		inCity = []
+		for iCorp in range(gc.getNumCorporationInfos()):
+			if not city.isHasCorporation(iCorp):
+				continue
+			yields = {}
+			for iYield in range(YieldTypes.NUM_YIELD_TYPES):
+				iValue = city.getCorporationYieldByCorporation(iYield, iCorp)
+				if iValue:
+					yields[_enumName(YieldTypes, iYield)] = iValue
+			commerces = {}
+			for iCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES):
+				iValue = city.getCorporationCommerceByCorporation(iCommerce, iCorp)
+				if iValue:
+					commerces[_enumName(CommerceTypes, iCommerce)] = iValue
+			inCity.append({"type": gc.getCorporationInfo(iCorp).getType(), "active": bool(city.isActiveCorporation(iCorp)), "yields": yields, "commerces": commerces})
+		headquarters = [gc.getCorporationInfo(iCorp).getType() for iCorp in range(gc.getNumCorporationInfos()) if city.isHeadquartersByType(iCorp)]
+		# <!-- custom: The tab shows each corporation's gold maintenance in the city (Aachen -21); Python has only the city's total, while the per-corporation figure is CvCity's alone, so the total is given.
+		# calculateCorporationMaintenanceTimes100 is before inflation (it divides by it), which gave Aachen 11; the tab's text (CvGameTextMgr::setCorporationHelpCity) applies the city's maintenance modifier and the K-Mod inflation rate, as here.
+		# It is an estimate of the tab's sum: the tab applies both factors to each corporation and truncates each, so with two base costs of 101 hundredths and a -50% modifier it gives 50 + 50 where this gives 101 (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		iMaintenance = city.calculateCorporationMaintenanceTimes100() * (100 + city.getMaintenanceModifier()) / 100
+		iMaintenance = iMaintenance * (100 + player.calculateInflationRate()) / 100
+		cities.append({"city": city.getName(), "cityId": city.getID(), "capital": bool(city.isCapital()), "headquarters": headquarters, "corporations": inCity, "maintenanceX100": iMaintenance})
+	return {"player": player.getID(), "corporations": corporations, "cities": cities}
 
 
 _HELP["religion"] ="Without args: the state religion and the religions the player can convert to now, each candidate with our cities that have it (where the state religion's happiness, happinessFromCivics, applies), our holy city of it, and the met civs whose state religion it is (sharedWith, who like us for it) or who follow another (otherFaithOf, who dislike a different one), each with its power against ours and its closest city's distance: happiness against diplomacy, where a near or strong neighbour weighs most. With convert: convert to it (NO_RELIGION: none). args: convert (RELIGION_ type), player."
