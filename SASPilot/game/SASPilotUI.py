@@ -680,7 +680,7 @@ _HELP["uitabs"] = "The footer tabs of an open advisor (Domestic, Military, Forei
 # <!-- custom: The command that gives each tab's facts without the screen, keyed by CvScreenEnums.ADVISOR_TABS' advisor and tab keys; None where no command does yet, with what covers part of it.
 # From the 2026-11-22 audit, which opened every tab by name and compared it with the commands: the gaps show in 'uitabs all=1' itself, and a tab added to the registry without an entry here shows as "unmapped". (Claude code Opus 5.5) -->
 _TAB_COMMANDS = {
-	"domestic/OVERVIEW1": ("domestic", "26 fields per city against about 90 columns across the four overviews"),
+	"domestic/OVERVIEW1": ("domestic", None),
 	"domestic/OVERVIEW2": ("domestic", None),
 	"domestic/OVERVIEW3": ("domestic", None),
 	"domestic/OVERVIEW4": ("domestic", None),

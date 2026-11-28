@@ -4498,7 +4498,7 @@ def cmd_finance(args):
 	return result
 
 
-_HELP["domestic"] = "The Domestic Advisor's overview: one row per city with population, happiness and health margins (negative is a problem), food surplus, production, commerce by type, culture and its next level, Great People progress and rate, maintenance, trade route commerce, what it builds and in how many turns. With page=2, 3 or 4 instead, the tab's Overview 2 (food, production and stores, happiness and health with their parts, yield, commerce and trade route modifiers), 3 (culture and its threshold, rate and turns, Great People progress, threshold, base and full rate, modifier, turns and settled count, and the maintenance, war weariness, hurry anger, unhealthy population, military, space, air, nuke and espionage defense modifiers) or 4 (founding year, real population, corporation headquarters and active corporations, free experience, specialists by type, angry citizens, coordinates) per city, from the tab's own code. args: page, player."
+_HELP["domestic"] = "The Domestic Advisor's Overview 1, from the table's own code: one row per city with population, religions and holy cities, happiness and health margins (negative is a problem), food surplus, production, commerce by type, culture and Great People turns to the next, Great People rate, trade route commerce, maintenance with inflation as the table shows it, what it builds and in how many turns (productionTurns), defense, garrison and revolt chance (per mille); plus food stored, growth threshold, war weariness, turn founded, culture and its next level, Great People progress, coastal and the queue's first order. With page=2, 3 or 4 instead, the tab's Overview 2 (food, production and stores, happiness and health with their parts, yield, commerce and trade route modifiers), 3 (culture and its threshold, rate and turns, Great People progress, threshold, base and full rate, modifier, turns and settled count, and the maintenance, war weariness, hurry anger, unhealthy population, military, space, air, nuke and espionage defense modifiers) or 4 (founding year, real population, corporation headquarters and active corporations, free experience, specialists by type, angry citizens, coordinates) per city, from the tab's own code. args: page, player."
 
 
 def _domesticPage(player, iPage):
@@ -4536,25 +4536,36 @@ def cmd_domestic(args):
 			raise ValueError("page %d: the Domestic Advisor's Overview 2, 3 or 4; without page, the overview this command gives" % iPage)
 		return _domesticPage(_player(args), iPage)
 	# <!-- custom: The Domestic Advisor shows every city's state at a glance, while 'cities' gave only population and queue and 'city' one city at a time, so judging fifteen cities took fifteen requests (visual pass, 2026-11-14). (Claude code Opus 5.5) -->
+	# <!-- custom: Since 2026-11-28 each row is Overview 1's own, from CvDomesticAdvisor.collectOverview1Row, which the table draws from too (the user, after pages 2 to 4 got theirs): this command had computed its own fields and drifted from the table, its maintenance before inflation (the table and the main interface add it, advc.004), its turns and culture from other getters.
+	# The fields the table does not show stay here: food stored and the growth threshold (Overview 2), war weariness (3), the turn founded (4), Great People progress, culture and its next level, coastal and the queue's first order. (Claude code Opus 5.5) -->
+	import CvDomesticAdvisor
 	player = _player(args)
+	view = CvDomesticAdvisor.CvDomesticAdvisor()
+	view.iActivePlayer = player.getID()
 	rows = []
 	for city in _cities(player):
+		row = view.collectOverview1Row(city)
+		row["religions"] = [gc.getReligionInfo(i).getType() for i in row["religions"]]
+		row["holyCityOf"] = [gc.getReligionInfo(i).getType() for i in row["holyCityOf"]]
+		row["commerce"] = dict([(gc.getCommerceInfo(i).getType()[9:], row["commerce"][i]) for i in range(len(row["commerce"]))])
+		# <!-- custom: Revolt in per mille, an integer, as floats lose precision inside Civ4 (KI#1093), and as the table shows it: one decimal of a percent, rounded, at least 0.1% for any chance above 0 (advc.ctr); truncating gave 0 for a 0.07% chance the table shows as 0.1% (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		fRevolt = row.pop("revoltProbability")
+		row["revoltPerMille"] = 0
+		if fRevolt > 0:
+			row["revoltPerMille"] = int(1000 * max(fRevolt, 0.001) + 0.5)
+		row["id"] = city.getID()
+		row["name"] = city.getName()
 		queue = _cityBrief(city)["queue"]
-		row = {"id": city.getID(), "name": city.getName(), "population": city.getPopulation(), "happyMargin": city.happyLevel() - city.unhappyLevel(0), "healthMargin": city.goodHealth() - city.badHealth(False), "food": city.foodDifference(True), "production": city.getYieldRate(YieldTypes.YIELD_PRODUCTION), "commerce": dict([(gc.getCommerceInfo(i).getType()[9:], city.getCommerceRate(CommerceTypes(i))) for i in range(int(CommerceTypes.NUM_COMMERCE_TYPES))]), "culture": city.getCulture(city.getOwner()), "cultureNextLevel": city.getCultureThreshold(), "greatPeopleProgress": city.getGreatPeopleProgress(), "greatPeopleRate": city.getGreatPeopleRate(), "maintenance": city.getMaintenanceTimes100() / 100, "tradeCommerce": city.getTradeYield(YieldTypes.YIELD_COMMERCE), "building": (queue and [queue[0]] or [None])[0], "turns": city.getProductionTurnsLeft()}
+		row["building"] = (queue and [queue[0]] or [None])[0]
 		# <!-- custom: Coastal, as the Domestic Advisor's columns mark it (isCoastal with the game's MIN_WATER_SIZE_FOR_OCEAN), with an empire summary below: the user asked at turn 156 of the turn-0 game (2026-11-14) how many coastal cities we have, since a Harbor or Lighthouse pays per coastal city, and which cities need health or happiness, as the advisor's overview shows at a glance. (Claude code Opus 5.5) -->
 		row["coastal"] = bool(city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()))
-		# <!-- custom: More of the advisor's overview pages, as the user asked at turn 157 of the turn-0 game (2026-11-14): defense and garrison and the revolt chance from page 1 (advc.ctr's column; Orleans showed 9.2% to Pericles's culture at turn 139, which SASPilot learned only from a turn message), food stored against the growth threshold from page 2, war weariness from page 3, and the turn founded from page 4.
-		# Revolt in per mille, an integer, as floats lose precision inside Civ4 (KI#1093). (Claude code Opus 5.5) -->
-		row["defensePercent"] = city.getDefenseModifier(False)
-		row["garrison"] = city.plot().getNumDefenders(city.getOwner())
-		row["revoltPerMille"] = int(1000 * city.revoltProbability())
 		row["foodStored"] = city.getFood()
 		row["growthThreshold"] = city.growthThreshold()
 		row["warWearinessPercent"] = city.getWarWearinessModifier()
 		row["foundedTurn"] = city.getGameTurnFounded()
-		# <!-- custom: The religions column of the Domestic Advisor, the one column this overview lacked (checked against CvDomesticAdvisor.py, 2026-11-15); the holy cities with them. (Claude code Opus 5.5) -->
-		row["religions"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHasReligion(i)]
-		row["holyCityOf"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHolyCityByType(i)]
+		row["culture"] = city.getCulture(city.getOwner())
+		row["cultureNextLevel"] = city.getCultureThreshold()
+		row["greatPeopleProgress"] = city.getGreatPeopleProgress()
 		rows.append(row)
 	summary = {"cities": len(rows), "coastal": len([r for r in rows if r["coastal"]]), "unhealthy": [r["name"] for r in rows if r["healthMargin"] < 0], "atHealthCap": [r["name"] for r in rows if r["healthMargin"] == 0], "unhappy": [r["name"] for r in rows if r["happyMargin"] < 0], "atHappyCap": [r["name"] for r in rows if r["happyMargin"] == 0], "starving": [r["name"] for r in rows if r["food"] < 0]}
 	return {"greatPeopleThreshold": player.greatPeopleThreshold(False), "summary": summary, "cities": rows}

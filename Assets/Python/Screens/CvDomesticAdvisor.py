@@ -381,11 +381,12 @@ class CvDomesticAdvisor:
 		screen.setStyle(szTable, "Table_StandardCiv_Style")
 		return screen
 
-	def getCityReligionText(self, pCity):
+	# <!-- custom: From collectOverview1Row's lists since 2026-11-28, as the corporation cell's text is from Overview 4's. (Claude code Opus 5.5) -->
+	def getCityReligionText(self, row):
 		szRels = u""
 		for iRel in range(gc.getNumReligionInfos()):
-			if pCity.isHasReligion(iRel):
-				if pCity.isHolyCityByType(iRel):
+			if iRel in row["religions"]:
+				if iRel in row["holyCityOf"]:
 					szRels += (SASVisuals.Religion.holyCityChar(iRel))
 				else:
 					szRels += (u"%s" % SASVisuals.Religion.char(iRel))
@@ -880,7 +881,53 @@ class CvDomesticAdvisor:
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_FIN_EXPENSES + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
 		screen.setLabel(self.getNextFinanceWidgetName(), "Background", SASTextScale.sasFontTagLabel + expenseText(totalInflatedCosts) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, Z_CONTROLS + DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS, self.iFinanceActiveLeader, 1 )
 
+	# <!-- custom: Overview 1's raw values, as collectOverview2Row and the others give theirs (2026-11-28): the table formats and draws them, and SASPilot's plain 'domestic' returns them, which before computed its own and drifted from the table (maintenance without inflation, other turn and culture getters).
+	# None stands for a cell drawn blank. (Claude code Opus 5.5) -->
+	def collectOverview1Row(self, pLoopCity):
+		row = {}
+		row["population"] = pLoopCity.getPopulation()
+		row["religions"] = [iRel for iRel in range(gc.getNumReligionInfos()) if pLoopCity.isHasReligion(iRel)]
+		row["holyCityOf"] = [iRel for iRel in range(gc.getNumReligionInfos()) if pLoopCity.isHolyCityByType(iRel)]
+		row["happyMargin"] = pLoopCity.happyLevel() - pLoopCity.unhappyLevel(0)
+		row["healthMargin"] = pLoopCity.goodHealth() - pLoopCity.badHealth(0)
+		row["food"] = pLoopCity.foodDifference(true)
+		row["foodProduction"] = bool(pLoopCity.isFoodProduction())
+		row["production"] = pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)
+		row["commerce"] = [pLoopCity.getCommerceRate(eCommerce) for eCommerce in range(CommerceTypes.NUM_COMMERCE_TYPES)]
+		iCultureTimes100 = pLoopCity.getCultureTimes100(self.iActivePlayer)
+		iCultureRateTimes100 = pLoopCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
+		row["cultureTurns"] = None
+		if iCultureRateTimes100 > 0:
+			iCultureLeftTimes100 = 100 * pLoopCity.getCultureThreshold() - iCultureTimes100
+			if iCultureLeftTimes100 > 0:
+				row["cultureTurns"] = (iCultureLeftTimes100 + iCultureRateTimes100 - 1) / iCultureRateTimes100
+		iGreatPersonRate = pLoopCity.getGreatPeopleRate()
+		row["greatPeopleRate"] = iGreatPersonRate
+		row["greatPeopleTurns"] = None
+		if iGreatPersonRate > 0:
+			iGPPLeft = gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(false) - pLoopCity.getGreatPeopleProgress()
+			if iGPPLeft > 0:
+				iTurnsLeft = iGPPLeft / iGreatPersonRate
+				if iTurnsLeft * iGreatPersonRate < iGPPLeft:
+					iTurnsLeft += 1
+				row["greatPeopleTurns"] = iTurnsLeft
+		row["tradeCommerce"] = pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)
+		# <!-- custom: Moved here from updateTable1 with its inherited note, advc.004: based on K-Mod code in CvMainInterface.py, which adds inflation, where the table first read getMaintenance(). (Claude code Opus 5.5) -->
+		row["maintenance"] = pLoopCity.getMaintenanceTimes100() * (100+gc.getPlayer(pLoopCity.getOwner()).calculateInflationRate()) // 10000
+		row["producing"] = pLoopCity.getProductionName()
+		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
+		row["productionTurns"] = None
+		if iProductionTurns > 0: # advc.004x
+			row["productionTurns"] = iProductionTurns
+		row["defensePercent"] = pLoopCity.getDefenseModifier(False)
+		row["garrison"] = pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())
+		# <!-- custom: advc.ctr's revolt probability column, and whether the city can flip, which colours it. (Claude code Opus 5.5) -->
+		row["revoltProbability"] = pLoopCity.revoltProbability()
+		row["canCultureFlip"] = bool(pLoopCity.canCultureFlip())
+		return row
+
 	def updateTable1(self, pLoopCity, i):
+		row = self.collectOverview1Row(pLoopCity)
 
 		screen = CyGInterfaceScreen( "DomesticAdvisor", CvScreenEnums.DOMESTIC_ADVISOR )
 
@@ -905,17 +952,17 @@ class CvDomesticAdvisor:
 		screen.setTableText( self.TABLE_OVERVIEW1, 1, i, szFontTagOpen + szName + szFontTagClose, "", WidgetTypes.WIDGET_EXAMINE_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Population
-		screen.setTableInt( self.TABLE_OVERVIEW1, 2, i, szFontTagOpen + unicode(pLoopCity.getPopulation()) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 2, i, szFontTagOpen + unicode(row["population"]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# <!-- custom: The religions cell hovers and opens the religion that getCityReligionLink picks; -1 keeps it plain. (Claude code Opus 5.5) -->
 		iReligionLink = self.getCityReligionLink(pLoopCity)
 		if iReligionLink != -1:
-			screen.setTableText( self.TABLE_OVERVIEW1, 3, i, szFontTagOpen + self.getCityReligionText(pLoopCity) + szFontTagClose, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligionLink, 1, CvUtil.FONT_LEFT_JUSTIFY )
+			screen.setTableText( self.TABLE_OVERVIEW1, 3, i, szFontTagOpen + self.getCityReligionText(row) + szFontTagClose, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_RELIGION, iReligionLink, 1, CvUtil.FONT_LEFT_JUSTIFY )
 		else:
 			screen.setTableText( self.TABLE_OVERVIEW1, 3, i, szFontTagOpen + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Happiness...
-		iNetHappy = pLoopCity.happyLevel() - pLoopCity.unhappyLevel(0)
+		iNetHappy = row["happyMargin"]
 		szText = unicode(iNetHappy)
 		if iNetHappy > 0:
 			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
@@ -924,7 +971,7 @@ class CvDomesticAdvisor:
 		screen.setTableInt( self.TABLE_OVERVIEW1, 4, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Health...
-		iNetHealth = pLoopCity.goodHealth() - pLoopCity.badHealth(0)
+		iNetHealth = row["healthMargin"]
 		szText = unicode(iNetHealth)
 		if iNetHealth > 0:
 			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
@@ -933,65 +980,52 @@ class CvDomesticAdvisor:
 		screen.setTableInt( self.TABLE_OVERVIEW1, 5, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Food status...
-		iNetFood = pLoopCity.foodDifference(true)
+		iNetFood = row["food"]
 		szText = unicode(iNetFood)
 		if iNetFood > 0:
 			szText = self.COLOR_POSITIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
 		elif iNetFood < 0:
 			szText = self.COLOR_NEGATIVE_PREFIX + szText + self.COLOR_REVERT_SUFFIX
-		elif pLoopCity.isFoodProduction():
+		elif row["foodProduction"]:
 			# <!-- custom: leave food-to-production cities blank instead of showing 0 net food; they still sort with the zero-surplus group. (GPT-5.5) -->
 			szText = u""
 		screen.setTableInt( self.TABLE_OVERVIEW1, 6, i, szFontTagOpen + szText + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Production status...
-		screen.setTableInt( self.TABLE_OVERVIEW1, 7, i, szFontTagOpen+ unicode(pLoopCity.getYieldRate(YieldTypes.YIELD_PRODUCTION)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 7, i, szFontTagOpen+ unicode(row["production"]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Gold status...
-		screen.setTableInt( self.TABLE_OVERVIEW1, 8, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_GOLD)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 8, i, szFontTagOpen + unicode(row["commerce"][CommerceTypes.COMMERCE_GOLD]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Science rate...
-		screen.setTableInt( self.TABLE_OVERVIEW1, 9, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_RESEARCH)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 9, i, szFontTagOpen + unicode(row["commerce"][CommerceTypes.COMMERCE_RESEARCH]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Espionage rate...
-		screen.setTableInt( self.TABLE_OVERVIEW1, 10, i, szFontTagOpen + unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 10, i, szFontTagOpen + unicode(row["commerce"][CommerceTypes.COMMERCE_ESPIONAGE]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Culture status...
-		szCulture = unicode(pLoopCity.getCommerceRate(CommerceTypes.COMMERCE_CULTURE))
-		iCultureTimes100 = pLoopCity.getCultureTimes100(self.iActivePlayer)
-		iCultureRateTimes100 = pLoopCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
-		if iCultureRateTimes100 > 0:
-			iCultureLeftTimes100 = 100 * pLoopCity.getCultureThreshold() - iCultureTimes100
-			if iCultureLeftTimes100 > 0:
-				szCulture += u" (" + unicode((iCultureLeftTimes100 + iCultureRateTimes100 - 1) / iCultureRateTimes100) + u")"
+		szCulture = unicode(row["commerce"][CommerceTypes.COMMERCE_CULTURE])
+		if row["cultureTurns"] is not None:
+			szCulture += u" (" + unicode(row["cultureTurns"]) + u")"
 
 		screen.setTableInt( self.TABLE_OVERVIEW1, 11, i, szFontTagOpen + szCulture + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Great Person
-		iGreatPersonRate = pLoopCity.getGreatPeopleRate()
-		szGreatPerson = unicode(iGreatPersonRate)
-		if iGreatPersonRate > 0:
-			iGPPLeft = gc.getPlayer(self.iActivePlayer).greatPeopleThreshold(false) - pLoopCity.getGreatPeopleProgress()
-			if iGPPLeft > 0:
-				iTurnsLeft = iGPPLeft / pLoopCity.getGreatPeopleRate()
-				if iTurnsLeft * pLoopCity.getGreatPeopleRate() < iGPPLeft:
-					iTurnsLeft += 1
-				szGreatPerson += u" (" + unicode(iTurnsLeft) + u")"
+		szGreatPerson = unicode(row["greatPeopleRate"])
+		if row["greatPeopleTurns"] is not None:
+			szGreatPerson += u" (" + unicode(row["greatPeopleTurns"]) + u")"
 
 		screen.setTableInt( self.TABLE_OVERVIEW1, 12, i, szFontTagOpen + szGreatPerson + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Trade
-		screen.setTableInt( self.TABLE_OVERVIEW1, 13, i, szFontTagOpen + unicode(pLoopCity.getTradeYield(YieldTypes.YIELD_COMMERCE)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 13, i, szFontTagOpen + unicode(row["tradeCommerce"]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Maintenance...
-		#iMaintenance = pLoopCity.getMaintenance()
-		# advc.004: Based on K-Mod code in CvMainInterface.py
-		iMaintenance = pLoopCity.getMaintenanceTimes100() * (100+gc.getPlayer(pLoopCity.getOwner()).calculateInflationRate()) // 10000
+		iMaintenance = row["maintenance"]
 		screen.setTableInt( self.TABLE_OVERVIEW1, 14, i, szFontTagOpen + unicode(iMaintenance) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Producing
-		szProducing = pLoopCity.getProductionName()
-		iProductionTurns = pLoopCity.getGeneralProductionTurnsLeft()
+		szProducing = row["producing"]
 
 		# <!-- custom: also show the button of the current thing we are building. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
 		# add the button (icon) to the "Producing" column.
@@ -1026,14 +1060,14 @@ class CvDomesticAdvisor:
 		# End - add the button (icon) to the "Producing" column.
 
 		szProductionTurns = u""
-		if iProductionTurns > 0: # advc.004x
-			szProductionTurns = unicode(iProductionTurns)
+		if row["productionTurns"] is not None: # advc.004x
+			szProductionTurns = unicode(row["productionTurns"])
 		screen.setTableInt( self.TABLE_OVERVIEW1, 16, i, szFontTagOpen + szProductionTurns + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
-		screen.setTableInt( self.TABLE_OVERVIEW1, 17, i, szFontTagOpen + unicode(pLoopCity.getDefenseModifier(False)) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 17, i, szFontTagOpen + unicode(row["defensePercent"]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# Garrison
-		screen.setTableInt( self.TABLE_OVERVIEW1, 18, i, szFontTagOpen + unicode(pLoopCity.plot().getNumDefenders(pLoopCity.getOwner())) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		screen.setTableInt( self.TABLE_OVERVIEW1, 18, i, szFontTagOpen + unicode(row["garrison"]) + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 
 		# <!-- custom: Keep this inherited disabled code consistent with the shared visual-resource API; retain its original rationale and disabled status.
 		# Liberation
@@ -1046,12 +1080,12 @@ class CvDomesticAdvisor:
 			# UNOFFICIAL_PATCH end
 		# <advc.ctr> Replace this column with revolt probability
 		# (GPT-6.1-Sol) -->
-		revoltPr = pLoopCity.revoltProbability()
+		revoltPr = row["revoltProbability"]
 		if revoltPr > 0:
 			revoltPr = max(revoltPr, 0.001) # Show all near-0 values as "0.1%"
 			szRevoltPr = ("%.1f" % (100 * revoltPr)) + "%"
 			szColorTag = "COLOR_NEGATIVE_TEXT"
-			if not pLoopCity.canCultureFlip():
+			if not row["canCultureFlip"]:
 				szColorTag = "COLOR_YIELD_FOOD"
 			szRevoltPr = localText.changeTextColor(szRevoltPr, getInfoTypeOrFail(szColorTag))
 			screen.setTableText(self.TABLE_OVERVIEW1, 19, i, szFontTagOpen + szRevoltPr + szFontTagClose, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
