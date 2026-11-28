@@ -236,69 +236,184 @@ def poll(state, szReloadError):
 		reply = _serve(text)
 		state["served"] = state["served"] + 1
 		iPyErrorWritesThrough = reply.pop("_pyErrorWritesThrough", None)
+		newsSnapshot = reply.pop("_newsSnapshot", None)
 		szReply = toJson(reply)
 		szReply = szReply[:-1] + ',"gameMs":' + repr((time.clock() - fStart) * 1000.0) + ',"tick":"' + state.get("lastTick", "") + '"}'
 		_writeAtomic(os.path.join(mailbox, "rep_" + name[4:]), szReply)
 		# <!-- custom: Marked as reported only once the reply is written: marked while building it, a failed write lost the errors from the next reply too (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		if iPyErrorWritesThrough is not None:
 			state["pyErrorWritesReported"] = iPyErrorWritesThrough
+		# <!-- custom: The news's baseline likewise moves only once the reply carrying it is written. (Claude code Opus 5.5) -->
+		if newsSnapshot is not None:
+			state["newsSnapshot"] = newsSnapshot
 		try:
 			os.remove(running)
 		except OSError:
 			pass  # <!-- custom: the reply is out; a run_ file left behind only means the claim was not cleaned up (Claude code Opus 5.5) -->
 
 
-# <!-- custom: SASPilotUI.py beside this file holds the ui* commands, loaded as SASPilot.py loads this one: compiled from the file, again whenever it changes, and once more after this module reloads (_uiStamp starts over). (Claude code Opus 5.5) -->
+# <!-- custom: SASPilotUI.py beside this file holds the ui* commands, loaded as SASPilot.py loads this one: compiled from the file, again whenever it changes, and once more after this module reloads (_siblingStamps starts over). (Claude code Opus 5.5) -->
 _UI_NAME = "SASPilotUI"
-_uiStamp = None
+# <!-- custom: SASPilotNews.py beside it builds the news every reply carries, split from this file as a concept of its own that grows (the user's suggestion, 2026-11-28); loaded the same way, but only when a reply is built, so idle ticks do not check a second file. (Claude code Opus 5.5) -->
+_NEWS_NAME = "SASPilotNews"
+# <!-- custom: Each sibling file's (size, modification time) when it was last read; this was _uiStamp, the UI's alone, before SASPilotNews.py shared the loader. (Claude code Opus 5.5) -->
+_siblingStamps = {}
 
 
-def _loadUI():
-	# <!-- custom: imp builds the SASPilotUI module from its file.
-	# Imported here, as the game's Python 2.4 has it but the modern Python the CI tests load this file with does not (removed in 3.12): a top-level import broke all 9 tests of test_saspilot_graphs.py. (Claude code Opus 5.5) -->
-	import imp
-	global _uiStamp
-	# <!-- custom: Codex's review found two flaws in the first version: os.stat ran outside the error handler before any request was served, so a missing or briefly locked SASPilotUI.py would have stopped every command, and the stamp was taken before the read, so a failed read waited for the next edit.
+def _readSibling(szName, szErrorKey):
+	# <!-- custom: The source of the sibling file szName when it changed since it was last read, else None; a read error goes to _state[szErrorKey].
+	# Codex's review found two flaws in the first version: os.stat ran outside the error handler before any request was served, so a missing or briefly locked SASPilotUI.py would have stopped every command, and the stamp was taken before the read, so a failed read waited for the next edit.
 	# A read error now leaves the stamp alone and is retried on the next tick; only a file that was read is marked, whether it then loaded or failed to compile. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-	path = os.path.join(os.path.dirname(__file__), _UI_NAME + ".py")
+	path = os.path.join(os.path.dirname(__file__), szName + ".py")
 	try:
 		stat = os.stat(path)
 		stamp = (stat.st_size, stat.st_mtime)
-		if stamp == _uiStamp:
-			# <!-- custom: The loaded file is readable again after a read error: the error is cleared, as it otherwise blocked the ui commands until the next edit (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-			if _state.get("uiLoadErrorRead"):
-				_state["uiLoadError"] = None
-				_state["uiLoadErrorRead"] = False
-			return
+		if stamp == _siblingStamps.get(szName):
+			return None
 		handle = open(path, "rb")
 		source = handle.read().replace("\r\n", "\n")
 		handle.close()
 	except (IOError, OSError):
-		_state["uiLoadError"] = "%s cannot be read: %s" % (path, sys.exc_info()[1])
-		_state["uiLoadErrorRead"] = True
+		# <!-- custom: A read error forgets the stamp, so the file is compiled again once it reads, and the read error then gives way to that load's own result.
+		# The UI loader first cleared the read error when the same file read again, as it otherwise blocked the ui commands until the next edit (Codex's review); but after a compile error, that cleared the compile error too without compiling, so a broken file went unreported (Codex reproduced it, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		_state[szErrorKey] = "%s cannot be read: %s" % (path, sys.exc_info()[1])
+		if _siblingStamps.has_key(szName):
+			del _siblingStamps[szName]
+		return None
+	_siblingStamps[szName] = stamp
+	return (path, source)
+
+
+def _compileSibling(szName, path, source):
+	# <!-- custom: imp builds the module from its file.
+	# Imported here, as the game's Python 2.4 has it but the modern Python the CI tests load this file with does not (removed in 3.12): a top-level import broke all 9 tests of test_saspilot_graphs.py. (Claude code Opus 5.5) -->
+	import imp
+	module = imp.new_module(szName)
+	module.__file__ = path
+	eval(compile(source + "\n", path, "exec"), module.__dict__)
+	module.saspilot = sys.modules[__name__]
+	return module
+
+
+# <!-- custom: The command names each sibling module registered, so a reload takes away the commands its new version no longer has. (Claude code Opus 5.5) -->
+_siblingCommands = {}
+
+
+def _siblingExports(module):
+	# <!-- custom: A sibling's commands and help, checked before the module replaces the loaded one, so a file that compiles but lacks _HELP fails its own load rather than every later request (Codex reproduced it, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	helpTexts = getattr(module, "_HELP", None)
+	if not isinstance(helpTexts, dict):
+		raise ValueError("%s has no _HELP dict" % module.__name__)
+	commands = [szName for szName in dir(module) if szName.startswith("cmd_")]
+	# <!-- custom: A command another file already has is refused: a sibling exporting cmd_endturn replaced the core's, and deleted it once the sibling dropped the export (Codex reproduced it in Python 2.4, 2026-11-28); no files clash today. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	for szCommand in commands:
+		if not globals().has_key(szCommand) or szCommand in _siblingCommands.get(module.__name__, []):
+			continue
+		owners = [szOwner for szOwner in _siblingCommands.keys() if szCommand in _siblingCommands[szOwner]]
+		raise ValueError("%s defines %s, which %s already has" % (module.__name__, szCommand, (owners or [__name__])[0]))
+	return (commands, helpTexts)
+
+
+def _registerSibling(szName, module, exports):
+	# <!-- custom: Replaces the sibling's commands and help as one: a reload first only added, so a command removed from the file stayed callable, pointing at the previous module, whose globals Python had cleared (Codex reproduced it in Python 2.4, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	(commands, helpTexts) = exports
+	for szCommand in _siblingCommands.get(szName, []):
+		if globals().has_key(szCommand):
+			del globals()[szCommand]
+		if _HELP.has_key(szCommand[len("cmd_"):]):
+			del _HELP[szCommand[len("cmd_"):]]
+	for szCommand in commands:
+		globals()[szCommand] = getattr(module, szCommand)
+	_HELP.update(helpTexts)
+	_siblingCommands[szName] = commands
+	sys.modules[szName] = module
+
+
+def _loadNews():
+	# <!-- custom: A failed load keeps the previous news module, and the error goes in each reply's newsError, as for the ui commands. (Claude code Opus 5.5) -->
+	read = _readSibling(_NEWS_NAME, "newsLoadError")
+	if read is not None:
+		try:
+			module = _compileSibling(_NEWS_NAME, read[0], read[1])
+		except Exception:
+			_state["newsLoadError"] = "".join(traceback.format_exception(*sys.exc_info()))
+		else:
+			_state["newsLoadError"] = None
+			sys.modules[_NEWS_NAME] = module
+	return sys.modules.get(_NEWS_NAME)
+
+
+# <!-- custom: The files beside this one that hold commands by topic, the parts of this file moved out since 2026-11-28: SASPilotCatalog.py the commands reading the game's definitions ('info', 'types', 'pedia'), SASPilotDiplomacy.py those talking and trading with the other players, SASPilotCities.py those running a city, SASPilotUnits.py those commanding units, SASPilotMap.py the map as the player knows it.
+# They are grouped by concept, not by the game's screens or by how a player or Firaxis divides them (the user, 2026-11-28): diplomacy and trade share a module although the game splits them between the diplomacy screen and the Foreign Advisor, and a city's production and citizens share one.
+# Each is loaded before a request is served, as its commands and help must be there when the request is checked; SASPilotUI.py, loaded every tick for its hooks, is apart. (Claude code Opus 5.5) -->
+_CATALOG_NAME = "SASPilotCatalog"
+_COMMAND_SIBLINGS = (_CATALOG_NAME, "SASPilotDiplomacy", "SASPilotCities", "SASPilotUnits", "SASPilotMap")
+
+
+def _loadCommandSibling(szName):
+	# <!-- custom: Loads or reloads a command sibling if its file changed, replacing its commands and help in this module; a failed load keeps the previous version, and its commands then report the error, as the ui commands do, in _state[szName + "LoadError"].
+	# It never raises, so a broken sibling stops only its own commands, not every request. (Claude code Opus 5.5) -->
+	szErrorKey = szName + "LoadError"
+	read = _readSibling(szName, szErrorKey)
+	if read is not None:
+		try:
+			module = _compileSibling(szName, read[0], read[1])
+			exports = _siblingExports(module)
+		except Exception:
+			_state[szErrorKey] = "".join(traceback.format_exception(*sys.exc_info()))
+		else:
+			_state[szErrorKey] = None
+			_registerSibling(szName, module, exports)
+	return sys.modules.get(szName)
+
+
+def _loadCommandSiblings():
+	for szName in _COMMAND_SIBLINGS:
+		_loadCommandSibling(szName)
+
+
+def _catalog():
+	# <!-- custom: The catalog module for code that needs its helpers, such as SASPilotUI's Sevopedia kinds and the 'py' namespace's describe; raises if it never loaded. (Claude code Opus 5.5) -->
+	module = _loadCommandSibling(_CATALOG_NAME)
+	if module is None:
+		raise ValueError("SASPilotCatalog.py failed to load:\n%s" % _state.get(_CATALOG_NAME + "LoadError"))
+	return module
+
+
+def _command(szName):
+	# <!-- custom: A command that lives in a sibling file, such as 'relations' in SASPilotDiplomacy.py, for code here that calls it: the loader adds the siblings' commands to this module at run time, which static checks cannot see, so 'cmd_relations(args)' here read as an undefined name to star_import_names.py (2026-11-28); this says the command is looked up, and names a sibling that failed to load. (Claude code Opus 5.5) -->
+	handler = globals().get("cmd_" + szName)
+	if handler is None:
+		_loadCommandSiblings()
+		handler = globals().get("cmd_" + szName)
+	if handler is None:
+		errors = ["%s: %s" % (szSibling, _state.get(szSibling + "LoadError")) for szSibling in _COMMAND_SIBLINGS if _state.get(szSibling + "LoadError")]
+		raise ValueError("no command %s is loaded%s" % (szName, errors and "; " + "; ".join(errors) or ""))
+	return handler
+
+
+def _describe(target):
+	# <!-- custom: The catalog's describe for the 'py' namespace, resolved at each call. (Claude code Opus 5.5) -->
+	return _catalog().describe(target)
+
+
+def _loadUI():
+	read = _readSibling(_UI_NAME, "uiLoadError")
+	if read is None:
 		return
-	_uiStamp = stamp
 	# <!-- custom: A failed load keeps the previous ui commands and is reported by each ui command, so a syntax error in an edit does not stop the other commands. (Claude code Opus 5.5) -->
 	try:
-		module = imp.new_module(_UI_NAME)
-		module.__file__ = path
-		eval(compile(source + "\n", path, "exec"), module.__dict__)
-		module.saspilot = sys.modules[__name__]
+		module = _compileSibling(_UI_NAME, read[0], read[1])
+		exports = _siblingExports(module)
 		# <!-- custom: Kept alive before its wrappers go on the screen class, and for good: the first test kept no reference to the module, and Python 2 set the freed module's globals to None, so every recorded call failed with "'NoneType' object is not callable", 479 popups from the main interface's own drawing.
 		# Every loaded version stays in this list, as a wrapper left by a failed or partial install could still point to it (Codex's review); a few modules per session. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		_state.setdefault("uiModules", []).append(module)
 		module._reloaded()
 	except Exception:
 		_state["uiLoadError"] = "".join(traceback.format_exception(*sys.exc_info()))
-		_state["uiLoadErrorRead"] = False
 		return
 	_state["uiLoadError"] = None
-	_state["uiLoadErrorRead"] = False
-	sys.modules[_UI_NAME] = module
-	for szName in dir(module):
-		if szName.startswith("cmd_"):
-			globals()[szName] = getattr(module, szName)
-	_HELP.update(module._HELP)
+	_registerSibling(_UI_NAME, module, exports)
 
 
 def aroundMainInterfaceBuild(state, bBefore):
@@ -316,6 +431,9 @@ def aroundMainInterfaceBuild(state, bBefore):
 def _checkedHandler(name, args):
 	if str(name).startswith("ui") and _state.get("uiLoadError"):
 		raise ValueError("SASPilotUI.py failed to load:\n%s" % _state["uiLoadError"])
+	for szSibling in _COMMAND_SIBLINGS:
+		if hasattr(sys.modules.get(szSibling), "cmd_" + str(name)) and _state.get(szSibling + "LoadError"):
+			raise ValueError("%s.py failed to load:\n%s" % (szSibling, _state[szSibling + "LoadError"]))
 	# <!-- custom: The command's function, once its name and argument keys are checked: 'civics adopt=CIVIC_THEOCRACY' returned the civics list as if it had worked, as the command takes set= and the unknown key was ignored (fog-on playthrough, turn 131, 2026-11-13). A key the command's help does not list is refused; player and fog are read by shared helpers for any command.
 	# Used by 'batch' and 'profile' too, which first called handlers directly and so skipped the check (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	handler = globals().get("cmd_" + str(name))
@@ -334,7 +452,16 @@ def _checkedHandler(name, args):
 		if hints:
 			szHint = "; did you mean " + ", ".join(hints) + "?"
 		raise ValueError("%s takes no %s; it takes: %s%s" % (name, ", ".join(unknown), ", ".join(allowed) or "nothing", szHint))
+	# <!-- custom: A required argument left out is named before the command runs: 'emphasize city=Babylon' and 'specialist city=Babylon' answered with a bare KeyError: 'type' (2026-11-28).
+	# Listed per command rather than caught as KeyError after the call, which would hide a KeyError raised by a bug inside a handler (Codex's review); commands with alternative arguments check their own. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	missing = [key for key in _REQUIRED_ARGS.get(str(name), ()) if not args.has_key(key)]
+	if missing:
+		raise ValueError("%s needs %s; it takes: %s" % (name, ", ".join(missing), ", ".join(allowed)))
 	return handler
+
+
+# <!-- custom: Arguments a command cannot run without, as its help lists them. (Claude code Opus 5.5) -->
+_REQUIRED_ARGS = {"specialist": ("type",), "emphasize": ("type",), "shore": ("x", "y")}
 
 
 # <!-- custom: The keys agents tried in place of a command's own, with what that command may take instead; used only to word the refusal above. (Claude code Opus 5.5) -->
@@ -386,6 +513,8 @@ def _applyLaunchRole():
 
 def _serve(text):
 	reply = {"ok": False}
+	bAccepted = False
+	requestArgs = {}
 	try:
 		request = fromJson(text)
 		reply["id"] = request.get("id")
@@ -396,8 +525,12 @@ def _serve(text):
 		name = request["cmd"]
 		args = request.get("args") or {}
 		_applyLaunchRole()
+		bAccepted = True
+		_loadCommandSiblings()
 		handler = _checkedHandler(name, args)
 		_checkRole(name, args)
+		# <!-- custom: The request's fog counts for the news only once the role allows the request: taken before _checkRole, a play session's refused fog=0 gave a full-view rank in the refusal's news (Codex reproduced it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		requestArgs = args
 		# <!-- custom: On unless 'look follow=0' turns it off: the user watching the Orleans attack (turn 129 of the turn-0 game, 2026-11-14) asked for the camera to follow without anyone having to switch it on each session. (Claude code Opus 5.5) -->
 		if _state.get("follow", True):
 			_followOrder(name, args)
@@ -410,7 +543,27 @@ def _serve(text):
 	game = gc.getGame()
 	reply["gameTurn"] = game.getGameTurn()
 	_reportNewErrors(reply)
+	# <!-- custom: Only for a request of this session, once its launch role is applied: a stale request from another session got news too, and could set a baseline without the role's fog, as the role is applied after the session check (Codex reproduced it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if bAccepted:
+		_reportNews(reply, requestArgs)
 	return reply
+
+
+def _reportNews(reply, requestArgs):
+	# <!-- custom: The news since the previous reply, built by SASPilotNews.py beside this file, which says what it holds and why. (Claude code Opus 5.5) -->
+	# <!-- custom: No game to compare while one loads: as 'ping' does, nothing is reported before an active player and the final initialization; the first version raised newsError on every ping of a load (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	game = gc.getGame()
+	if game.getActivePlayer() < 0 or not game.isFinalInitialized():
+		return
+	# <!-- custom: A failure here is reported beside the command's own result rather than replacing it, as the command itself ran. (Claude code Opus 5.5) -->
+	try:
+		news = _loadNews()
+		if _state.get("newsLoadError"):
+			reply["newsError"] = "SASPilotNews.py failed to load: %s" % _state["newsLoadError"]
+		if news is not None:
+			news.report(reply, requestArgs)
+	except Exception:
+		reply["newsError"] = "%s: %s" % (sys.exc_info()[0].__name__, sys.exc_info()[1])
 
 
 def _reportNewErrors(reply):
@@ -509,16 +662,6 @@ def _checkedPlayerId(value):
 	if iPlayer < 0 or iPlayer >= gc.getMAX_PLAYERS() or not gc.getPlayer(iPlayer).isAlive():
 		raise ValueError("no living player %d" % iPlayer)
 	return iPlayer
-
-
-def _otherAiId(player, value):
-	# <!-- custom: The AI a diplomacy command talks to: another living civilization, not human, that the player can contact; shared by 'contact', 'trade' and 'propose'. (Claude code Opus 5.5) -->
-	iOther = _checkedPlayerId(value)
-	if iOther >= gc.getMAX_CIV_PLAYERS() or iOther == player.getID() or gc.getPlayer(iOther).isHuman():
-		raise ValueError("player %d is not an AI player the active player could contact" % iOther)
-	if not player.canContact(iOther):
-		raise ValueError("player %d cannot contact player %d" % (player.getID(), iOther))
-	return iOther
 
 
 def _playerId(args):
@@ -688,59 +831,6 @@ def _unitFull(unit, iFogTeam=None):
 	return result
 
 
-def _unitActions(unit):
-	# <!-- custom: What the unit's buttons would offer on its own plot: missions and commands with bTestVisible off, plus builds, promotions and upgrades.
-	# Target missions such as MISSION_MOVE_TO are listed when startable at all; the target is checked when the order is given. (Claude code Fable 5.2) -->
-	group = unit.getGroup()
-	plot = unit.plot()
-	missions = []
-	for i in range(gc.getNumMissionInfos()):
-		if i == MissionTypes.MISSION_BUILD:
-			continue
-		if group.canStartMission(i, -1, -1, plot, False):
-			missions.append(gc.getMissionInfo(i).getType())
-	builds = [gc.getBuildInfo(i).getType() for i in range(gc.getNumBuildInfos()) if unit.canBuild(plot, i, False)]
-	commands = []
-	for i in range(gc.getNumCommandInfos()):
-		if i in (CommandTypes.COMMAND_PROMOTION, CommandTypes.COMMAND_UPGRADE):
-			continue
-		if unit.canDoCommand(CommandTypes(i), -1, -1, False):
-			commands.append(gc.getCommandInfo(i).getType())
-	promotions = [gc.getPromotionInfo(i).getType() for i in range(gc.getNumPromotionInfos()) if unit.canPromote(i, -1)]
-	upgrades = [gc.getUnitInfo(i).getType() for i in range(gc.getNumUnitInfos()) if unit.canUpgrade(i, False)]
-	# <!-- custom: COMMAND_AUTOMATE was missing from 'commands', as it is tested with data1 -1 there, so the Explore button a person clicks for a scout had no listed equivalent (fog-on playthrough, 2026-11-13).
-	# List each automation the unit's buttons would offer. (Claude code Opus 5.5) -->
-	# <!-- custom: Missions that take a type as data were tested with -1 only, so a Great Scientist born at turn 105 of the fog-on playthrough (2026-11-13) listed no "Join City" or "Build Academy".
-	# Test each specialist and building as the unit's buttons do and list them as MISSION:TYPE. (Claude code Opus 5.5) -->
-	for i in range(gc.getNumSpecialistInfos()):
-		if group.canStartMission(int(MissionTypes.MISSION_JOIN), i, -1, plot, False):
-			missions.append("MISSION_JOIN:" + gc.getSpecialistInfo(i).getType())
-	for i in range(gc.getNumBuildingInfos()):
-		if group.canStartMission(int(MissionTypes.MISSION_CONSTRUCT), i, -1, plot, False):
-			missions.append("MISSION_CONSTRUCT:" + gc.getBuildingInfo(i).getType())
-	# <!-- custom: The same for religions and corporations: Hippo's free Islamic Missionary stood in Carthage at turn 129 of the second fog-on game (2026-11-13) with canSpread true, yet listed no spread, as MISSION_SPREAD takes the religion as data. (Claude code Opus 5.5) -->
-	for i in range(gc.getNumReligionInfos()):
-		if group.canStartMission(int(MissionTypes.MISSION_SPREAD), i, -1, plot, False):
-			missions.append("MISSION_SPREAD:" + gc.getReligionInfo(i).getType())
-	for i in range(gc.getNumCorporationInfos()):
-		if group.canStartMission(int(MissionTypes.MISSION_SPREAD_CORPORATION), i, -1, plot, False):
-			missions.append("MISSION_SPREAD_CORPORATION:" + gc.getCorporationInfo(i).getType())
-	automations = [name for name in _AUTOMATE_NAMES if unit.canDoCommand(CommandTypes.COMMAND_AUTOMATE, int(getattr(AutomateTypes, name)), -1, False)]
-	# <!-- custom: Recon, air bombing, air strikes, rebasing, paradrops, airlifts, ranged attacks and nukes start by picking a plot, as an interface mode, so canStartMission with no target never listed them.
-	# List the modes the unit's buttons offer with the mission a plot click then gives; 'targets' lists the plots. (Claude code Opus 5.5) -->
-	targetModes = []
-	if hasattr(gc, "getInterfaceModeInfo"):
-		for i in range(int(InterfaceModeTypes.NUM_INTERFACEMODE_TYPES)):
-			info = gc.getInterfaceModeInfo(i)
-			if info.getMissionType() >= 0 and group.canDoInterfaceMode(InterfaceModeTypes(i)):
-				targetModes.append({"mode": info.getType(), "mission": gc.getMissionInfo(info.getMissionType()).getType()})
-	return {"missions": missions, "builds": builds, "commands": commands, "promotions": promotions, "upgrades": upgrades, "automations": automations, "targetModes": targetModes}
-
-
-# <!-- custom: AutomateTypes has no XML info, so its names come from the Boost enum class. (Claude code Opus 5.5) -->
-_AUTOMATE_NAMES = [name for name in dir(AutomateTypes) if name.startswith("AUTOMATE_")]
-
-
 def _orderData(order):
 	eOrder = order.eOrderType
 	if eOrder == OrderTypes.ORDER_TRAIN:
@@ -754,75 +844,9 @@ def _orderData(order):
 	return "ORDER_%d" % int(eOrder)
 
 
-# <!-- custom: While a Settler or Worker (bFood) is built, foodDifference reads 0 because K-Mod's CvCity::foodDifference caps it there, yet the surplus goes into production.
-# At turn 18 of the Continents game (2026-11-19) that 0 led to trading a food for a hammer during the Worker, which changed nothing; the user pointed out that food is production then. (Claude code Opus 5.5) -->
-def _foodProduction(city):
-	bFoodProduction = city.isFoodProduction()
-	result = {"foodProduction": bFoodProduction}
-	if bFoodProduction:
-		result["foodSurplusToProduction"] = max(0, city.getYieldRate(YieldTypes.YIELD_FOOD) - city.foodConsumption(False, 0))
-	return result
-
-
 def _cityBrief(city):
 	queue = [_orderData(city.getOrderFromQueue(i)) for i in range(city.getOrderQueueLength())]
 	return {"id": city.getID(), "name": city.getName(), "x": city.getX(), "y": city.getY(), "owner": city.getOwner(), "population": city.getPopulation(), "queue": queue, "productionTurnsLeft": city.getProductionTurnsLeft(), "foodTurnsLeft": city.getFoodTurnsLeft()}
-
-
-def _cityFull(city):
-	result = _cityBrief(city)
-	iOwner = city.getOwner()
-	result["food"] = city.getFood()
-	result["growthThreshold"] = city.growthThreshold()
-	result["foodDifference"] = city.foodDifference(True)
-	result.update(_foodProduction(city))
-	result["production"] = city.getProduction()
-	# <!-- custom: With an empty queue the game returns MAX_INT, which came back as 2147483647 (fog-on playthrough, 2026-11-13); give null instead, as nothing is being produced. (Claude code Opus 5.5) -->
-	result["productionNeeded"] = None
-	if city.getOrderQueueLength() > 0:
-		result["productionNeeded"] = city.getProductionNeeded()
-	result["yieldRate"] = _yields(city.getYieldRate)
-	result["commerceRate"] = [city.getCommerceRate(CommerceTypes(i)) for i in range(CommerceTypes.NUM_COMMERCE_TYPES)]
-	result["culture"] = city.getCulture(iOwner)
-	result["cultureThreshold"] = city.getCultureThreshold()
-	result["happy"] = city.happyLevel()
-	result["unhappy"] = city.unhappyLevel(0)
-	result["health"] = city.goodHealth()
-	result["unhealth"] = city.badHealth(False)
-	result["buildings"] = [gc.getBuildingInfo(i).getType() for i in range(gc.getNumBuildingInfos()) if city.getNumRealBuilding(i) > 0]
-	result["specialists"] = dict([(gc.getSpecialistInfo(i).getType(), city.getSpecialistCount(i)) for i in range(gc.getNumSpecialistInfos()) if city.getSpecialistCount(i) > 0])
-	# <!-- custom: A settled Great Scientist joined Utica as a free specialist at turn 105 (2026-11-13), which 'specialists' (getSpecialistCount) did not show, so the join looked to have failed. (Claude code Opus 5.5) -->
-	result["freeSpecialists"] = dict([(gc.getSpecialistInfo(i).getType(), city.getFreeSpecialistCount(i)) for i in range(gc.getNumSpecialistInfos()) if city.getFreeSpecialistCount(i) > 0])
-	result["isCapital"] = city.isCapital()
-	# <!-- custom: The city screen's religion and corporation icons and its resistance count; after Gondar was taken at turn 146 of the fog-on playthrough (2026-11-13), 'city' said nothing of its Christianity, of its being that religion's holy city, or of the turns of unrest. (Claude code Opus 5.5) -->
-	result["religions"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHasReligion(i)]
-	result["holyCityOf"] = [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if city.isHolyCityByType(i)]
-	result["corporations"] = [gc.getCorporationInfo(i).getType() for i in range(gc.getNumCorporationInfos()) if city.isHasCorporation(i)]
-	result["occupationTurns"] = city.getOccupationTimer()
-	result["maintenance"] = city.getMaintenance()
-	# <!-- custom: What else the city screen shows: its trade routes with each partner and the commerce it brings, the defense bonus and its bombard damage, and Great People progress.
-	# The user asked at turn 141 of the turn-0 game (2026-11-14) whether SASPilot has the city screen's details; trade routes in particular need explored land and contact (a world map widens them), and 'city' had none of these. (Claude code Opus 5.5) -->
-	routes = []
-	for i in range(city.getTradeRoutes()):
-		partner = city.getTradeCity(i)
-		if partner is None or partner.isNone():
-			continue
-		routes.append({"city": partner.getName(), "owner": partner.getOwner(), "commerce": city.calculateTradeYield(YieldTypes.YIELD_COMMERCE, city.calculateTradeProfit(partner))})
-	result["tradeRoutes"] = {"slots": city.getTradeRoutes(), "routes": routes}
-	result["defense"] = {"percent": city.getDefenseModifier(False), "damagePercent": city.getDefenseDamage()}
-	result["greatPeople"] = {"progress": city.getGreatPeopleProgress(), "rate": city.getGreatPeopleRate(), "threshold": gc.getPlayer(city.getOwner()).greatPeopleThreshold(False)}
-	return result
-
-
-def _cityOptions(city):
-	# <!-- custom: Units, buildings and projects first came as bare lists of types; the city screen shows each with its turns, which decide most choices (fog-on playthrough, 2026-11-13).
-	# They are now type -> turns at the current production. (Claude code Opus 5.5) -->
-	units = dict([(gc.getUnitInfo(i).getType(), city.getUnitProductionTurnsLeft(i, 0)) for i in range(gc.getNumUnitInfos()) if city.canTrain(i, False, False)])
-	buildings = dict([(gc.getBuildingInfo(i).getType(), city.getBuildingProductionTurnsLeft(i, 0)) for i in range(gc.getNumBuildingInfos()) if city.canConstruct(i, False, False, False)])
-	projects = dict([(gc.getProjectInfo(i).getType(), city.getProjectProductionTurnsLeft(i, 0)) for i in range(gc.getNumProjectInfos()) if city.canCreate(i, False, False)])
-	processes = [gc.getProcessInfo(i).getType() for i in range(gc.getNumProcessInfos()) if city.canMaintain(i, False)]
-	hurries = [gc.getHurryInfo(i).getType() for i in range(gc.getNumHurryInfos()) if city.canHurry(i, False)]
-	return {"units": units, "buildings": buildings, "projects": projects, "processes": processes, "hurries": hurries}
 
 
 def _plotFull(plot):
@@ -878,11 +902,6 @@ def _requireSeen(args, iOwner, plot, szWhat):
 	if not plot.isVisible(iTeam, False):
 		raise ValueError("%s is not in sight; fog is on" % szWhat)
 	return True
-
-
-def _cityAsSeen(city):
-	# <!-- custom: What the map shows of a rival's city; its build queue, food and the like are on its city screen, which a player cannot open. (Claude code Fable 5.2) -->
-	return {"id": city.getID(), "name": city.getName(), "x": city.getX(), "y": city.getY(), "owner": city.getOwner(), "population": city.getPopulation()}
 
 
 def _playerFull(player):
@@ -993,102 +1012,6 @@ def cmd_players(args):
 	return result
 
 
-_HELP["units"] = "A player's units, briefly, or every living player's with player=all. Each has its state, as its hover help shows it (for every unit in the full view, for our own under fog): activity, automate, head mission and its target plot (missionPlot; a unit target only while in sight), fortifyTurns and promotionReady. args: player."
-
-
-def cmd_units(args):
-	# <!-- custom: Written in C++ by CyGame.getSASPilotUnitsJson: on a Huge map at turn 300, Python took 8 ms for the 876 units of all players, 6 of them writing JSON (2026-11-13). (Claude code Opus 5.5) -->
-	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
-	if args.get("player") == "all":
-		iPlayer = -1
-	else:
-		iPlayer = _playerId(args)
-	text = _pilotGame("getSASPilotPathJson").getSASPilotUnitsJson(iPlayer, _fogTeam(args))
-	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
-	if text == "null":
-		raise ValueError("no player %d" % iPlayer)
-	return RawJson(text)
-
-
-_HELP["unit"] = "One unit in full, with the orders it can take now. A wounded unit of ours also gets heal: healing where it stands against walking first to the best plot inside our borders (friendly) or to our best city within 4 plots, each with travel, heal and total turns, defense, whether it is inside our borders (animals cannot enter) and the hostiles in sight within 2 plots. args: unit (ID), player."
-
-
-def cmd_unit(args):
-	unit = _unit(args)
-	if _requireSeen(args, unit.getOwner(), unit.plot(), "unit %d" % unit.getID()):
-		# <!-- custom: 'units' left out invisible units such as spies and submarines, but 'unit' by ID still gave them, and a rival unit's orders and mission queue with them (Codex's review). (Claude code Fable 5.2 + GPT-6.1-Sol) -->
-		if unit.isInvisible(_fogTeam(args), False):
-			raise ValueError("unit %d is not in sight; fog is on" % unit.getID())
-		result = _unitBrief(unit, _fogTeam(args))
-		result["strength"] = unit.baseCombatStr()
-		result["promotions"] = [gc.getPromotionInfo(i).getType() for i in range(gc.getNumPromotionInfos()) if unit.isHasPromotion(i)]
-		return result
-	result = _unitFull(unit, _fogTeam(args))
-	result["actions"] = _unitActions(unit)
-	heal = _healOptions(unit)
-	if heal is not None:
-		result["heal"] = heal
-	return result
-
-
-# <!-- custom: A wounded unit's choices: heal where it stands, or walk to the best friendly plot or our nearest city first, each with travel and heal turns and the danger a player sees there.
-# At turn 22 of the Continents replay (2026-11-19) a Warrior at 25 HP walked 3 turns home to heal at 15 a turn, the same 8 turns as resting where it stood at 10, and lost those turns of scouting; the user asked for the calculation, and that danger counts too. (Claude code Opus 5.5) -->
-HEAL_SEARCH_RADIUS = 4
-
-
-def _healOptions(unit):
-	if not unit.isHurt() or not hasattr(unit, "healTurnsAt"):
-		return None
-	iTeam = unit.getTeam()
-	team = gc.getTeam(iTeam)
-	here = unit.plot()
-
-	def option(plot, iTravel):
-		iHeal = unit.healTurnsAt(plot.getX(), plot.getY())
-		hostiles = []
-		for dx in range(-2, 3):
-			for dy in range(-2, 3):
-				near = CyMap().plot(plot.getX() + dx, plot.getY() + dy)
-				if near.isNone() or not near.isVisible(iTeam, False):
-					continue
-				for i in range(near.getNumUnits()):
-					other = near.getUnit(i)
-					if other.getTeam() != iTeam and (gc.getPlayer(other.getOwner()).isBarbarian() or team.isAtWar(other.getTeam())) and not other.isInvisible(iTeam, False):
-						hostiles.append({"type": gc.getUnitInfo(other.getUnitType()).getType(), "x": near.getX(), "y": near.getY()})
-		bHeals = iHeal >= 0 and iHeal < MAX_HEAL_TURNS
-		return {"x": plot.getX(), "y": plot.getY(), "travelTurns": iTravel, "healTurns": bHeals and iHeal or None, "totalTurns": bHeals and iTravel + iHeal or None, "defensePct": plot.defenseModifier(iTeam, False, False), "insideOurBorders": plot.getTeam() == iTeam, "hostilesWithin2": hostiles}
-
-	def travel(plot):
-		path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
-		if path is None or not path.get("found"):
-			return None
-		return path["turns"]
-
-	result = {"damage": unit.getDamage(), "here": option(here, 0)}
-	best = {}
-	for dx in range(-HEAL_SEARCH_RADIUS, HEAL_SEARCH_RADIUS + 1):
-		for dy in range(-HEAL_SEARCH_RADIUS, HEAL_SEARCH_RADIUS + 1):
-			plot = CyMap().plot(here.getX() + dx, here.getY() + dy)
-			if plot.isNone() or (dx == 0 and dy == 0) or plot.getTeam() != iTeam or not plot.isRevealed(iTeam, False):
-				continue
-			kind = plot.isCity() and "city" or "friendly"
-			iTravel = travel(plot)
-			if iTravel is None:
-				continue
-			entry = option(plot, iTravel)
-			if entry["totalTurns"] is not None and (kind not in best or entry["totalTurns"] < best[kind]["totalTurns"]):
-				best[kind] = entry
-	result.update(best)
-	return result
-
-
-# <!-- custom: CvUnit::healTurns returns MAX_INT when a plot does not heal the unit at all. (Claude code Opus 5.5) -->
-MAX_HEAL_TURNS = 10000
-
-
-_HELP["cities"] = "A player's cities, briefly. args: player."
-
-
 _HELP["hover"] = "The hover text a player reads for units, as plain text: without unit, each of the player's units in one line, as the plot hover lists them; with unit, that unit's full hover, as the plot list shows it. Under fog, another player's unit only while the active team sees it. args: unit, player."
 
 
@@ -1108,304 +1031,6 @@ def cmd_hover(args):
 	if iTeam >= 0 and unit.getTeam() != iTeam and (not unit.plot().isVisible(iTeam, False) or unit.isInvisible(iTeam, False)):
 		raise ValueError("unit %d is not in sight; fog is on" % unit.getID())
 	return {"id": unit.getID(), "text": _plainText(CyGameTextMgr().getSpecificUnitHelp(unit, False, False))}
-
-
-def cmd_cities(args):
-	player = _player(args)
-	iTeam = _fogTeam(args)
-	if iTeam >= 0 and player.getTeam() != iTeam:
-		# <!-- custom: With fog on, a rival's cities are the ones the active team has revealed, with what the map shows of them. (Claude code Fable 5.2) -->
-		return [{"id": city.getID(), "name": city.getName(), "x": city.getX(), "y": city.getY(), "owner": city.getOwner()} for city in _cities(player) if city.isRevealed(iTeam, False)]
-	return [_cityBrief(city) for city in _cities(player)]
-
-
-_HELP["city"] = "One city in full, with what it can produce now. args: city (ID or name), player."
-
-
-def cmd_city(args):
-	city = _city(args)
-	iTeam = _fogTeam(args)
-	if iTeam >= 0 and gc.getPlayer(city.getOwner()).getTeam() != iTeam:
-		# <!-- custom: A rival's city in sight first came back in full, queue and food included (Codex's review).
-		# A city the team has revealed stays on its map out of sight, so it is given as 'cities' lists it, and with its population while in sight; the first fix refused it out of sight, which a test showed hid a city 'cities' still listed. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
-		if not city.isRevealed(iTeam, False):
-			raise ValueError("player %d has no city %s" % (city.getOwner(), args["city"]))
-		result = _cityAsSeen(city)
-		if not city.plot().isVisible(iTeam, False):
-			del result["population"]
-		else:
-			# <!-- custom: Its defence bonus while in sight, as the window's city bar shows it beside the size, so a siege can be planned without a 'py' call (Gondar at turn 118 of the fog-on playthrough, 2026-11-13). (Claude code Opus 5.5) -->
-			result["defenseModifier"] = city.getDefenseModifier(False)
-		return result
-	result = _cityFull(city)
-	result["options"] = _cityOptions(city)
-	return result
-
-
-_HELP["buildable"] = "The buildings a city can build now, as its build menu offers them: each with its cost, the hammers already in it and the turns at the current rate; 'trainable' is the same for units. args: city, player."
-
-
-def cmd_buildable(args):
-	# <!-- custom: At the founding of The Hague at turn 57 of the islands replay (2026-11-15), choosing its first build took a 'py' call for the buildings it could make; every new city asks it again. (Claude code Opus 5.5) -->
-	city = _city(args)
-	player = gc.getPlayer(city.getOwner())
-	result = []
-	for i in range(gc.getNumBuildingInfos()):
-		if not city.canConstruct(i, False, False, False):
-			continue
-		# <!-- custom: With what the building gives a city where it counts most often: happiness, health and culture, as at turn 81 of the islands replay (2026-11-15) Utrecht reached its happiness limit and choosing a building to lift it took the XML.
-		# CyCity.getBuildingHappiness and getBuildingHealth give the amount in this city. (Claude code Opus 5.5) -->
-		info = gc.getBuildingInfo(i)
-		# <!-- custom: movesCapital flags a Palace, as its hover says it moves the capital: at turn 306 of the ASOKA Huge save (2026-11-22) a happiness-first pick queued Brandenburg's Palace, as it gives happiness and every build there took 1 turn. (Claude code Opus 5.5) -->
-		row = {"building": info.getType(), "cost": player.getBuildingProductionNeeded(i), "stored": city.getBuildingProduction(i), "turns": city.getBuildingProductionTurnsLeft(i, 0), "happiness": city.getBuildingHappiness(i), "health": city.getBuildingHealth(i), "culture": info.getObsoleteSafeCommerceChange(CommerceTypes.COMMERCE_CULTURE)}
-		if info.isCapital():
-			row["movesCapital"] = True
-		result.append(row)
-	result.sort(lambda a, b: cmp(a["turns"], b["turns"]))
-	return {"city": city.getName(), "buildings": result}
-
-
-_HELP["trainable"] = "The units a city can train now, for choosing value per hammer: each with its turns, cost, strength, moves, strength per 100 hammers (strengthPer100Hammers, integer), and what strength alone does not show: first strikes and their chance, collateral damage and how many units it reaches, withdrawal chance, bombard rate, city attack and defense bonuses, and bonuses against unit types (versus, in percent). Military units first, sorted by strength per 100 hammers, which misleads for siege: cityAttackPer100Hammers (with the city attack bonus), combatLimit (a siege unit cannot kill) and the effects weigh as much. args: city, player."
-
-
-def cmd_trainable(args):
-	# <!-- custom: The user advised at turn 100 of the turn-0 game (2026-11-14) weighing units by strength against cost, as an Axeman for 35 hammers is strong early, and by the effects strength leaves out, as a Trebuchet's strength is low but it bombards and harms several defenders.
-	# 'city' gave the trainable units with their turns only.
-	# These are the XML's facts, as the city screen's hover shows them; which to build stays the agent's choice. (Claude code Opus 5.5) -->
-	city = _city(args)
-	player = gc.getPlayer(city.getOwner())
-	result = []
-	for i in range(gc.getNumUnitInfos()):
-		if not city.canTrain(i, False, False):
-			continue
-		info = gc.getUnitInfo(i)
-		iCost = player.getUnitProductionNeeded(i)
-		entry = {"unit": info.getType(), "turns": city.getUnitProductionTurnsLeft(i, 0), "cost": iCost, "strength": info.getCombat(), "moves": info.getMoves(), "combatType": _typeOrNone(gc.getUnitCombatInfo, info.getUnitCombatType())}
-		if iCost > 0:
-			entry["strengthPer100Hammers"] = info.getCombat() * 10000 / iCost
-		# <!-- custom: Whether huts give this unit no bad result, such as Barbarians: in the Continents replay (2026-11-19) an Archer was built as filler while Dublin grew, and the user pointed out that a Scout costs 15 hammers instead of 25, has 2 moves instead of 1 and is safe at huts, which a hut-hunting opening needs. (Claude code Opus 5.5) -->
-		if info.isNoBadGoodies():
-			entry["noBadGoodies"] = True
-		for (szKey, iValue) in (("firstStrikes", info.getFirstStrikes()), ("chanceFirstStrikes", info.getChanceFirstStrikes()), ("collateralDamage", info.getCollateralDamage()), ("collateralMaxUnits", info.getCollateralDamageMaxUnits()), ("withdrawalPct", info.getWithdrawalProbability()), ("bombardRate", info.getBombardRate()), ("cityAttackPct", info.getCityAttackModifier()), ("cityDefensePct", info.getCityDefenseModifier())):
-			if iValue:
-				entry[szKey] = iValue
-		# <!-- custom: The user's follow-up: strength per hammer misleads for siege, as a Trebuchet (4 strength, about 80 hammers) has +100% city attack, collateral damage and bombard, yet defends badly unlike a Catapult.
-		# So, beside the plain ratio, the strength against a city per 100 hammers for units with a city attack bonus, and the combat limit (a siege unit stops at that damage and cannot kill), with cityDefensePct shown when negative too. (Claude code Opus 5.5) -->
-		if info.getCityAttackModifier() and iCost > 0:
-			entry["cityAttackPer100Hammers"] = info.getCombat() * (100 + info.getCityAttackModifier()) * 100 / iCost
-		if info.getCombatLimit() < 100:
-			entry["combatLimit"] = info.getCombatLimit()
-		# <!-- custom: The XML gives every unit a collateral reach of 3, so the first test listed it on Settlers and Scouts; it means something only beside collateral damage. (Claude code Opus 5.5) -->
-		if not info.getCollateralDamage() and entry.has_key("collateralMaxUnits"):
-			del entry["collateralMaxUnits"]
-		versus = {}
-		for k in range(gc.getNumUnitCombatInfos()):
-			if info.getUnitCombatModifier(k):
-				versus[gc.getUnitCombatInfo(k).getType()] = info.getUnitCombatModifier(k)
-		if versus:
-			entry["versus"] = versus
-		result.append(entry)
-	# <!-- custom: Aircraft fight with air strength, not strength, so they sorted with civilians at zero (Codex's review, round 36): airStrength and its per-100-hammers figure, and aircraft count as military. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	for entry in result:
-		info = gc.getUnitInfo(getInfoTypeOrFail(entry["unit"]))
-		if info.getAirCombat() > 0:
-			entry["airStrength"] = info.getAirCombat()
-			if entry["cost"] > 0:
-				entry["airStrengthPer100Hammers"] = info.getAirCombat() * 10000 / entry["cost"]
-	result.sort(lambda a, b: cmp((a["strength"] <= 0 and not a.get("airStrength"), -a.get("strengthPer100Hammers", 0)), (b["strength"] <= 0 and not b.get("airStrength"), -b.get("strengthPer100Hammers", 0))))
-	return {"city": city.getName(), "units": result}
-
-
-_HELP["plot"] = "One plot in full, with its units. args: x, y."
-
-
-def cmd_plot(args):
-	plot = _plot(args)
-	text = _plotsJson(plot.getX(), plot.getY(), 0, _fogTeam(args))
-	if text == "[]":
-		raise ValueError("plot %d,%d is not revealed; fog is on" % (plot.getX(), plot.getY()))
-	return RawJson(text[1:-1])
-
-
-_HELP["plots"] = "The plots within a radius, in full. With fog on, only the plots the active team has revealed, each as it last saw it and with units only where it sees now. Center it on coordinates, one of our units, a city or the plot the camera looks at (camera=1). args: x, y, unit, city, camera, radius (default 1; the larger map side covers the whole map), fog (optional, overrides the 'fog' switch for this request), player."
-
-
-def cmd_plots(args):
-	_cameraCenter(args)
-	anchors = sum([args.get(key) is not None for key in ("x", "unit", "city")])
-	if anchors != 1 or (args.get("x") is None) != (args.get("y") is None):
-		raise ValueError("give x and y, a unit, or a city as the center")
-	if args.get("unit") is not None or args.get("city") is not None:
-		_requireOwnTeamUnderFog(args, _player(args), "the map center")
-		if args.get("unit") is not None:
-			plot = _unit(args).plot()
-		else:
-			plot = _city(args).plot()
-	else:
-		plot = _plot(args)
-	return RawJson(_plotsJson(plot.getX(), plot.getY(), int(args.get("radius", 1)), _fogTeam(args)))
-
-
-_HELP["potential"] = "What each revealed plot of a square could yield once improved, for judging sites and Workers by more than today's yields: each plot's yields now, and every improvement the player could build there, with its yields as [food, production, commerce] and now=true when it can start today (false: a tech is missing). Yields count the player's techs now, so later tech bonuses (a Cottage growing, Farms with Biology) are not in them. Center as for 'plots': x and y, unit, city or camera=1; radius (default 2, a city's square). args: x, y, unit, city, camera, radius, player."
-
-
-def cmd_potential(args):
-	# <!-- custom: The user's point at turn 59 of the islands replay (2026-11-15): judging plots by today's yields rated a site with two Clams below plain coast, as an unimproved Clam reads as coast until Fishing Boats; the same holds for grassland a Cottage would make commercial.
-	# Each improvement build the player could make (CyPlayer.canBuild; bTestVisible=True skips its tech and gold checks, for builds a tech away), and the yields it gives: the nature yield, without the feature when the build removes it, plus CyPlot.calculateImprovementYieldChange.
-	# That binding takes a fourth argument, bOptimal, but AdvCiv's C++ has three and always counts the owner's current techs, so future tech bonuses are not counted.
-	# Under fog a build that only a hidden bonus makes valid is left out, as canBuild reads the true bonus and would reveal it. (Claude code Opus 5.5) -->
-	_cameraCenter(args)
-	player = _player(args)
-	iTeam = player.getTeam()
-	iFogTeam = _fogTeam(args)
-	if args.get("unit") is not None:
-		center = _unit(args).plot()
-	elif args.get("city") is not None:
-		center = _city(args).plot()
-	else:
-		center = _plot(args)
-	iRadius = int(args.get("radius", 2))
-	kMap = gc.getMap()
-	# <!-- custom: Bounded: a negative radius returned nothing silently and a mistyped large one could stall the game thread (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if iRadius < 0 or iRadius > 15:
-		raise ValueError("radius must be between 0 and 15")
-	builds = [i for i in range(gc.getNumBuildInfos()) if gc.getBuildInfo(i).getImprovement() >= 0]
-	result = []
-	for dy in range(-iRadius, iRadius + 1):
-		for dx in range(-iRadius, iRadius + 1):
-			plot = plotXY(center.getX(), center.getY(), dx, dy)
-			if plot is None or plot.isNone() or not plot.isRevealed(iTeam, False):
-				continue
-			iFeature = plot.getFeatureType()
-			iTrueBonus = plot.getBonusType(-1)
-			bHiddenBonus = iFogTeam >= 0 and iTrueBonus >= 0 and plot.getBonusType(iTeam) != iTrueBonus
-			options = []
-			for iBuild in builds:
-				if not player.canBuild(plot, iBuild, False, True):
-					continue
-				info = gc.getBuildInfo(iBuild)
-				iImprovement = info.getImprovement()
-				# <!-- custom: Left out only when nothing but that bonus makes the improvement valid here: the first filter also dropped improvements the terrain or feature allows anyway, and their absence hinted at the bonus (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-				kImprovement = gc.getImprovementInfo(iImprovement)
-				if bHiddenBonus and kImprovement.isImprovementBonusMakesValid(iTrueBonus) and not (kImprovement.getTerrainMakesValid(plot.getTerrainType()) or (iFeature >= 0 and kImprovement.getFeatureMakesValid(iFeature)) or (plot.isHills() and kImprovement.isHillsMakesValid()) or (plot.isFreshWater() and kImprovement.isFreshWaterMakesValid()) or (plot.isRiverSide() and kImprovement.isRiverSideMakesValid())):
-					continue
-				bRemove = iFeature >= 0 and info.isFeatureRemove(iFeature)
-				yields = [plot.calculateNatureYield(YieldTypes(j), TeamTypes(iTeam), bRemove) + plot.calculateImprovementYieldChange(ImprovementTypes(iImprovement), YieldTypes(j), PlayerTypes(player.getID()), False) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-				options.append({"build": info.getType(), "improvement": gc.getImprovementInfo(iImprovement).getType(), "yields": yields, "now": bool(player.canBuild(plot, iBuild, False, False))})
-			# <!-- custom: Out of sight, the yields the team would see: nature yield plus the improvement it last saw there, not the live one, which showed an improvement a rival had built out of sight (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-			bVisible = iFogTeam < 0 or plot.isVisible(iFogTeam, False)
-			if bVisible:
-				yields = _yields(plot.getYield)
-			else:
-				iSeen = plot.getRevealedImprovementType(iFogTeam, False)
-				yields = []
-				for j in range(YieldTypes.NUM_YIELD_TYPES):
-					iYield = plot.calculateNatureYield(YieldTypes(j), TeamTypes(iTeam), False)
-					if iSeen >= 0:
-						iYield += plot.calculateImprovementYieldChange(ImprovementTypes(iSeen), YieldTypes(j), PlayerTypes(player.getID()), False)
-					yields.append(iYield)
-			result.append({"x": plot.getX(), "y": plot.getY(), "yields": yields, "visible": bool(bVisible), "options": options})
-	return result
-
-
-# <!-- custom: Export canonical coordinates for the desktop map renderer.
-# Under fog, use the game's remembered ownership, improvements and routes, and withhold fields without a last-seen accessor until the tile is visible. (GPT-6.1-Sol) -->
-_TRADE_NEIGHBORS = ((1, 0), (0, 1), (1, 1), (-1, 1))
-
-
-def _cameraCenter(args):
-	# <!-- custom: camera=1 centers a request on the plot the main view looks at, as the user asked (2026-11-15) for the area around where a player looks. CyCamera.GetLookAt fills a point it is given, and CyMap.pointToPlot turns that into a plot; the first try, GetLookAt() with no argument, did not match its C++ signature. (Claude code Opus 5.5) -->
-	if not args.get("camera"):
-		return
-	point = NiPoint3(0.0, 0.0, 0.0)
-	CyCamera().GetLookAt(point)
-	plot = CyMap().pointToPlot(point.x, point.y)
-	if plot is None or plot.isNone():
-		raise ValueError("the camera looks at no plot")
-	del args["camera"]
-	args["x"] = plot.getX()
-	args["y"] = plot.getY()
-
-
-def _gridBounds(kMap, args):
-	_cameraCenter(args)
-	width = kMap.getGridWidth()
-	height = kMap.getGridHeight()
-	if args.get("box") is not None:
-		if [key for key in ("x", "y", "city", "unit", "radius") if key in args]:
-			raise ValueError("give box or one center with radius")
-		x0, y0, x1, y1 = [int(value) for value in args["box"]]
-	elif [key for key in ("x", "y", "city", "unit", "radius") if key in args]:
-		anchors = sum([args.get(key) is not None for key in ("x", "unit", "city")])
-		if anchors != 1 or (args.get("x") is None) != (args.get("y") is None):
-			raise ValueError("give x and y, a unit, or a city as the center")
-		if "city" in args:
-			plot = _city(args).plot()
-		elif "unit" in args:
-			plot = _unit(args).plot()
-		else:
-			plot = _plot(args)
-		radius = int(args.get("radius", 5))
-		if radius < 0 or radius > max(width, height):
-			raise ValueError("radius must be between zero and the larger map side")
-		x0, y0 = max(0, plot.getX() - radius), max(0, plot.getY() - radius)
-		x1, y1 = min(width - 1, plot.getX() + radius), min(height - 1, plot.getY() + radius)
-	else:
-		x0, y0, x1, y1 = 0, 0, width - 1, height - 1
-	if not (0 <= x0 <= x1 < width and 0 <= y0 <= y1 < height):
-		raise ValueError("box must be [west,south,east,north] within the map")
-	return (x0, y0, x1, y1)
-
-
-def _gridTradeLinks(kMap, plots, iTeam):
-	width, height = kMap.getGridWidth(), kMap.getGridHeight()
-	wrapX, wrapY = kMap.isWrapX(), kMap.isWrapY()
-	links = []
-	seen = set()
-	for x, y in sorted(plots):
-		plot = plots[(x, y)]
-		for dx, dy in _TRADE_NEIGHBORS:
-			nx, ny = x + dx, y + dy
-			if wrapX:
-				nx %= width
-			if wrapY:
-				ny %= height
-			other = plots.get((nx, ny))
-			if other is None or (x, y) == (nx, ny):
-				continue
-			key = tuple(sorted(((x, y), (nx, ny))))
-			if key in seen:
-				continue
-			seen.add(key)
-			if plot.isTradeNetworkConnected(other, iTeam) or other.isTradeNetworkConnected(plot, iTeam):
-				links.append({"from": [x, y], "to": [nx, ny], "step": [dx, dy]})
-	return links
-
-
-_HELP["grid"] = "Fetch structured map tiles, river boundaries and optional trade-network links. With no area, fetch the map. The box is inclusive; a center and radius clip to map bounds. With fog on, fogEdge lists the unrevealed plots next to a revealed one, each with only water true or false, which the coastline art shows a player at the fog's edge; edge=0 leaves it out. args: box ([west,south,east,north]), x, y, city, unit, camera (1: the plot the main view looks at), radius, network, edge, player."
-
-
-_HELP["signs"] = "The map's signs a player sees, as the window shows them: each with its plot, caption and owner (-1 for a sign everyone sees). The user's signs are read here too. args: player."
-
-
-def cmd_signs(args):
-	# <!-- custom: Checking the city-site signs 'mark' placed (islands replay, 2026-11-15) took a 'py' call: 'grid' lists the dot map but not signs, and the user marks the map with signs too.
-	# A player sees their own signs and those placed for everyone (player -1). (Claude code Opus 5.5) -->
-	player = _player(args)
-	engine = CyEngine()
-	result = []
-	for i in range(engine.getNumSigns()):
-		sign = engine.getSignByIndex(i)
-		# <!-- custom: int(): getPlayerType returns a PlayerTypes value, which the first reply wrote as the string "0". (Claude code Opus 5.5) -->
-		iOwner = int(sign.getPlayerType())
-		if iOwner != -1 and iOwner != player.getID():
-			continue
-		plot = sign.getPlot()
-		result.append({"x": plot.getX(), "y": plot.getY(), "caption": sign.getCaption(), "owner": iOwner})
-	return result
-
-
-_HELP["mark"] = "Mark a candidate city site the way a player does with BUG's dot map (Alt+X): a city dot and cross at x, y in that overlay, which the player sees, edits and keeps with the save, plus a sign when text is given; 'grid' lists the dot map's cities, the player's own included. clear=1 removes the dot (and sign) at x, y. Cosmetic: nothing in the game changes. args: x, y, text, color (COLOR_ type, or contrast: the colour farthest from our civ's colours; default contrast on one of our cities, else COLOR_GREEN), layer (dot-map layer, default 0), clear."
 
 
 def _dotMapCities(iPlayer):
@@ -1443,126 +1068,6 @@ def _contrastColor(player):
 	if best is None:
 		raise ValueError("none of %s is in the colour table" % ", ".join(MARK_CONTRAST_COLORS))
 	return best[1]
-
-
-def cmd_mark(args):
-	# <!-- custom: The user's idea in the scouting trial (2026-11-14): the agent compared city sites only in JSON, so the user watching could not see which plots it meant.
-	# A first version drew its own dots on the overlay layer, until the user asked whether the agent had Alt+X: BUG's dot map is the player's tool for exactly this, so marks now go into it through addCityAt, the same game message an Alt+X click sends, and the player can see and edit them. (Claude code Opus 5.5) -->
-	import CvStrategyOverlay
-	dotMap = CvStrategyOverlay.getDotMap()
-	player = gc.getPlayer(_activePlayerId())
-	plot = gc.getMap().plot(int(args["x"]), int(args["y"]))
-	if plot is None or plot.isNone():
-		raise ValueError("no plot at %s,%s" % (args["x"], args["y"]))
-	point = (plot.getX(), plot.getY())
-	if args.get("clear"):
-		dotMap.removeCityAt(point)
-		CyEngine().removeSign(plot, player.getID())
-	else:
-		# <!-- custom: Only a COLOR_ type in the colour table: getInfoTypeForString accepts types of any table, so color=TECH_AGRICULTURE passed and stored an unrelated index in BUG's dot map (Codex's review, round 38). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		szColor = args.get("color")
-		# <!-- custom: The user at turn 54 of the 2026-11-19 validation run: white marks on our own white cities were hard to read; use a colour that contrasts with ours.
-		# color=contrast picks it from our civ's colours, and is the default for a mark on one of our cities, so it works for any civ. (Claude code Opus 5.5) -->
-		if szColor is None:
-			city = plot.getPlotCity()
-			if city is not None and not city.isNone() and city.getOwner() == player.getID():
-				szColor = "contrast"
-			else:
-				szColor = "COLOR_GREEN"
-		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
-		if szColor == "contrast":
-			szColor = _contrastColor(player)
-		iColor = _findOptionalInfoType(szColor)
-		# <!-- custom: The check first also compared iColor with gc.getNumColorInfos, which Python does not have: every 'mark' failed with an AttributeError (islands replay, 2026-11-15).
-		# Type names are unique across tables, so a COLOR_ name that resolves is a colour; its type is compared back. (Claude code Opus 5.5) -->
-		if not szColor.startswith("COLOR_") or iColor < 0 or gc.getColorInfo(iColor).getType() != szColor:
-			raise ValueError("unknown color %s; give a COLOR_ type" % szColor)
-		dotMap.addCityAt(point, iColor, int(args.get("layer", 0)))
-		if args.get("text"):
-			CyEngine().removeSign(plot, player.getID())
-			CyEngine().addSign(plot, player.getID(), args["text"])
-		dotMap.show()
-	return {"note": "the dot map applies the change through a game message, so it shows in the next reply", "dotMap": _dotMapCities(player.getID())}
-
-
-def _fogEdgeRevealedNeighbor(kMap, x, y, iFogTeam):
-	# <!-- custom: Whether one of the 8 plots around x, y is revealed to the team, with the map's wrap; plots off an unwrapped edge do not count. (Claude code Opus 5.5) -->
-	iWidth, iHeight = kMap.getGridWidth(), kMap.getGridHeight()
-	for dy in (-1, 0, 1):
-		for dx in (-1, 0, 1):
-			if dx == 0 and dy == 0:
-				continue
-			nx, ny = x + dx, y + dy
-			if kMap.isWrapX():
-				nx = nx % iWidth
-			if kMap.isWrapY():
-				ny = ny % iHeight
-			if 0 <= nx < iWidth and 0 <= ny < iHeight and kMap.plot(nx, ny).isRevealed(iFogTeam, False):
-				return True
-	return False
-
-
-def cmd_grid(args):
-	player = _player(args)
-	_requireOwnTeamUnderFog(args, player, "the map grid")
-	iFogTeam = _fogTeam(args)
-	iTeam = player.getTeam()
-	kMap = gc.getMap()
-	x0, y0, x1, y1 = _gridBounds(kMap, args)
-	tiles, network, owners = [], {}, {}
-	bNetwork = bool(args.get("network", True))
-	# <!-- custom: The fog edge, the user's point at turn 2 of the scouting trial (2026-11-14): the plot two north of the Clam was unrevealed, yet the screen showed its shore, so the water beside it looked like a lake; strong players read the art at the fog's edge, and SASPilot knew nothing there.
-	# Civ4 draws each revealed plot's coastline from whether its neighbours are land or water, so that much of an unrevealed neighbour is on screen and stays fair under play.
-	# Only water is given: terrain and trees in the fade were not checked against the art. (Claude code Opus 5.5) -->
-	bEdge = iFogTeam >= 0 and bool(args.get("edge", True))
-	edge = []
-	gb = gc.getBonusInfo
-	for y in range(y0, y1 + 1):
-		for x in range(x0, x1 + 1):
-			plot = kMap.plot(x, y)
-			if iFogTeam >= 0 and not plot.isRevealed(iFogTeam, False):
-				if bEdge and _fogEdgeRevealedNeighbor(kMap, x, y, iFogTeam):
-					edge.append({"x": x, "y": y, "water": bool(plot.isWater())})
-				continue
-			visible = iFogTeam < 0 or plot.isVisible(iFogTeam, False)
-			if visible:
-				owner, improvement, route = plot.getOwner(), plot.getImprovementType(), plot.getRouteType()
-			else:
-				owner = plot.getRevealedOwner(iFogTeam, False)
-				improvement = plot.getRevealedImprovementType(iFogTeam, False)
-				route = plot.getRevealedRouteType(iFogTeam, False)
-			# <!-- custom: Feature and resource for every revealed plot, not only those in sight: the window draws both on fogged plots, as Civ4 keeps no remembered copy of features and shows a resource once the team has its reveal tech (plot.getBonusType(team) applies that).
-			# In the scouting trial (2026-11-14) a goody hut's map revealed Rice at 11,18, which 'resources' listed, yet a city-site query over 'grid' missed it because the bonus was left out off sight.
-			# Rivers and yields stay for plots in sight. (Claude code Opus 5.5) -->
-			row = {"x": x, "y": y, "visible": visible, "owner": owner,
-				"feature": _typeOrNone(gc.getFeatureInfo, plot.getFeatureType()), "bonus": _typeOrNone(gb, plot.getBonusType(iFogTeam)),
-				"terrain": _typeOrNone(gc.getTerrainInfo, plot.getTerrainType()),
-				"hill": bool(plot.isHills()), "peak": bool(plot.isPeak()), "water": bool(plot.isWater()),
-				"improvement": _typeOrNone(gc.getImprovementInfo, improvement), "route": _typeOrNone(gc.getRouteInfo, route)}
-			if owner >= 0 and owner not in owners:
-				owners[owner] = gc.getPlayer(owner).getName()
-			if visible:
-				row["southRiver"] = bool(plot.isNOfRiver())
-				row["eastRiver"] = bool(plot.isWOfRiver())
-				row["yields"] = _yields(plot.getYield)
-				# <!-- custom: The defence a unit of ours would get here against anyone but the plot's owner, from the game's rule (CvPlot::defenseModifier, buildings left out), for scouts ending a turn on safe ground (the user, 2026-11-14).
-				# The XML alone misled: SAS forest is 0 and jungle -25, but both add iRivalDefense 25 outside the attacker's land, so forest gives +25%, jungle 0 and a hill +25 more, as the combat report at 11,15 showed. (Claude code Opus 5.5) -->
-				row["defense"] = plot.defenseModifier(iTeam, True, False)
-				if plot.isCity():
-					row["city"] = plot.getPlotCity().getName()
-				row["unitCount"] = 0
-				for j in range(plot.getNumUnits()):
-					if iFogTeam < 0 or not plot.getUnit(j).isInvisible(iFogTeam, False):
-						row["unitCount"] += 1
-				if bNetwork and plot.isTradeNetwork(iTeam):
-					network[(x, y)] = plot
-					row["capitalNetwork"] = bool(plot.isConnectedToCapital(player.getID()))
-			tiles.append(row)
-	links = _gridTradeLinks(kMap, network, iTeam)
-	game = gc.getGame()
-	return {"turn": game.getGameTurn(), "player": player.getID(), "fog": iFogTeam >= 0,
-		"box": [x0, y0, x1, y1], "width": kMap.getGridWidth(), "height": kMap.getGridHeight(),
-		"wrapX": bool(kMap.isWrapX()), "wrapY": bool(kMap.isWrapY()), "owners": owners, "tiles": tiles, "tradeLinks": links, "fogEdge": edge, "dotMap": _dotMapCities(player.getID())}
 
 
 _HELP["fog"] = "Without args: whether fog is on. With on=1 or 0: switch it. With fog on, 'plots', 'plot', 'units', 'unit', 'cities' and 'city' give only what the active player's team knows or sees, as a person at the window would; off (the default) gives everything, for debugging. 'players' lists other teams' players once met; most read commands follow the same rules, but 'py' is not limited. args: on."
@@ -1700,102 +1205,6 @@ def cmd_fog(args):
 	if args.get("on") is not None:
 		_state["fog"] = bool(args["on"])
 	return {"fog": bool(_state.get("fog", False))}
-
-
-_HELP["path"] = "The route a unit would take to a plot, before ordering it: each step's plot, the turn it is reached on (1 is this turn) and the moves left there, and the total turns. args: unit, x, y, flags (MovementFlags number, default 0), player."
-
-
-def cmd_path(args):
-	unit = _unit(args)
-	plot = _plot(args)
-	iFlags = int(args.get("flags", 0))
-	iTeam = _fogTeam(args)
-	# <!-- custom: With fog on, only the team's own units and the default movement flags, as some flags change what the search treats as known (Codex's review); with fog off any unit and flags, for debugging. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
-	if iTeam >= 0 and (gc.getPlayer(unit.getOwner()).getTeam() != iTeam or iFlags != 0):
-		raise ValueError("with fog on, 'path' takes the team's own units and no flags")
-	text = _pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), iFlags)
-	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
-	if text == "null":
-		raise ValueError("no path query for unit %d to %d,%d" % (unit.getID(), plot.getX(), plot.getY()))
-	# <!-- custom: A bare {"found": false} hid why: a goody-hut Catapult on Marsh found no path even to the next plot, because SAS makes Jungle, Forest and Marsh impassable to siege off roads (KI#1076; JOAO turn-112 save, 2026-11-22).
-	# Name what blocks it, as the window shows the terrain. See KI#1076.2. (Claude code Opus 5.5) -->
-	if text.replace(" ", "") == '{"found":false}':
-		return _pathBlocked(unit, plot, iTeam)
-	return RawJson(text)
-
-
-def _pathBlocked(unit, target, iTeam):
-	info = gc.getUnitInfo(unit.getUnitType())
-	impassable = [gc.getFeatureInfo(i).getType() for i in range(gc.getNumFeatureInfos()) if info.getFeatureImpassable(i)] + [gc.getTerrainInfo(i).getType() for i in range(gc.getNumTerrainInfos()) if info.getTerrainImpassable(i)]
-	here = unit.plot()
-	exits = []
-	for iDir in range(DirectionTypes.NUM_DIRECTION_TYPES):
-		adj = plotDirection(here.getX(), here.getY(), DirectionTypes(iDir))
-		if adj is None or adj.isNone() or (iTeam >= 0 and not adj.isVisible(iTeam, False)):
-			continue
-		if unit.canMoveInto(adj, False, False, False):
-			exits.append({"x": adj.getX(), "y": adj.getY()})
-	result = {"found": False, "impassableFor": impassable, "enterableNext": exits, "routeLifts": info.getDomainType() == DomainTypes.DOMAIN_LAND}
-	# <!-- custom: A failed path may be caused by another unit in the group.
-	# Inspect only visible plots under fog, and describe the single-unit checks without attributing the whole path failure to them. (GPT-6.2-Sol) -->
-	result["note"] = "no group path found; enterableNext only checks this unit"
-	if iTeam >= 0:
-		result["note"] += " and only lists adjacent plots in sight"
-	if iTeam < 0 or target.isVisible(iTeam, False):
-		pTeam = gc.getTeam(unit.getTeam())
-		if not (result["routeLifts"] and target.isRoute()):
-			iFeature = target.getFeatureType()
-			if iFeature >= 0 and info.getFeatureImpassable(iFeature):
-				iTech = info.getFeaturePassableTech(iFeature)
-				if iTech < 0 or not pTeam.isHasTech(iTech):
-					result["blockedFeature"] = gc.getFeatureInfo(iFeature).getType()
-			iTerrain = target.getTerrainType()
-			if info.getTerrainImpassable(iTerrain):
-				iTech = info.getTerrainPassableTech(iTerrain)
-				if iTech < 0 or not pTeam.isHasTech(iTech):
-					result["blockedTerrain"] = gc.getTerrainInfo(iTerrain).getType()
-	return result
-
-
-_HELP["targets"] = "The plots a unit's group could pick for an interface mode from 'unit's targetModes, as the window highlights them, e.g. mode=INTERFACEMODE_RECON or INTERFACEMODE_AIRBOMB, with the mission to send: mission unit=<id> mission=<mission> data1=x data2=y. With fog on, only plots the team has revealed. args: unit, mode, player."
-
-
-def cmd_targets(args):
-	# <!-- custom: A scan of all 4368 plots of the turn-271 Large baseline took 2 to 4 ms in Python (2026-11-14), so this stays out of the DLL. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	if not hasattr(gc, "getInterfaceModeInfo"):
-		raise ValueError("this DLL predates CyGlobalContext.getInterfaceModeInfo; build or install a current one")
-	# <!-- custom: Without mode it raised a bare KeyError for the first Jet Fighter (turn 285, 2026-11-14); like 'hurry', list the choices instead, the unit's targetModes. (Claude code Opus 5.5) -->
-	if args.get("mode") is None:
-		group = unit.getGroup()
-		return {"unit": unit.getID(), "targetModes": [{"mode": gc.getInterfaceModeInfo(i).getType(), "mission": gc.getMissionInfo(gc.getInterfaceModeInfo(i).getMissionType()).getType()} for i in range(int(InterfaceModeTypes.NUM_INTERFACEMODE_TYPES)) if gc.getInterfaceModeInfo(i).getMissionType() >= 0 and group.canDoInterfaceMode(InterfaceModeTypes(i))]}
-	eMode =InterfaceModeTypes(int(_enum(InterfaceModeTypes, args["mode"])))
-	info = gc.getInterfaceModeInfo(int(eMode))
-	if info.getMissionType() < 0:
-		raise ValueError("%s picks no plot for a mission" % args["mode"])
-	group = unit.getGroup()
-	# <!-- custom: canDoInterfaceModeAt does not recheck that the mode applies: for the SAS Airship, a land unit, INTERFACEMODE_REBASE accepted 4191 plots (2026-11-14).
-	# Check the mode first, as the window's button does. (Claude code Opus 5.5) -->
-	if not group.canDoInterfaceMode(eMode):
-		# <!-- custom: Name the checks a player can see: two Paratroopers that had moved with their stack got only "cannot use INTERFACEMODE_PARADROP now" (turn 304 of the ASOKA Huge save, 2026-11-22); CvUnit::canParadrop needs an unmoved unit on a city or airbase the team knows. (Claude code Opus 5.5) -->
-		hints = []
-		if unit.hasMoved():
-			hints.append("it has moved this turn")
-		if eMode == InterfaceModeTypes.INTERFACEMODE_PARADROP and not unit.plot().isCity():
-			hints.append("a drop starts from one of our cities or an airbase")
-		raise ValueError("unit %d cannot use %s now%s" % (unit.getID(), args["mode"], hints and " (" + "; ".join(hints) + ")" or ""))
-	iTeam = _fogTeam(args)
-	if iTeam >= 0 and gc.getPlayer(unit.getOwner()).getTeam() != iTeam:
-		raise ValueError("with fog on, 'targets' takes the team's own units")
-	kMap = gc.getMap()
-	plots = []
-	for i in range(kMap.numPlots()):
-		plot = kMap.plotByIndex(i)
-		if iTeam >= 0 and not plot.isRevealed(iTeam, False):
-			continue
-		if group.canDoInterfaceModeAt(eMode, plot):
-			plots.append({"x": plot.getX(), "y": plot.getY()})
-	return {"mode": info.getType(), "mission": gc.getMissionInfo(info.getMissionType()).getType(), "plots": plots}
 
 
 _HELP["messages"] = "The messages the game showed the player at the top of the screen and still lists, such as combat results, oldest first: turn, text, x, y, from (player or -1), messageType. args: since (game turn, default the previous turn), player."
@@ -2139,7 +1548,7 @@ def cmd_graph(args):
 		query = dict(args)
 		del query["kind"]
 		query["graph"] = True
-		result = cmd_relations(query)
+		result = _command("relations")(query)
 		result["kind"] = kind
 		return result
 	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
@@ -2300,7 +1709,7 @@ def _bonusStatus(player, iBonus, seenBonuses, techInfo=None):
 
 def _addTechCases(player, args, entries):
 	# <!-- custom: The market from 'techs' (the Foreign Advisor's tech tab) and the paths from the tech tree, added to each entry by its "tech" type. (Claude code Opus 5.5) -->
-	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	market = _command("techs")({"player": player.getID(), "fog": args.get("fog")})
 	iMet = len(market["weCouldGive"])
 	sellers = {}
 	holders = {}
@@ -2398,7 +1807,7 @@ def cmd_research(args):
 				entry["effects"] = effects[entry["tech"]]
 		# <!-- custom: For each tech, the resources in sight whose improvement it would unlock, so "what would this tech do for the land we know" is read beside it: at turn 16 of the Continents replay (2026-11-19) the user looked through the resources to find that Agriculture had nothing to improve yet, and asked for it in the API. (Claude code Opus 5.5) -->
 		uses = {}
-		for resource in cmd_resources(args)["resources"]:
+		for resource in _command("resources")(args)["resources"]:
 			for build in resource["builds"]:
 				if not build["haveTech"] and build["tech"]:
 					uses.setdefault(build["tech"], []).append("%s@%d,%d" % (resource["bonus"][6:], resource["x"], resource["y"]))
@@ -2479,189 +1888,10 @@ def _researchQueue(player):
 	return [{"tech": gc.getTechInfo(i).getType(), "turns": player.getResearchTurnsLeft(i, False)} for (iPosition, i) in queued]
 
 
-_HELP["info"] = "An XML info by type, e.g. UNIT_WARRIOR: every zero-argument get/is getter of its info object. args: type."
-
-
-def cmd_info(args):
-	szType = args["type"]
-	iType = _infoIndex(szType)
-	getter = None
-	# <!-- custom: The type's prefix is not enough to pick the getter (BUILDINGCLASS_ vs BUILDING_, SPECIALBUILDING_...), so try each getXInfo and keep the one whose entry has this type. (Claude code Fable 5.2) -->
-	for name in dir(gc):
-		if name.startswith("get") and name.endswith("Info") and not name.startswith("getNum"):
-			# <!-- custom: Only tables whose count getter exists and covers the index: an index past a table's end could reach native code unchecked (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-			szCount = "getNum" + name[3:] + "s"
-			if not hasattr(gc, szCount) or iType >= getattr(gc, szCount)():
-				continue
-			try:
-				info = getattr(gc, name)(iType)
-				if info is not None and info.getType() == szType:
-					getter = name
-					break
-			except Exception:
-				pass
-	if getter is None:
-		raise ValueError("no gc.get*Info yields %s" % szType)
-	result = describe(info)
-	_nameInfoIndices(result)
-	result["_index"] = iType
-	result["_getter"] = getter
-	return result
-
-
-# <!-- custom: Getters that return another info's index, with that info's getter and count.
-# Codex's review found that the first version, which went by the getter's ending (...Tech, ...Bonus), would read a quantity as an index, getHealthBonus being an amount and getFreeSpecialist a count in buildings, and could ask a table for an entry out of range; so only these names, whose meaning is the same in every BtS info that has them, and within range. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-_INDEX_GETTERS = {
-	"getPrereqAndTech": ("getTechInfo", "getNumTechInfos"),
-	"getObsoleteTech": ("getTechInfo", "getNumTechInfos"),
-	"getTechReveal": ("getTechInfo", "getNumTechInfos"),
-	"getTechCityTrade": ("getTechInfo", "getNumTechInfos"),
-	"getTechObsolete": ("getTechInfo", "getNumTechInfos"),
-	"getPrereqAndBonus": ("getBonusInfo", "getNumBonusInfos"),
-	"getPrereqReligion": ("getReligionInfo", "getNumReligionInfos"),
-	"getStateReligion": ("getReligionInfo", "getNumReligionInfos"),
-}
-
-
-def _nameInfoIndices(result):
-	# <!-- custom: 'info type=UNIT_CATAPULT' gave getPrereqAndTech 32, and finding that 32 is TECH_MATHEMATICS took a 'py' call (fog-on playthrough, turn 115, 2026-11-13). These getters also get <getter>Type with the type's name; -1 and out-of-range values stay as they are. (Claude code Opus 5.5) -->
-	for name in result.keys():
-		if name not in _INDEX_GETTERS:
-			continue
-		value = result[name]
-		(szGetter, szCount) = _INDEX_GETTERS[name]
-		if isinstance(value, int) and not isinstance(value, bool) and value >= 0 and value < getattr(gc, szCount)():
-			result[name + "Type"] = getattr(gc, szGetter)(value).getType()
-
-
-def describe(target):
-	# <!-- custom: Calls every zero-argument method named get*, is*, can*, has* or count*; a method that needs arguments raises and is skipped.
-	# Meant for info objects; also in the 'py' namespace for players, cities and units. (Claude code Fable 5.2) -->
-	result = {}
-	for name in dir(target):
-		if name.startswith("get") or name.startswith("is") or name.startswith("can") or name.startswith("has") or name.startswith("count"):
-			try:
-				value = getattr(target, name)()
-			except Exception:
-				continue
-			if value is None or isinstance(value, (int, long, float, str, unicode, bool)):
-				result[name] = value
-	return result
-
-
 # <!-- custom: Order commands (Claude code Opus 5.5) -->
-
-_HELP["mission"] = "Give a unit's group a mission, e.g. mission=MISSION_MOVE_TO data1=x data2=y, MISSION_FORTIFY, MISSION_BUILD data1=BUILD_ type. Under fog, MISSION_MOVE_TO_UNIT (data1=owner, data2=unit) follows only our own team's units. MISSION_FOUND refuses while another of our units still has all its moves and waits for orders, as what it reveals can change the site; anyway=1 founds regardless. args: unit, mission, data1, data2, flags, append, anyway, player."
-
-
-FOUND_GUARD_RADIUS = 3
-
-
-def _unmovedOthers(unit):
-	# <!-- custom: Our units other than this one that still have all their moves and wait for orders: not fortified, asleep, automated or on a mission, nor inside the same group.
-	# Only within FOUND_GUARD_RADIUS plots of the Settler: the first version also named a Worker and an Archer 6 plots away in Dublin, which could reveal nothing about the site (Continents replay, turn 53). (Claude code Opus 5.5) -->
-	player = gc.getPlayer(unit.getOwner())
-	waiting = []
-	(loopUnit, iter) = player.firstUnit(False)
-	while loopUnit:
-		if loopUnit.getID() != unit.getID() and max(abs(loopUnit.getX() - unit.getX()), abs(loopUnit.getY() - unit.getY())) <= FOUND_GUARD_RADIUS and loopUnit.getGroupID() != unit.getGroupID() and loopUnit.canMove() and loopUnit.getMoves() == 0 and loopUnit.getGroup().getActivityType() == ActivityTypes.ACTIVITY_AWAKE and not loopUnit.isAutomated() and loopUnit.getGroup().getLengthMissionQueue() == 0:
-			waiting.append(loopUnit)
-		(loopUnit, iter) = player.nextUnit(iter, False)
-	return waiting
-
-
-def cmd_mission(args):
-	unit = _unit(args)
-	group = unit.getGroup()
-	eMission = _enum(MissionTypes, args["mission"])
-	iData1 = args.get("data1", -1)
-	if isinstance(iData1, (str, unicode)) and eMission == MissionTypes.MISSION_BUILD:
-		iData1 = _typedIndex(iData1, "BUILD_", gc.getNumBuildInfos(), gc.getBuildInfo)
-	elif isinstance(iData1, (str, unicode)):
-		iData1 = _infoIndex(iData1)
-	iData1 = int(iData1)
-	iData2 = int(args.get("data2", -1))
-	plot = unit.plot()
-	# <!-- custom: An appended mission starts where the queue ends, as a shift-click in the window does; 'mission=MISSION_BUILD data1=BUILD_COTTAGE append=1' after a 'move' was first refused because it was checked on the Worker's current plot (fog-on playthrough, 2026-11-13). lastMissionPlot is the game's own end of the queue. (Claude code Opus 5.5) -->
-	bQueued = bool(args.get("append", False)) and group.getLengthMissionQueue() > 0
-	if bQueued:
-		plot = group.lastMissionPlot()
-	# <!-- custom: The check above then refused 'MISSION_FOUND append=1' right after a 'move': canStartMission returns false while the group is busy, as it was a few ms into its move, and the same call passed seconds later (2026-11-13). isBusy is not exposed to Python, and the window does not check a shift-clicked mission either; the game checks it when it starts and drops it if invalid, and the unit then shows in 'todo'. So a mission queued behind others is not checked here. (Claude code Opus 5.5) -->
-	# <!-- custom: The data checks run for an immediate mission too: Codex's review found that a move given at once with coordinates off the map, or a build index out of range, reached native code that assumes them valid, as only queued missions were checked. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	_checkMissionData(eMission, iData1, iData2, bQueued)
-	# <!-- custom: Founding waits until our other units have moved, the user's rule from the turn-0 games (2026-11-14), as what they reveal can change the site; the scoutBeforeFounding reminder alone did not stop it, and turn 0 of the Ireland replay (2026-11-19) founded Dublin before its Warrior moved. anyway=1 founds regardless. (Claude code Opus 5.5) -->
-	if eMission == MissionTypes.MISSION_FOUND and not args.get("anyway"):
-		waiting = _unmovedOthers(unit)
-		if waiting:
-			raise ValueError("move our other units first, as they may reveal a better site: %s; or pass anyway=1" % ", ".join(["%s %d at %d,%d" % (gc.getUnitInfo(other.getUnitType()).getType(), other.getID(), other.getX(), other.getY()) for other in waiting]))
-	# <!-- custom: Under fog, a Move To Unit only toward a unit of our own team: the game takes any owner and unit ID, so the order would follow a rival out of sight.
-	# A first version accepted a rival in sight, but the queued mission keeps steering toward the target's live position on later turns, so our unit's moves would still track it through fog (Codex's reviews of the unit state, 2026-11-15). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	iFogTeam = _fogTeam(args)
-	if iFogTeam >= 0 and eMission == MissionTypes.MISSION_MOVE_TO_UNIT:
-		target = None
-		if iData1 >= 0 and iData1 < gc.getMAX_PLAYERS():
-			target = gc.getPlayer(iData1).getUnit(iData2)
-		if target is None or target.isNone() or target.getTeam() != iFogTeam:
-			raise ValueError("under fog, MISSION_MOVE_TO_UNIT follows only our own team's units; for a rival, move to the plot where it is seen")
-	# <!-- custom: Nor a new order for a unit with no moves left, which the window takes and starts next turn: at turn 118 of the turn-0 game (2026-11-14) a Worker busy clearing jungle was given a replacement queue, which this check refused as "moves left 0", so its old Mine order stayed.
-	# The game checks the order when it starts, as for a queued one. (Claude code Opus 5.5) -->
-	if not bQueued and unit.movesLeft() > 0 and not group.canStartMission(eMission, iData1, iData2, plot, False):
-		# <!-- custom: Two Field Guns refused a move to Ecbatana on turn 285 (2026-11-14) with no reason given: they were in a 9-unit group that a move of one of its units had already sent there.
-		# Say the moves left and the group, so such a refusal explains itself. (Claude code Opus 5.5) -->
-		szWhy = "moves left %d, group %d of %d unit(s)" % (unit.movesLeft(), group.getID(), group.getNumUnits())
-		if group.getLengthMissionQueue() > 0:
-			szWhy += ", whose current mission is %s" % gc.getMissionInfo(group.getMissionType(0)).getType()
-		# <!-- custom: A Catapult's MISSION_FORTIFY was refused with only its moves and group, as siege cannot fortify (JOAO turn-114 save, 2026-11-22); list the plain missions it can start here, as the window shows only those buttons. (Claude code Opus 5.5) -->
-		canStart = [gc.getMissionInfo(i).getType() for i in range(gc.getNumMissionInfos()) if i != MissionTypes.MISSION_BUILD and group.canStartMission(i, -1, -1, plot, False)]
-		if canStart:
-			szWhy += "; without data it can start: %s" % ", ".join(canStart)
-		raise ValueError("unit %d cannot start %s (%s, %s) now (%s)" % (unit.getID(), args["mission"], iData1, iData2, szWhy))
-	# <!-- custom: No mission AI plot or unit, as the window's own orders give none (CvNetPushMission).
-	# SASPilot first passed the plot above, which pushMission records as the group's mission AI plot while the group can move: a Work Boat sent by 'move' from (39,32) then had fishing boats appended after arriving with no moves left, and at the next turn the KI#176 stale-target guard in continueMission cancelled the build, as the boat was not at (39,32) (fog-on playthrough, turns 116-118, 2026-11-13). See KI#176.
-	# CySelectionGroup.pushMission dereferenced None until that same day's DLL, hence the binding check. (Claude code Opus 5.5) -->
-	_pilotGame("isSASPilotChoosingFreeTech")
-	iUnit = unit.getID()
-	iOwner = unit.getOwner()
-	group.pushMission(eMission, iData1, iData2, int(args.get("flags", 0)), bool(args.get("append", False)), True, MissionAITypes.NO_MISSIONAI, None, None)
-	# <!-- custom: Looked up again by ID: a Work Boat building fishing boats is used up at once, and reading the old object then raised an unidentifiable C++ exception instead of reporting it gone (turn 118, 2026-11-13). (Claude code Opus 5.5) -->
-	unit = gc.getPlayer(iOwner).getUnit(iUnit)
-	if unit is None or unit.isNone() or unit.isDead():
-		return {"unitGone": True}
-	return _unitFull(unit)
 
 
 # <!-- custom: Missions that take no data, which can be queued behind others with data -1. (Claude code Opus 5.5) -->
-_HELP["buildsteps"] = "A Worker's plan over several plots in one order, as shift-clicks queue it in the window: steps=BUILD_ROAD@99,26;BUILD_FARM@100,27 moves to each plot and builds there, in order, each through the checks 'mission' makes. It replaces the unit's queue unless append=1. Returns the queue. args: unit, steps, append, player."
-
-
-def cmd_buildsteps(args):
-	# <!-- custom: At turn 66 of the islands replay (2026-11-15) roads to the Sheep and the Cattle took eight 'mission' calls from a shell loop (move, build, move, build); any Worker plan over several plots asks the same. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	steps = []
-	for szStep in str(args["steps"]).split(";"):
-		szStep = szStep.strip()
-		if not szStep:
-			continue
-		if szStep.count("@") != 1:
-			raise ValueError("step %s is not BUILD_TYPE@x,y" % szStep)
-		(szBuild, szPlot) = szStep.split("@")
-		(szX, szY) = szPlot.split(",")
-		steps.append((szBuild.strip(), int(szX), int(szY)))
-	if not steps:
-		raise ValueError("no steps; give steps=BUILD_TYPE@x,y;BUILD_TYPE@x,y")
-	bAppend = bool(args.get("append"))
-	for (szBuild, x, y) in steps:
-		base = {"unit": unit.getID(), "player": unit.getOwner()}
-		move = dict(base)
-		move.update({"mission": "MISSION_MOVE_TO", "data1": x, "data2": y, "append": bAppend})
-		if (unit.getX(), unit.getY()) != (x, y) or bAppend:
-			cmd_mission(move)
-			bAppend = True
-		build = dict(base)
-		build.update({"mission": "MISSION_BUILD", "data1": szBuild, "append": bAppend})
-		cmd_mission(build)
-		bAppend = True
-	return {"unit": unit.getID(), "missions": _missionQueue(unit.getGroup())}
 
 
 _HELP["settle"] = "Give every idle group the first of MISSION_FORTIFY, MISSION_SLEEP or MISSION_SKIP it can start, as a player would before ending the turn: 'todo's idleUnits, once per group. MISSION_SKIP lasts one turn, so those units come back. args: player."
@@ -2689,152 +1919,6 @@ def cmd_settle(args):
 	return {"groups": result}
 
 
-_HELP["map"] = "A text map of the known world, row by row from the north, as the window's map shows it: C our city, c another's city, ~ water, ^ peak, h hills, f forest or jungle, x another's land, . other land, space unknown; u marks a plot holding one of our units. With owners=1, land shows its owner instead (player IDs as 0-9, a-z, then A-Z without C; * Barbarians; legend in 'owners'; . unowned), to read border shapes. Columns are x from 'x0', rows y from 'y1' down. With fog on, only what the team has revealed, each owner as last seen. args: x0, x1, y0, y1 (default the known area plus one plot), owners, player."
-
-
-def cmd_map(args):
-	# <!-- custom: Planning scouting and city sites needed a picture of what is known: at turn 25 of the turn-0 game (2026-11-14) only 150 of 3168 plots were revealed, which the user's advice to scout first made the question; 'routes' draws only our own land.
-	# Written first as a 'py' snippet, then kept as a command. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	# <!-- custom: Codex's review: player= a rival would mark that rival's units under fog. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	_requireOwnTeamUnderFog(args, player, "the map")
-	iTeam = _fogTeam(args)
-	kMap = gc.getMap()
-	known = []
-	for i in range(kMap.numPlots()):
-		plot = kMap.plotByIndex(i)
-		if iTeam < 0 or plot.isRevealed(iTeam, False):
-			known.append((plot.getX(), plot.getY()))
-	if not known:
-		raise ValueError("no plot is known")
-	x0 = int(args.get("x0", max(0, min([x for (x, y) in known]) - 1)))
-	x1 = int(args.get("x1", min(kMap.getGridWidth() - 1, max([x for (x, y) in known]) + 1)))
-	y0 = int(args.get("y0", max(0, min([y for (x, y) in known]) - 1)))
-	y1 = int(args.get("y1", min(kMap.getGridHeight() - 1, max([y for (x, y) in known]) + 1)))
-	iForest = getInfoTypeOrFail("FEATURE_FOREST")
-	iJungle = getInfoTypeOrFail("FEATURE_JUNGLE")
-	ours = {}
-	for unit in _units(player):
-		ours[(unit.getX(), unit.getY())] = True
-	# <!-- custom: owners=1, the user's idea at turn 200 of a Large autoplay (2026-11-15): reading a border's shape, who fronts whom and who is boxed in, needs the owner of each land plot, not one x for every rival. Land shows its owner's character from _ownerChar, cities C (ours) and c, water ~ and unowned land . as before. (Claude code Opus 5.5) -->
-	bOwners = bool(int(args.get("owners", 0)))
-	rows = []
-	for y in range(y1, y0 - 1, -1):
-		line = []
-		for x in range(x0, x1 + 1):
-			plot = kMap.plot(x, y)
-			if plot.isNone() or (iTeam >= 0 and not plot.isRevealed(iTeam, False)):
-				line.append(" ")
-				continue
-			# <!-- custom: Under fog, the owner the team last saw, as the window's map shows it: the live owner would tell of borders that moved out of sight. (Claude code Opus 5.5) -->
-			iOwner = plot.getOwner()
-			if iTeam >= 0:
-				iOwner = plot.getRevealedOwner(iTeam, False)
-			# <!-- custom: Under fog, a city only once the team has seen it: a city founded since on an explored plot showed as c from the live plot (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-			bCity = plot.isCity()
-			if bCity and iTeam >= 0 and not plot.getPlotCity().isRevealed(iTeam, False):
-				bCity = False
-			if bCity:
-				if iOwner == player.getID():
-					line.append("C")
-				else:
-					line.append("c")
-			elif bOwners and not plot.isWater() and iOwner >= 0:
-				line.append(_ownerChar(iOwner))
-			elif bOwners and not plot.isWater():
-				line.append(".")
-			elif ours.has_key((x, y)):
-				line.append("u")
-			elif plot.isWater():
-				line.append("~")
-			elif plot.isPeak():
-				line.append("^")
-			elif iOwner >= 0 and iOwner != player.getID():
-				line.append("x")
-			elif plot.isHills():
-				line.append("h")
-			elif plot.getFeatureType() == iForest or plot.getFeatureType() == iJungle:
-				line.append("f")
-			else:
-				line.append(".")
-		rows.append("%3d %s" % (y, "".join(line)))
-	result = {"x0": x0, "y1": y1, "known": len(known), "plots": kMap.numPlots(), "rows": rows}
-	if bOwners:
-		team = gc.getTeam(player.getTeam())
-		result["owners"] = dict([(_ownerChar(i), gc.getPlayer(i).getName()) for i in range(gc.getMAX_PLAYERS()) if gc.getPlayer(i).isEverAlive() and (iTeam < 0 or i == player.getID() or gc.getPlayer(i).isBarbarian() or team.isHasMet(gc.getPlayer(i).getTeam()))])
-	return result
-
-
-# <!-- custom: One character per player ID: digits, lowercase, then uppercase without C (our cities), so SAS's 48 players fit; base 36 alone failed on the Barbarian player's ID, past 35, on the first try (2026-11-15).
-# Barbarians are *. (Claude code Opus 5.5) -->
-_OWNER_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
-def _ownerChar(iPlayer):
-	if gc.getPlayer(iPlayer).isBarbarian():
-		return "*"
-	return _OWNER_CHARS[iPlayer]
-
-
-_HELP["borders"] = "Land borders in numbers, to pick a front: per player met (and Barbarians) whose land we have seen, their land plots, our frontier with them (our land plots touching theirs) and theirs with us, the other players their land touches with how many plots (one boxed in by several is stretched), and their seen cities nearest ours with the distance in plots to our nearest city and whether the city is coastal. Sorted by our frontier, longest first. 'map owners=1' draws the same. With fog on, owners as the team last saw them. args: player."
-
-
-def cmd_borders(args):
-	# <!-- custom: The user's idea at turn 200 of a Large autoplay (2026-11-15): most rivals were weaker than us and liked us, so choosing a target came down to geography, and the agent should read border shapes as numbers rather than from the minimap's colors. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	_requireOwnTeamUnderFog(args, player, "borders")
-	iTeam = _fogTeam(args)
-	team = gc.getTeam(player.getTeam())
-	kMap = gc.getMap()
-	owners = {}
-	for i in range(kMap.numPlots()):
-		plot = kMap.plotByIndex(i)
-		if plot.isWater() or (iTeam >= 0 and not plot.isRevealed(iTeam, False)):
-			continue
-		iOwner = plot.getOwner()
-		if iTeam >= 0:
-			iOwner = plot.getRevealedOwner(iTeam, False)
-		if iOwner >= 0:
-			owners[(plot.getX(), plot.getY())] = iOwner
-	land = {}
-	touching = {}
-	for (x, y), iOwner in owners.items():
-		land[iOwner] = land.get(iOwner, 0) + 1
-		seen = {}
-		for dx in (-1, 0, 1):
-			for dy in (-1, 0, 1):
-				adjacent = kMap.plot(x + dx, y + dy)
-				if adjacent.isNone():
-					continue
-				iOther = owners.get((adjacent.getX(), adjacent.getY()), -1)
-				if iOther >= 0 and iOther != iOwner:
-					seen[iOther] = True
-		for iOther in seen.keys():
-			touching.setdefault(iOwner, {})[iOther] = touching.setdefault(iOwner, {}).get(iOther, 0) + 1
-	ours = _cities(player)
-	rows = []
-	for iOther in land.keys():
-		if iOther == player.getID():
-			continue
-		other = gc.getPlayer(iOther)
-		if iTeam >= 0 and not other.isBarbarian() and not team.isHasMet(other.getTeam()):
-			continue
-		cities = []
-		for city in _cities(other):
-			if iTeam >= 0 and not city.isRevealed(iTeam, False):
-				continue
-			iDistance = -1
-			if ours:
-				iDistance = min([plotDistance(city.getX(), city.getY(), mine.getX(), mine.getY()) for mine in ours])
-			cities.append({"name": city.getName(), "x": city.getX(), "y": city.getY(), "distance": iDistance, "coastal": bool(city.isCoastal(gc.getMIN_WATER_SIZE_FOR_OCEAN()))})
-		cities.sort(lambda a, b: cmp(a["distance"], b["distance"]))
-		theirs = touching.get(iOther, {})
-		rows.append({"player": iOther, "name": other.getName(), "landPlots": land[iOther], "frontier": touching.get(player.getID(), {}).get(iOther, 0), "theirFrontier": theirs.get(player.getID(), 0),
-			"touches": dict([(gc.getPlayer(i).getName(), n) for (i, n) in theirs.items() if i != player.getID()]), "citiesSeen": len(cities), "nearestCities": cities[:3]})
-	rows.sort(lambda a, b: cmp(b["frontier"], a["frontier"]))
-	return {"landPlots": land.get(player.getID(), 0), "players": rows}
-
-
 _HELP["wartargets"] = "War targets and threats side by side, facts rather than one score. Per player met: power against ours (per mille, where the scoreboard shows it), our frontier and the distance from their nearest seen city to ours (from 'borders'), cities seen, war, their attitude toward us and whether we are their worst enemy; then the diplomatic cost of a war on them: who is Pleased or Friendly with them (angered), who has them as worst enemy or fights them (pleased), who would join a war on them if asked, and the players a war on them also brings in, their defensive pacts, masters and vassals. 'threat' flags a rival at least as strong as us that is Annoyed or Furious with us, has us as worst enemy or fights us, however far away: an attack from far is rarer but happens. Sorted by frontier. args: player."
 
 
@@ -2844,8 +1928,8 @@ def cmd_wartargets(args):
 	# 'relations' and 'borders' each held part of this; this puts it in one row per player. (Claude code Opus 5.5) -->
 	player = _player(args)
 	team = gc.getTeam(player.getTeam())
-	fronts = dict([(row["player"], row) for row in cmd_borders(args)["players"]])
-	relations = cmd_relations(args)["players"]
+	fronts = dict([(row["player"], row) for row in _command("borders")(args)["players"]])
+	relations = _command("relations")(args)["players"]
 	rows = []
 	for entry in relations:
 		iOther = entry["player"]
@@ -3159,6 +2243,7 @@ def cmd_timeline(args):
 	# <!-- custom: The user's follow-up after the public-information survey (2026-11-15): the Timeline shows met rivals' era changes, first discoveries and Great People, which no command read.
 	# Uses CvInfoScreen.getTimelineRecords on a copy of the screen object set to our perspective, never reveal-all, so SASPilot and the tab share one filter and the open screen's own state and cache stay untouched.
 	# A 2026-11-20 merge slip in that method broke this command and the tab alike. See KI#1101. (Claude code Opus 5.5) -->
+	# <!-- custom: The screen's session settings, which getTimelineRecords reads, are set when the screen object is made since 2026-11-28: read only when it opened, this command failed in a session where the Info screen had not been opened. See KI#1101.2. (Claude code Opus 5.5) -->
 	import copy
 	player = _player(args)
 	iTeam = player.getTeam()
@@ -3483,280 +2568,6 @@ def cmd_victory(args):
 	return {"victories": victories, "world": world, "turn": g.getGameTurn()}
 
 
-_HELP["geography"] = "The map's composition as our team knows it, with takeaways. From the plots we have revealed: land and water seen (open ocean apart), each landmass seen with its land plots, our cities and each owner's plots and seen cities on it, unowned land, and whether it is fully explored (no seen land plot of it next to an unrevealed plot); then each met rival, whether it shares a landmass with us and whether we have open borders. Beside them the settings that describe the map: script, size and grid, sea level, non-default map options, and the AI's landHeavy / navalHeavy reading, which changes its unit choices. 'takeaways' turns these into short strategic notes: rivals on our landmass or none, room left to settle, exploration left, and what contact gives (research speed from met teams knowing a tech, trades) and open borders overseas (trade routes, entry into their waters). 'landmasses' counts those seen with the mean and median size of the fully explored ones; 'bonusesSeen' the bonuses on seen plots that our techs reveal, with their share. 'seaCrossing' lists our civilization's ships, whether each may enter ocean and the tech path to it, and the seen landmasses our coast reaches through seen water that is not open ocean. 'preview' gives the script's World Picker image, as every player sees it at setup. args: player."
-
-
-def _seaCrossing(player, team, iTeam, cyMap, iOcean, areas):
-	# <!-- custom: The user's point on the SAS48 islands save (2026-11-15): the AI there needed to explore other islands, and whether rows of islands can be crossed before ocean ships depends on the map and the rules, so ask the engine rather than guess from the script.
-	# Ships: each of our civilization's sea units, whether it may enter ocean (CvUnitInfo's TerrainImpassable, unless its TerrainPassableTech is known), and the tech path to it, as 'research' would queue it. (Claude code Opus 5.5) -->
-	ships = []
-	memo = {}
-	civ = gc.getCivilizationInfo(player.getCivilizationType())
-	for iClass in range(gc.getNumUnitClassInfos()):
-		iUnit = civ.getCivilizationUnits(iClass)
-		if iUnit == -1:
-			continue
-		info = gc.getUnitInfo(iUnit)
-		if info.getDomainType() != DomainTypes.DOMAIN_SEA:
-			continue
-		bOcean = not info.getTerrainImpassable(iOcean)
-		iPassTech = info.getTerrainPassableTech(iOcean)
-		if not bOcean and iPassTech != -1 and team.isHasTech(iPassTech):
-			bOcean = True
-		techs = [info.getPrereqAndTech()] + [info.getPrereqAndTechs(i) for i in range(gc.getNUM_UNIT_AND_TECH_PREREQS())]
-		techs = [i for i in techs if i >= 0]
-		path = []
-		seen = {}
-		for iTech in techs:
-			_techPathVisit(player, team, iTech, path, seen, memo)
-		# <!-- custom: getResearchTurnsLeft gives -1 with no research rate, as before the first city: the turn-0 run summed them to "-22 turns", so turns stay None then. (Claude code Opus 5.5) -->
-		turns = [player.getResearchTurnsLeft(i, True) for i in path]
-		iTurns = None
-		if -1 not in turns:
-			iTurns = sum(turns)
-		ships.append({"unit": info.getType(), "canEnterOcean": bOcean, "techs": [gc.getTechInfo(i).getType() for i in techs], "techsMissing": len(path), "pathBeakers": sum([team.getResearchCost(i) - team.getResearchProgress(i) for i in path]), "pathTurns": iTurns})
-	ships.sort(lambda a, b: cmp(a["pathBeakers"], b["pathBeakers"]))
-	# <!-- custom: Reach along seen coast and lakes: from the water next to our landmasses, through revealed water that is not open ocean, which other seen landmasses touch it.
-	# Unrevealed water stops the walk, so a landmass absent here may still be reachable; a ship that cannot enter ocean is held to this. (Claude code Opus 5.5) -->
-	ourAreas = {}
-	for a in areas.values():
-		if a["ours"]:
-			ourAreas[a["area"]] = True
-	frontier = []
-	visited = {}
-	for i in range(cyMap.numPlots()):
-		plot = cyMap.plotByIndex(i)
-		if plot.isWater() or not ourAreas.has_key(plot.getArea()) or not plot.isRevealed(iTeam, False):
-			continue
-		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
-			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
-			if adjacent is not None and not adjacent.isNone() and adjacent.isWater() and adjacent.isRevealed(iTeam, False) and adjacent.getTerrainType() != iOcean:
-				iIndex = cyMap.plotNum(adjacent.getX(), adjacent.getY())
-				if not visited.has_key(iIndex):
-					visited[iIndex] = True
-					frontier.append(adjacent)
-	reached = {}
-	while frontier:
-		plot = frontier.pop()
-		for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
-			adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
-			if adjacent is None or adjacent.isNone() or not adjacent.isRevealed(iTeam, False):
-				continue
-			if not adjacent.isWater():
-				if not ourAreas.has_key(adjacent.getArea()):
-					reached[adjacent.getArea()] = True
-				continue
-			if adjacent.getTerrainType() == iOcean:
-				continue
-			iIndex = cyMap.plotNum(adjacent.getX(), adjacent.getY())
-			if not visited.has_key(iIndex):
-				visited[iIndex] = True
-				frontier.append(adjacent)
-	coastReach = [{"area": iArea, "landPlotsSeen": areas[iArea]["landPlotsSeen"], "owners": areas[iArea]["owners"].keys()} for iArea in reached.keys() if areas.has_key(iArea)]
-	return {"ships": ships, "coastWaterSeen": len(visited), "landmassesReachedAlongCoast": coastReach}
-
-
-def cmd_geography(args):
-	# <!-- custom: The user's point (2026-11-15): record the map's composition with takeaways, not flags: navalHeavy means snaky continents on Archipelago and islets with its Tiny Islands option, and on SAS Large Facing Islands, where every met rival lay over water, little army is needed, though an unexpected one can surprise.
-	# Observed geography decides the notes rather than the script's name, which only hints; the script and options are returned beside them. (Claude code Opus 5.5) -->
-	player = _player(args)
-	iTeam = player.getTeam()
-	team = gc.getTeam(iTeam)
-	cyMap = gc.getMap()
-	g = gc.getGame()
-	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
-	iLandSeen = 0
-	iWaterSeen = 0
-	iOceanSeen = 0
-	areas = {}
-	bonuses = {}
-	for i in range(cyMap.numPlots()):
-		plot = cyMap.plotByIndex(i)
-		if not plot.isRevealed(iTeam, False):
-			continue
-		# <!-- custom: getBonusType(team) hides a bonus whose reveal tech the team lacks, as the map does for a player. (Claude code Opus 5.5) -->
-		iBonus = plot.getBonusType(iTeam)
-		if iBonus != -1:
-			szBonus = gc.getBonusInfo(iBonus).getType()
-			bonuses[szBonus] = bonuses.get(szBonus, 0) + 1
-		if plot.isWater():
-			iWaterSeen += 1
-			if plot.getTerrainType() == iOcean:
-				iOceanSeen += 1
-			continue
-		iLandSeen += 1
-		iArea = plot.getArea()
-		if not areas.has_key(iArea):
-			areas[iArea] = {"area": iArea, "landPlotsSeen": 0, "ourCities": 0, "owners": {}, "citiesSeen": {}, "unownedPlots": 0, "explored": True}
-		area = areas[iArea]
-		area["landPlotsSeen"] += 1
-		iOwner = plot.getRevealedOwner(iTeam, False)
-		if iOwner == -1:
-			area["unownedPlots"] += 1
-		else:
-			szOwner = gc.getPlayer(iOwner).getName()
-			area["owners"][szOwner] = area["owners"].get(szOwner, 0) + 1
-		if plot.isCity() and plot.getPlotCity().isRevealed(iTeam, False):
-			iCityOwner = plot.getRevealedOwner(iTeam, False)
-			if iCityOwner != -1 and gc.getPlayer(iCityOwner).getTeam() == iTeam:
-				area["ourCities"] += 1
-			elif iCityOwner != -1:
-				szOwner = gc.getPlayer(iCityOwner).getName()
-				area["citiesSeen"][szOwner] = area["citiesSeen"].get(szOwner, 0) + 1
-		# <!-- custom: A landmass is fully explored when none of its seen land touches an unrevealed plot: beyond one, it may go on. (Claude code Opus 5.5) -->
-		if area["explored"]:
-			for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
-				adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
-				if adjacent is not None and not adjacent.isNone() and not adjacent.isRevealed(iTeam, False):
-					area["explored"] = False
-					break
-	# <!-- custom: Ours are the landmasses with our cities, or, before the first city, those our land units stand on: at turn 0 of the islands replay our own island counted as another landmass. (Claude code Opus 5.5) -->
-	for a in areas.values():
-		a["ours"] = a["ourCities"] > 0
-	if not [a for a in areas.values() if a["ours"]]:
-		(unit, it) = player.firstUnit(False)
-		while unit:
-			if unit.getDomainType() == DomainTypes.DOMAIN_LAND and areas.has_key(unit.plot().getArea()):
-				areas[unit.plot().getArea()]["ours"] = True
-			(unit, it) = player.nextUnit(it, False)
-	ours = [a for a in areas.values() if a["ours"]]
-	others = [a for a in areas.values() if not a["ours"]]
-	ours.sort(lambda a, b: cmp(b["landPlotsSeen"], a["landPlotsSeen"]))
-	others.sort(lambda a, b: cmp(b["landPlotsSeen"], a["landPlotsSeen"]))
-	# <!-- custom: The user's follow-up: how many landmasses, their typical size and the bonus mix.
-	# Sizes are exact only for landmasses fully explored, so the mean and median count those alone. (Claude code Opus 5.5) -->
-	exploredSizes = [a["landPlotsSeen"] for a in areas.values() if a["explored"]]
-	exploredSizes.sort()
-	landmasses = {"seen": len(areas), "fullyExplored": len(exploredSizes), "exploredMean": None, "exploredMedian": None}
-	if exploredSizes:
-		landmasses["exploredMean"] = sum(exploredSizes) / float(len(exploredSizes))
-		# <!-- custom: The middle size, or the mean of the two middle ones: the first version took the upper one, so a Huge Pangaea's two explored landmasses of 3 and 1495 plots gave a median of 1495. (Claude code Opus 5.5) -->
-		iMid = len(exploredSizes) / 2
-		if len(exploredSizes) % 2:
-			landmasses["exploredMedian"] = float(exploredSizes[iMid])
-		else:
-			landmasses["exploredMedian"] = (exploredSizes[iMid - 1] + exploredSizes[iMid]) / 2.0
-	iBonusTotal = sum(bonuses.values())
-	bonusMix = [{"bonus": szBonus, "plots": iCount, "percent": iCount * 100.0 / iBonusTotal} for szBonus, iCount in bonuses.items()]
-	bonusMix.sort(lambda a, b: cmp(b["plots"], a["plots"]))
-	rivals = []
-	for iLoop in range(gc.getMAX_CIV_PLAYERS()):
-		loopPlayer = gc.getPlayer(iLoop)
-		if not loopPlayer.isAlive() or loopPlayer.getTeam() == iTeam or loopPlayer.isMinorCiv() or not team.isHasMet(loopPlayer.getTeam()):
-			continue
-		szName = loopPlayer.getName()
-		bShares = False
-		for a in ours:
-			if a["owners"].has_key(szName) or a["citiesSeen"].has_key(szName):
-				bShares = True
-		rivals.append({"player": iLoop, "name": szName, "sharesOurLandmass": bShares, "openBorders": bool(team.isOpenBorders(loopPlayer.getTeam())), "atWar": bool(team.isAtWar(loopPlayer.getTeam()))})
-	mapOptions = []
-	for i in range(cyMap.getNumCustomMapOptions()):
-		szDesc = cyMap.getNonDefaultCustomMapOptionDesc(i)
-		if len(szDesc) > 0:
-			mapOptions.append(szDesc)
-	crossing = _seaCrossing(player, team, iTeam, cyMap, iOcean, areas)
-	takeaways = []
-	landRivals = [r["name"] for r in rivals if r["sharesOurLandmass"]]
-	bOursExplored = len(ours) > 0
-	iRoom = 0
-	for a in ours:
-		bOursExplored = bOursExplored and a["explored"]
-		iRoom += a["unownedPlots"]
-	if landRivals:
-		takeaways.append("Land neighbours on our landmass: %s. A war can come over land; keep defenders where our borders meet." % ", ".join(landRivals))
-	elif bOursExplored:
-		takeaways.append("No met rival on our landmass, and all of it is seen: an invasion must come by sea, which needs transports and shows its ships first. Defend the coastal cities that face rivals and keep the army light; for the same reason a rival may not expect an army of ours.")
-	else:
-		takeaways.append("No met rival seen on our landmass yet, but it is not fully explored: explore before judging how safe it is.")
-	# <!-- custom: Room only from a 3x3 block of unowned land up: the first run, at turn 120 of the SAS48 islands save, called a single unowned plot "room to settle". (Claude code Opus 5.5) -->
-	# <!-- custom: Shared with rivals, unowned plots are mostly gaps between borders, not room: at turn 300 of a Huge Pangaea, 58 of them lay between 14 neighbours, which the first wording called room to settle before rivals arrive. (Claude code Opus 5.5) -->
-	if iRoom >= 9 and not landRivals:
-		takeaways.append("%d unowned land plots seen on our landmass: room to settle before rivals arrive." % iRoom)
-	elif iRoom >= 9:
-		takeaways.append("%d unowned land plots seen on our landmass, shared with rivals: mostly gaps between borders; 'sites' tells whether any is worth a city." % iRoom)
-	elif ours:
-		takeaways.append("Our landmass is nearly all ours (%d unowned plots seen): further growth means settling overseas or taking cities." % iRoom)
-	iRivalsAlive = len([1 for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isMinorCiv() and gc.getPlayer(i).getTeam() != iTeam])
-	# <!-- custom: The user's point (2026-11-15): contact is more than trade; the islands autoplay was far behind for lacking it.
-	# With TECH_DIFFUSION_ENABLE off, as in SAS, CvPlayer::calculateResearchModifier adds TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER times the met teams knowing a tech over all teams alive, met or not: there 30 x 2 / 48, at most 1.25% faster research on any tech, against up to 30% with every team met. (Claude code Opus 5.5) -->
-	iTeamsAlive = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian()])
-	iMetTeams = len([1 for i in range(gc.getMAX_CIV_TEAMS()) if i != iTeam and gc.getTeam(i).isAlive() and not gc.getTeam(i).isMinorCiv() and not gc.getTeam(i).isBarbarian() and team.isHasMet(i)])
-	szContact = "We have seen %d%% of the map and met %d of %d rivals." % ((iLandSeen + iWaterSeen) * 100 / max(1, cyMap.numPlots()), len(rivals), iRivalsAlive)
-	if not SASCurrentDefines.getInt("TECH_DIFFUSION_ENABLE"):
-		iMax = SASCurrentDefines.getInt("TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER")
-		# <!-- custom: Our own team counts among the teams alive but never knows the tech it researches, so everyone met gives (teams alive - 1) / teams alive of the modifier: 28% of 30 with 15 teams, not the 30% the first wording said. (Claude code Opus 5.5) -->
-		szContact += " Contact speeds research: each met team knowing a tech adds %d%% / %d teams alive to it, so ours tops out at %.2f%% against %.2f%% with everyone met; met teams also trade techs, open borders and resources." % (iMax, iTeamsAlive, iMax * iMetTeams / float(max(1, iTeamsAlive)), iMax * (iTeamsAlive - 1) / float(max(1, iTeamsAlive)))
-	takeaways.append(szContact)
-	overseas = [r["name"] for r in rivals if not r["sharesOurLandmass"] and not r["openBorders"] and not r["atWar"]]
-	if overseas:
-		# <!-- custom: CvTeam::isFreeTrade needs open borders for foreign trade routes, CvCity adds OVERSEAS_TRADE_MODIFIER to a route to another landmass, and CvUnit::canEnterTerritory keeps our units and ships out of their borders without open borders or war. (Claude code Opus 5.5) -->
-		takeaways.append("No open borders with overseas rivals %s: open borders allow foreign trade routes, which to another landmass also earn the overseas bonus (%d%%), and let our ships and units enter their borders, to explore past them or reach further rivals." % (", ".join(overseas), SASCurrentDefines.getInt("OVERSEAS_TRADE_MODIFIER")))
-	oceanShips = [s for s in crossing["ships"] if s["canEnterOcean"]]
-	if others and not landRivals:
-		if crossing["landmassesReachedAlongCoast"]:
-			takeaways.append("%d other seen landmass(es) reached along coast without open ocean: ships that cannot enter ocean (Work Boats, early galleys) can get there." % len(crossing["landmassesReachedAlongCoast"]))
-		else:
-			takeaways.append("No other seen landmass reached along seen coast: open ocean, or water not yet seen, lies between.")
-		if oceanShips:
-			first = oceanShips[0]
-			if first["techsMissing"] == 0:
-				takeaways.append("%s can enter ocean and needs no new tech: build it to explore and meet rivals." % first["unit"])
-			else:
-				szTurns = "no research rate yet"
-				if first["pathTurns"] is not None:
-					szTurns = "about %d turns at the current rate" % first["pathTurns"]
-				takeaways.append("The first ocean-going ship, %s, is %d techs away (%d beakers, %s): the way to explore past the ocean and meet the rivals there." % (first["unit"], first["techsMissing"], first["pathBeakers"], szTurns))
-	if g.isNavalHeavyMapnameCached() and not g.isLandHeavyMapnameCached():
-		takeaways.append("The AI reads this map as naval-heavy: it scraps land units first, pays more to upgrade them, and favours coastal city sites and naval targets.")
-	elif g.isLandHeavyMapnameCached() and not g.isNavalHeavyMapnameCached():
-		takeaways.append("The AI reads this map as land-heavy: it scraps naval units first and pays more to upgrade them.")
-	# <!-- custom: The World Picker's preview of the script, which every player sees at setup, for an agent to look at (the user's suggestion): a sample of the script, not this game's map, but it shows the shape, rows of islands, snaky continents or islets.
-	# Renders by map_preview_dds.py are listed too, as an image reader may not open DDS. (Claude code Opus 5.5) -->
-	import BugPath
-	szScript = cyMap.getMapScriptName()
-	preview = {"dds": None, "png": []}
-	szDds = os.path.join(BugPath.getModDir(), "Assets", "Art", "AdvCiv_SAS", "Maps", szScript, "FLAT_" + szScript + ".dds")
-	if os.path.isfile(szDds):
-		preview["dds"] = szDds
-	szPngDir = os.path.join(BugPath.getModDir(), "LLM_Helpers", "outputs", "map_previews")
-	if os.path.isdir(szPngDir):
-		preview["png"] = [os.path.join(szPngDir, n) for n in os.listdir(szPngDir) if n.startswith("FLAT_" + szScript + "_") and n.endswith(".png")]
-		preview["png"].sort()
-	return {"seaCrossing": crossing, "landmasses": landmasses, "bonusesSeen": bonusMix, "preview": preview, "settings": {"mapScript": cyMap.getMapScriptName(), "mapDescription": _mapDescription(cyMap.getMapScriptName()), "mapOptionsAll": _mapOptionsAll(cyMap.getMapScriptName()), "coastLaneRows": _coastLaneRows(player), "worldSize": gc.getWorldInfo(cyMap.getWorldSize()).getType(), "grid": [cyMap.getGridWidth(), cyMap.getGridHeight()], "seaLevel": gc.getSeaLevelInfo(cyMap.getSeaLevel()).getType(), "mapOptions": mapOptions, "landHeavy": bool(g.isLandHeavyMapnameCached()), "navalHeavy": bool(g.isNavalHeavyMapnameCached())}, "seen": {"plots": iLandSeen + iWaterSeen, "ofMap": cyMap.numPlots(), "land": iLandSeen, "water": iWaterSeen, "ocean": iOceanSeen}, "ourLandmasses": ours, "otherLandmasses": others, "rivals": rivals, "takeaways": takeaways}
-
-
-_HELP["shore"] = "A plot's relation to water, for choosing a city site on an island or a coast: coastal (a city there can build ships and harbours), fresh water, river, lake, how many adjacent plots are water and how many ocean, and for a Farm whether the plot is irrigated or can take irrigation now (fresh water or an irrigated neighbour). Only plots the team has revealed, as the map shows them. 'sites' (served by the DLL) does not give these. args: x, y, player."
-
-
-def cmd_shore(args):
-	# <!-- custom: At turn 0 of the islands replay (2026-11-15) the capital site was chosen between (98,25) and (99,25), and whether either could build boats took a 'py' snippet; on an island map that question comes at every founding, so it is a command (the user's rule: a snippet a later game would ask again). (Claude code Opus 5.5) -->
-	player = _player(args)
-	iTeam = player.getTeam()
-	plot = gc.getMap().plot(int(args["x"]), int(args["y"]))
-	if plot is None or plot.isNone():
-		raise ValueError("no plot at %s,%s" % (args["x"], args["y"]))
-	if _fogTeam(args) >= 0 and not plot.isRevealed(iTeam, False):
-		raise ValueError("plot %s,%s is not revealed to our team" % (args["x"], args["y"]))
-	iOcean = getInfoTypeOrFail("TERRAIN_OCEAN")
-	iWater = 0
-	iOceanAdjacent = 0
-	iUnknown = 0
-	for iDirection in range(DirectionTypes.NUM_DIRECTION_TYPES):
-		adjacent = plotDirection(plot.getX(), plot.getY(), DirectionTypes(iDirection))
-		if adjacent is None or adjacent.isNone():
-			continue
-		if _fogTeam(args) >= 0 and not adjacent.isRevealed(iTeam, False):
-			iUnknown += 1
-			continue
-		if adjacent.isWater():
-			iWater += 1
-			if adjacent.getTerrainType() == iOcean:
-				iOceanAdjacent += 1
-	# <!-- custom: At turn 61 of the islands replay, whether Farms at (100,27) and (95,25) would be watered took a 'py' snippet: (100,27) had fresh water, while the Rice at (95,25) had neither water nor an irrigated neighbour. (Claude code Opus 5.5) -->
-	return {"x": plot.getX(), "y": plot.getY(), "water": bool(plot.isWater()), "coastal": bool(plot.isCoastalLand()), "freshWater": bool(plot.isFreshWater()), "river": bool(plot.isRiver()), "lake": bool(plot.isLake()), "adjacentWater": iWater, "adjacentOcean": iOceanAdjacent, "adjacentUnrevealed": iUnknown, "irrigated": bool(plot.isIrrigated()), "irrigationAvailable": bool(plot.isIrrigationAvailable(False))}
-
-
 _HELP["reminders"] = "What a player would want pointed out, beyond what 'todo' says must be decided before the turn ends: no ship exploring while teams are unmet and seen water borders the unknown (waterScouting), unowned land of our landmass out of sight where Barbarians can spawn, with a plot to watch it from (fogBusting), no research, an empty build queue, a starving or angry city, a city growing within 5 turns past its happy or healthy limit, a wounded unit outside our borders, gold that runs out within ten turns at the current rate, and techs we could trade to a met player now; our research when a met civ would sell it, or when it has no case (no resource of ours, no buyer, no need met; research). A Settler queued or out while Workers number fewer than 2 per city less 1 or a city has no defender (expansionSupport); land still unknown within 6 plots of a city, by direction (homeUnknown); a city with 1 or less to spare in happiness or health: the limit binding first, trait effects, our resources of the other kind to trade away, met civs exporting what we lack and linked trade networks (happyHealth); a city making fewer than 3 hammers a turn, with its best unworked hammer tiles and the improvements on its tiles that would add hammers (lowProduction); a city's strong plots (a bonus or 4+ yield) that a rival owns or whose rival culture reaches 70% of ours, with the city's culture rate and the culture buildings it can build (borderPressure); a change since the last call in the 12 best city sites' priority, food, unknown plots or strong plots shared, or a site new or gone, as fog, resources, borders, wars and cities founded or destroyed all move them (sitesChanged; the first call records); a build a 1-citizen whip could finish in a city with no happy or health margin left (stalled, so growing wastes food) or whose citizen regrows within 6 turns, unless whip anger runs with at most one happy face to spare (whip). Each entry has its check, a text and the thing it is about. Only what the player's own screens show. A food bonus two or more of our cities reach, worked by none or by a city with more food than another that reaches it, comes with the 'work' click that moves it (sharedBonuses). A met rival whose attitude, the techs and resources it would trade, or the resources we could offer it (last copies marked) changed since the last call (rivalMoods; the first call states each). mute=CHECK silences a check for the session, mute=CHECK@x,y one entry by its plot; unmute=CHECK, CHECK@x,y or all lifts it; the muted list comes with each reply. args: player, mute, unmute."
 
 
@@ -3765,7 +2576,7 @@ def _remindResearch(player, args):
 		return [{"text": "no research chosen"}]
 	# <!-- custom: The user's rule at turn 74 of the islands replay (2026-11-15): being ahead lets a player sell each new tech to several rivals, while researching what everyone sells wastes the turns.
 	# So current research that a met rival would trade us now is pointed out, with what no met rival has, to research and sell instead (from 'techs'). (Claude code Opus 5.5) -->
-	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	market = _command("techs")({"player": player.getID(), "fog": args.get("fog")})
 	iTech = player.getCurrentResearch()
 	szTech = gc.getTechInfo(iTech).getType()
 	sellers = []
@@ -3780,7 +2591,7 @@ def _remindResearch(player, args):
 	case = {"tech": szTech}
 	_addTechCases(player, args, [case])
 	uses = []
-	for resource in cmd_resources(args)["resources"]:
+	for resource in _command("resources")(args)["resources"]:
 		for build in resource["builds"]:
 			if build["tech"] == szTech and not build["haveTech"]:
 				uses.append(resource["bonus"])
@@ -4007,7 +2818,7 @@ def _remindTrades(player, args):
 	# <!-- custom: Seafaring, 2 turns of research that no neighbour had, bought Construction and Metal Casting at turn 59 of the turn-0 game (2026-11-14); a tech we could give is worth a look each turn.
 	# Taken from 'techs', which applies the fog rules. (Claude code Opus 5.5) -->
 	result = []
-	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	market = _command("techs")({"player": player.getID(), "fog": args.get("fog")})
 	# <!-- custom: Which of those another met civ also knows, the user's point at turn 41 of the 2026-11-19 validation run: that civ can sell it to the buyer first, so holding it gains nothing and a sale now is the chance; a unique one keeps its value. (Claude code Opus 5.5) -->
 	team = gc.getTeam(player.getTeam())
 	for entry in market["weCouldGive"]:
@@ -4050,7 +2861,7 @@ def _remindRivalMoods(player, args):
 	# Our offers include last copies, marked lastCopy with what they give: the user's point that a last spare copy is worth selling for gold or a tech when no city would drop below its limit.
 	# Kept with string keys and lists, as the session state goes through JSON: the first version keyed by the player number and stored tuples, which came back as "8" and lists, so a change at turn 74 (Pericles now trading Polytheism) was never seen. (Claude code Opus 5.5) -->
 	seen = _state.setdefault("rivalMoods", {})
-	market = cmd_techs({"player": player.getID(), "fog": args.get("fog")})
+	market = _command("techs")({"player": player.getID(), "fog": args.get("fog")})
 	gives = {}
 	# <!-- custom: How many met civs know each tech we lack, the user's point at turn 39 of the 2026-11-19 validation run: a tech everyone knows is cheap and soon offered by all, so paying a unique tech or gold for it is bad, while the one who has met the most civs can broker unique techs between them. (Claude code Opus 5.5) -->
 	spread = {}
@@ -4183,7 +2994,7 @@ def _remindUnimproved(player, args):
 				queued.setdefault(order.iData1, city.getName())
 		(city, it) = player.nextCity(it, False)
 	result = []
-	for entry in cmd_resources({"player": player.getID(), "fog": args.get("fog")})["resources"]:
+	for entry in _command("resources")({"player": player.getID(), "fog": args.get("fog")})["resources"]:
 		if entry["owner"] != player.getID() or entry.get("connected"):
 			continue
 		builds = [build["build"] for build in entry["builds"] if build["haveTech"]]
@@ -4221,7 +3032,7 @@ def _remindExports(player, args):
 	# <!-- custom: At turn 118 of the turn-0 game (2026-11-14) a Pig sale to Gilgamesh was signed with our only Iron in it too, and nothing said so: the Iron read unconnected for seven turns and no city could train a Swordsman.
 	# Each resource we give away while none is left for us. (Claude code Opus 5.5) -->
 	result = []
-	for deal in cmd_deals({"player": player.getID()})["deals"]:
+	for deal in _command("deals")({"player": player.getID()})["deals"]:
 		for item in deal["weGive"]:
 			if item["item"] == "TRADE_RESOURCES" and player.getNumAvailableBonuses(item["data"]) == 0:
 				result.append({"text": "we export our only %s to %s (since turn %d, deal %d); it can be cancelled from 'deals' once the game allows" % (item.get("what"), deal["name"], deal["sinceTurn"], deal["id"]), "bonus": item.get("what"), "player": deal["with"]})
@@ -4571,18 +3382,6 @@ def _mapOptionsAll(szScript):
 		return result
 	except Exception:
 		return None
-
-
-def _mapDescription(szScript):
-	# <!-- custom: The map script's own description of its layout, as its menu entry shows it: at turn 75 of the islands replay (2026-11-15) SAS_Large_Facing_Islands said "rivals on the east and west sides, and a rival facing north or south", which told where to scout.
-	# Some scripts return a text key, which is translated; a script that cannot be imported gives null. (Claude code Opus 5.5) -->
-	try:
-		szText = __import__(szScript).getDescription()
-	except Exception:
-		return None
-	if szText and szText.startswith("TXT_KEY"):
-		szText = CyTranslator().getText(szText, ())
-	return szText
 
 
 _HELP["seareach"] = "Where a ship can still explore: for each direction from it (north, south, east, west), how many seen water plots border the unknown there and the nearest one it can reach with its turns, or that no route through revealed plots reaches the nearest (unrevealed water may still connect; 'geography' gives the map script's options, such as coast lanes). For choosing a direction nobody has scouted rather than coasts already known: a reachable coast in a met rival's waters is marked (metRivalWaters), and recommend picks the nearest reachable unknown coast by turns: crossing a rival's waters toward the unknown is fine, touring its known shore is not. args: unit, candidates (plots tried per direction, default 4), player."
@@ -5023,7 +3822,7 @@ def _remindHappyHealth(player, args):
 		# <!-- custom: A copy can go when we hold more than one, or when the one copy's effect leaves every city a margin. (Claude code Opus 5.5) -->
 		bSpare = iHave > 1 or (info.getHealth() > 0 and iHealth > info.getHealth()) or (info.getHappiness() > 0 and iHappy > info.getHappiness())
 		ours.append({"bonus": info.getType(), "have": iHave, "happiness": info.getHappiness(), "health": info.getHealth(), "canTradeAway": bool(bSpare)})
-	market = cmd_bonustrade({"player": player.getID(), "fog": args.get("fog")})
+	market = _command("bonustrade")({"player": player.getID(), "fog": args.get("fog")})
 	offers = []
 	linked = []
 	for leader in market["leaders"]:
@@ -5255,67 +4054,6 @@ def cmd_reminders(args):
 	return {"reminders": result, "muted": muted.keys(), "mutedEntriesLeftOut": iMuted}
 
 
-_HELP["resources"] ="Every resource the team knows of: plot, type, owner (-1 unclaimed), improvement, and each build that connects it with its tech and whether we have that tech; resources on our land first. Shows what a tech would open, e.g. Agriculture's Plantations. args: player."
-
-
-def cmd_resources(args):
-	# <!-- custom: The user's advice at turn 37 of the turn-0 game (2026-11-14), on seeing a Banana: check resources first.
-	# A 'py' listing showed the Banana needs a Plantation, which SAS gives with Agriculture, as do five more resources nearby, so Agriculture moved ahead of Masonry; kept as a command, as that check belongs to every opening.
-	# Under fog, the resources and owners the team has seen, as the map shows them. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	# <!-- custom: Codex's review: player= a rival would read that rival's revealed plots and techs under fog. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	_requireOwnTeamUnderFog(args, player, "the resource list")
-	iTeam = player.getTeam()
-	team = gc.getTeam(iTeam)
-	bFog = _fogTeam(args) >= 0
-	kMap = gc.getMap()
-	# <!-- custom: Which builds connect each resource, worked out once per resource type: a build's improvement must trade that resource (isImprovementBonusTrade). (Claude code Opus 5.5) -->
-	connectors = {}
-	result = []
-	for i in range(kMap.numPlots()):
-		plot = kMap.plotByIndex(i)
-		if bFog and not plot.isRevealed(iTeam, False):
-			continue
-		iBonus = plot.getBonusType(iTeam)
-		if iBonus < 0:
-			continue
-		if not connectors.has_key(iBonus):
-			builds = []
-			for k in range(gc.getNumBuildInfos()):
-				info = gc.getBuildInfo(k)
-				iImprovement = info.getImprovement()
-				if iImprovement >= 0 and gc.getImprovementInfo(iImprovement).isImprovementBonusTrade(iBonus):
-					iTech = info.getTechPrereq()
-					szTech = None
-					if iTech >= 0:
-						szTech = gc.getTechInfo(iTech).getType()
-					builds.append({"build": info.getType(), "tech": szTech, "haveTech": iTech < 0 or team.isHasTech(iTech)})
-			connectors[iBonus] = builds
-		iOwner = plot.getOwner()
-		iImprovement = plot.getImprovementType()
-		if bFog:
-			iOwner = plot.getRevealedOwner(iTeam, False)
-			iImprovement = plot.getRevealedImprovementType(iTeam, False)
-		entry = {"x": plot.getX(), "y": plot.getY(), "bonus": gc.getBonusInfo(iBonus).getType(), "owner": iOwner, "improvement": _typeOrNone(gc.getImprovementInfo, iImprovement), "builds": connectors[iBonus]}
-		# <!-- custom: Whether the resource reaches our network, for our own plots: at turn 90 of the turn-0 game the user saw the Banana by London still unconnected, as were the two Pigs, all improved but with no route from their plot to a city (2026-11-14).
-		# The list showed the Plantation and nothing about the link, and the agent took improved for connected.
-		# The resource bar shows a player this. (Claude code Opus 5.5) -->
-		# <!-- custom: Whether this plot supplies the resource: its network carries it (isPlotGroupConnectedBonus) and the plot itself feeds it, by a city or an improvement that trades it.
-		# The network test alone counts every source in the group, so an unimproved Cow beside a pastured one on the same roads read as connected (Codex's review, round 35). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		if iOwner == player.getID():
-			bFeeds = plot.isCity() or (plot.getImprovementType() >= 0 and gc.getImprovementInfo(plot.getImprovementType()).isImprovementBonusTrade(iBonus))
-			entry["connected"] = bool(bFeeds and plot.isPlotGroupConnectedBonus(player.getID(), iBonus))
-		# <!-- custom: What the resource gives the empire and whether we have it already: at turn 71 of the islands replay (2026-11-15) the user pointed out that a Whale, new to us and +1 happiness, beat a second Clam, whose health we already had from other food; that took a 'py' call.
-		# A second source of a resource adds only its plot's yields. (Claude code Opus 5.5) -->
-		info = gc.getBonusInfo(iBonus)
-		entry["happiness"] = info.getHappiness()
-		entry["health"] = info.getHealth()
-		entry["weHaveAvailable"] = player.getNumAvailableBonuses(iBonus)
-		result.append(entry)
-	result.sort(lambda a, b: cmp((a["owner"] != player.getID(), a["owner"] >= 0, a["bonus"]), (b["owner"] != player.getID(), b["owner"] >= 0, b["bonus"])))
-	return {"resources": result}
-
-
 _HELP["directions"] = "What we know in each of 8 compass sectors around a city (the capital by default) within radius plots (12 by default), to pick where scouting or the next cities pay: known land and water, good land (natural food plus production at least 2), poor land (tundra, desert, peaks and such), fresh-water land, revealed resources, plots rivals own, and the unknown edge (unrevealed plots next to known land, where more land may lie). value is a rough sort: good land, resources twice, fresh water and the unknown edge half, poor land minus half; rival plots are left out of it, as a contested side can be the urgent one. North is +y. args: city, radius, player."
 DIRECTION_NAMES = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
 
@@ -5485,133 +4223,6 @@ def cmd_scout(args):
 	bySector = sectors.values()
 	bySector.sort(lambda a, b: cmp(b["plots"], a["plots"]))
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "damage": unit.getDamage(), "movesLeft": unit.movesLeft(), "steps": steps, "frontiers": targets, "frontierSectors": bySector}
-
-
-_HELP["bonustrade"] = "The Foreign Advisor's Bonuses tab: our resources with how many we have (spare when more than one) and who would import each; and per leader met, whether our trade networks connect, the most gold per turn they would pay (when gold trading is open and they will talk), and which resources they would import from us, will export, won't export, and which we do not need. A resource sale or swap starts here; 'price' then asks the deal's price. args: player."
-
-
-def cmd_bonustrade(args):
-	# <!-- custom: The user advised at turn 111 of the turn-0 game (2026-11-14) trading spare resources actively, for gold or what we lack, and pointed to the Foreign Advisor's Bonuses tab and its hover over our resources ("Will import: Augustus (4)" in 1.514_foreign_advisor (2).JPG).
-	# The agent had asked four leaders one by one with 'price' and learned only that nobody wanted a Pig.
-	# This follows CvForeignAdvisor.drawResourceDeals (advc.036, advc.073) for an AI-facing player: the same tests, so what it lists is what the tab shows. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	_requireOwnTeamUnderFog(args, player, "the resource trade table")
-	team = gc.getTeam(player.getTeam())
-	tradeData = TradeData()
-	tradeData.ItemType = TradeableItems.TRADE_RESOURCES
-	ours = []
-	for iBonus in range(gc.getNumBonusInfos()):
-		iCount = player.getNumTradeableBonuses(iBonus)
-		if iCount > 0:
-			ours.append({"bonus": gc.getBonusInfo(iBonus).getType(), "have": iCount, "importers": []})
-	byBonus = dict([(entry["bonus"], entry) for entry in ours])
-	leaders = []
-	for iOther in range(gc.getMAX_PLAYERS()):
-		other = gc.getPlayer(iOther)
-		if iOther == player.getID() or not other.isAlive() or other.isBarbarian() or other.isMinorCiv() or not team.isHasMet(other.getTeam()):
-			continue
-		bWillTalk = bool(other.AI_isWillingToTalk(player.getID()))
-		row = {"player": iOther, "name": other.getName(), "connected": bool(player.canTradeNetworkWith(iOther)), "willTalk": bWillTalk, "willImport": [], "willExport": [], "wontExport": [], "weDontNeed": []}
-		if (team.isGoldTrading() or gc.getTeam(other.getTeam()).isGoldTrading()) and bWillTalk:
-			row["maxGoldPerTurn"] = other.AI_maxGoldPerTurnTrade(player.getID())
-		for iBonus in range(gc.getNumBonusInfos()):
-			tradeData.iData = iBonus
-			szBonus = gc.getBonusInfo(iBonus).getType()
-			# <!-- custom: Would import: we can put it on the table, and it passes the AI's own test of a deal it would take (the tab's "surplus" test with bTestDenial). (Claude code Opus 5.5) -->
-			if player.canTradeItem(iOther, tradeData, False) and player.canTradeItem(iOther, tradeData, not other.isHuman()):
-				row["willImport"].append(szBonus)
-				# <!-- custom: As the hover lists them: only leaders willing to talk, and with their overall gold-per-turn cap, labelled as such, not a price for this resource, which comes from CvPlayerAI::AI_goldForBonus and is not exposed to Python (Codex's review, round 36). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-				if byBonus.has_key(szBonus) and bWillTalk:
-					byBonus[szBonus]["importers"].append({"player": iOther, "name": other.getName(), "leaderMaxGoldPerTurn": row.get("maxGoldPerTurn")})
-			if other.canTradeItem(player.getID(), tradeData, False):
-				iDenial = other.getTradeDenial(player.getID(), tradeData)
-				if iDenial == DenialTypes.DENIAL_JOKING:
-					row["weDontNeed"].append(szBonus)
-				elif iDenial == DenialTypes.NO_DENIAL and bWillTalk:
-					row["willExport"].append(szBonus)
-				else:
-					row["wontExport"].append(szBonus)
-		leaders.append(row)
-	return {"ours": ours, "leaders": leaders}
-
-
-_HELP["deals"] = "The Foreign Advisor's active deals: each running deal of ours, with the leader, the turn it began, what we give and what we get, by item as 'diplo' shows offers. A resource we export leaves our network: the capital's plot group subtracts it, so 'resources' reads it as unconnected. args: player."
-
-
-def _dealItems(deal, bFirst):
-	if bFirst:
-		iLength = deal.getLengthFirstTrades()
-	else:
-		iLength = deal.getLengthSecondTrades()
-	items = []
-	for i in range(iLength):
-		if bFirst:
-			item = deal.getFirstTrade(i)
-		else:
-			item = deal.getSecondTrade(i)
-		if not item:
-			continue
-		entry = {"item": _enumName(TradeableItems, item.ItemType), "data": item.iData}
-		szWhat = _tradeDataName(item.ItemType, item.iData)
-		if szWhat is not None:
-			entry["what"] = szWhat
-		items.append(entry)
-	return items
-
-
-def cmd_deals(args):
-	# <!-- custom: At turn 125 of the turn-0 game (2026-11-14) the mined and roaded Iron diagonal to London read unconnected, and no city could train a Swordsman.
-	# The trade network itself connected (two roaded plots, CvPlot::isTradeNetworkConnected); CvPlot::updatePlotGroupBonus subtracts the capital's exports, so a resource given away in a deal reads as missing.
-	# SASPilot had no way to list deals, which the Foreign Advisor's Active tab shows a player (CvForeignAdvisor's deal loop). (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	iPlayer = player.getID()
-	game = gc.getGame()
-	deals = []
-	for i in range(game.getIndexAfterLastDeal()):
-		deal = game.getDeal(i)
-		if deal.isNone():
-			continue
-		if deal.getFirstPlayer() == iPlayer:
-			iOther = deal.getSecondPlayer()
-			bWeFirst = True
-		elif deal.getSecondPlayer() == iPlayer:
-			iOther = deal.getFirstPlayer()
-			bWeFirst = False
-		else:
-			continue
-		deals.append({"id": deal.getID(), "with": iOther, "name": gc.getPlayer(iOther).getName(), "sinceTurn": deal.getInitialGameTurn(), "turnsToCancel": max(0, _dealTurnsToCancel(deal)), "weGive": _dealItems(deal, bWeFirst), "weGet": _dealItems(deal, not bWeFirst)})
-	return {"deals": deals}
-
-
-def _dealTurnsToCancel(deal):
-	# <!-- custom: CvDeal::turnsToCancel, which Python cannot call: the deal's first turn plus PEACE_TREATY_LENGTH, less the current turn (advc.034 shortens it for a disengagement, which this leaves out, so for one it can say later than the game, never earlier, as Codex's review noted in round 37). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	return deal.getInitialGameTurn() + SASCurrentDefines.getInt("PEACE_TREATY_LENGTH") - gc.getGame().getGameTurn()
-
-
-_HELP["canceldeal"] = "Cancel one of our deals, as the Foreign Advisor's cancel button does: it raises the same confirmation popup, which 'answer' then confirms (button 0) or declines (button 1). Refused before the game allows it ('deals' gives turnsToCancel) and for deals holding a vassal item. args: deal (ID from 'deals')."
-
-
-def cmd_canceldeal(args):
-	# <!-- custom: Our only Iron went to Gilgamesh inside a Pig sale at turn 118 of the turn-0 game (2026-11-14), and SASPilot could not cancel a deal.
-	# CvDLLWidgetData::doDealKill tests CvDeal::isCancelable, then raises BUTTONPOPUP_DEAL_CANCELED, whose Yes sends the kill as a network message; isCancelable is not exposed, so its turn rule is checked here and vassal deals, which it may refuse, are left to the window. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_activePlayerId())
-	iDeal = int(args["deal"])
-	deal = gc.getGame().getDeal(iDeal)
-	if deal is None or deal.isNone() or player.getID() not in (deal.getFirstPlayer(), deal.getSecondPlayer()):
-		raise ValueError("deal %d is not one of ours; see 'deals'" % iDeal)
-	for bFirst in (True, False):
-		for item in _dealItems(deal, bFirst):
-			if item["item"] in ("TRADE_VASSAL", "TRADE_SURRENDER"):
-				raise ValueError("deal %d holds a vassal item; cancel it from the Foreign Advisor" % iDeal)
-	iTurns = _dealTurnsToCancel(deal)
-	if iTurns > 0:
-		raise ValueError("deal %d can be cancelled in %d turns" % (iDeal, iTurns))
-	popupInfo = CyPopupInfo()
-	popupInfo.setButtonPopupType(ButtonPopupTypes.BUTTONPOPUP_DEAL_CANCELED)
-	popupInfo.setData1(iDeal)
-	popupInfo.setOption1(False)
-	popupInfo.addPopup(player.getID())
-	return {"deal": iDeal, "popup": "BUTTONPOPUP_DEAL_CANCELED", "next": "'popups' lists it; 'answer' button 0 cancels the deal, 1 keeps it"}
 
 
 _HELP["scores"] = "The Info screen's Score tab, per player met and ourselves: score and its change since last turn, techs known, land share, power and power per city where the demographics are visible (as the scoreboard's ratio), cities seen, state religion and holy city, vassal status, will to talk, and current research and progress where espionage lets it be seen (research null: seen, researching nothing). Also its other columns: traits, land in hundredths of a percent, masters and vassals by player ID, and per rival the power ratio (per mille, theirs against ours), attitude and its value, worst enemy, war, peace treaty, trade network, open borders, defensive pact, golden age, anarchy and our espionage weight. sort=<field> puts the highest first, sort=-<field> the lowest, as clicking a column header does; default score. args: sort, player."
@@ -5829,102 +4440,6 @@ def _adviseThreats(args):
 	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "damage": unit.getDamage(), "rule": "avoid where it could attack us this turn on open ground (same domain, distance <= its moves) and would win more often than not (always, against a unit that cannot fight), or where we could attack it and would win under 70% of the time; odds are null for an attack that cannot happen", "threats": threats}
 
 
-_HELP["routes"] = "A text map of the player's land, row by row from the north, to see the route network as the window shows it at a glance: C city, # railroad, = road, . own land with no route, ~ own water, x another's land, space unowned; columns are x from 'x0', rows y from 'y1' down. Plus each city's connection to the capital. args: margin (plots around our land, default 1), player."
-
-
-def cmd_routes(args):
-	# <!-- custom: SASPilot gave plots one by one and no picture of the network: at turn 281 of the modern baseline (2026-11-14) the user spotted a marsh at (11,42) with no route between a railroad and two roads, which the agent had not noticed.
-	# A row of characters per map row shows such a gap the way the map does. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_playerId(args))
-	iTeam = _fogTeam(args)
-	# <!-- custom: Under fog, player= naming another team still drew the map's edges from all its plots and listed every city with its coordinates and capital connection, although the rows hid unrevealed tiles (Codex's review, 2026-11-14). Refuse it, as 'odds' does for foreign units. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	_requireOwnTeamUnderFog(args, player, "the route map")
-	kMap = gc.getMap()
-	iRail = getInfoTypeOrFail("ROUTE_RAILROAD")
-	owned = []
-	for i in range(kMap.numPlots()):
-		plot = kMap.plotByIndex(i)
-		if plot.getOwner() == player.getID():
-			owned.append((plot.getX(), plot.getY()))
-	if not owned:
-		raise ValueError("player %d owns no plots" % player.getID())
-	iMargin = int(args.get("margin", 1))
-	x0 = max(0, min([x for (x, y) in owned]) - iMargin)
-	x1 = min(kMap.getGridWidth() - 1, max([x for (x, y) in owned]) + iMargin)
-	y0 = max(0, min([y for (x, y) in owned]) - iMargin)
-	y1 = min(kMap.getGridHeight() - 1, max([y for (x, y) in owned]) + iMargin)
-	rows = []
-	for y in range(y1, y0 - 1, -1):
-		line = []
-		for x in range(x0, x1 + 1):
-			plot = kMap.plot(x, y)
-			if iTeam >= 0 and not plot.isRevealed(iTeam, False):
-				line.append("?")
-			elif plot.getOwner() != player.getID():
-				if plot.getOwner() >= 0:
-					line.append("x")
-				else:
-					line.append(" ")
-			elif plot.isCity():
-				line.append("C")
-			elif plot.isWater():
-				line.append("~")
-			elif plot.getRouteType() == iRail:
-				line.append("#")
-			elif plot.getRouteType() >= 0:
-				line.append("=")
-			else:
-				line.append(".")
-		rows.append("%3d %s" % (y, "".join(line)))
-	cities = []
-	(city, iterator) = player.firstCity(False)
-	while city:
-		cities.append({"name": city.getName(), "x": city.getX(), "y": city.getY(), "connectedToCapital": city.isConnectedToCapital(player.getID())})
-		(city, iterator) = player.nextCity(iterator, False)
-	return {"x0": x0, "y1": y1, "rows": rows, "cities": cities}
-
-
-_QUEUE_PLAIN_MISSIONS = ("MISSION_SKIP", "MISSION_SLEEP", "MISSION_FORTIFY", "MISSION_HEAL", "MISSION_SENTRY", "MISSION_SENTRY_HEAL", "MISSION_FOUND", "MISSION_PILLAGE", "MISSION_PLUNDER")
-
-
-def _checkMissionData(eMission, iData1, iData2, bQueued):
-	# <!-- custom: A queued mission skips canStartMission, so its data reach CvSelectionGroup::startMission unchecked later: a MISSION_MOVE_TO off the map would have the game dereference a missing plot (Codex's review).
-	# Check what does not depend on where the group will be: a plot on the map for a move or route, a BUILD_ index for a build, no data for the plain missions; refuse other missions in a queue, as their data mean different things. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	szMission = gc.getMissionInfo(int(eMission)).getType()
-	if szMission in ("MISSION_MOVE_TO", "MISSION_ROUTE_TO"):
-		plot = CyMap().plot(iData1, iData2)
-		if plot is None or plot.isNone():
-			raise ValueError("no plot at %d,%d" % (iData1, iData2))
-	elif szMission == "MISSION_BUILD":
-		if iData1 < 0 or iData1 >= gc.getNumBuildInfos():
-			raise ValueError("%s is not a BUILD_ index" % iData1)
-	elif not bQueued:
-		return
-	elif szMission in _QUEUE_PLAIN_MISSIONS:
-		if iData1 != -1 or iData2 != -1:
-			raise ValueError("%s takes no data" % szMission)
-	else:
-		raise ValueError("%s cannot be queued behind other missions by SASPilot; give it when the queue is empty" % szMission)
-
-
-_HELP["group"] = "Group units on one plot as selecting them together does, so they move and take missions as one: with=<unit> joins 'unit' to that unit's group; without it, 'unit' leaves its group. Then order the group through any of its units. args: unit, with, player."
-
-
-def cmd_group(args):
-	# <!-- custom: At turn 91 of the fog-on playthrough (2026-11-13) a Settler had to go where Barbarian Archers had pillaged, and SASPilot could not escort it: Python has no joinGroup.
-	# See joinSASPilotGroup in CvGameInterface.cpp. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	iHead = -1
-	if args.get("with") is not None:
-		iHead = _unit({"unit": args["with"], "player": args.get("player")}).getID()
-	text = _pilotGame("joinSASPilotGroup").joinSASPilotGroup(unit.getOwner(), unit.getID(), iHead)
-	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
-	if text == "null":
-		raise ValueError("unit %d cannot join unit %s's group: both must be the player's, on one plot and of one domain" % (unit.getID(), args.get("with")))
-	group = unit.getGroup()
-	return {"group": unit.getGroupID(), "units": [_unitBrief(group.getUnitAt(i)) for i in range(group.getNumUnits())]}
-
-
 _HELP["meet"] = "Make our team meet other teams, as the WorldBuilder's diplomacy screen can: every living team, or the ones in team (a number or a list). For setting up tests, such as an SAS48 scoreboard that must overflow; changes the game, so the create role. Returns the teams met now. args: team."
 
 
@@ -5974,9 +4489,6 @@ def cmd_freetech(args):
 	if not _pilotGame("chooseSASPilotFreeTech").chooseSASPilotFreeTech(iTech, held[0]["id"]):
 		raise ValueError("%s cannot be the free tech" % args["tech"])
 	return {"chosen": args["tech"]}
-
-
-_HELP["diplo"] = "The diplomacy screen, when an AI has contacted the player or the player has contacted an AI: open, who, the AI's line (aiComment type and text), the numbered replies the screen offers, and the deal on the table. 'reply n= screen=' answers, with this reply's screen number, which 'reply' requires. args: none."
 
 
 def _diploState():
@@ -6076,333 +4588,10 @@ def _tradeDataName(eKind, iData):
 	return _typeOrNone(getattr(gc, table[2]), iData)
 
 
-def cmd_diplo(args):
-	# <!-- custom: Seven AI contacts reached SASPilot's player in the 97-turn fog-on game (2026-11-13): tech offers, Open Borders, and Zara Yaqob pressing for Paganism, which refusing can anger.
-	# They opened the diplomacy screen in the window, unseen; Moctezuma's first-contact screen was still open at turn 97. (Claude code Opus 5.5) -->
-	state = _diploState()
-	if not state["open"]:
-		return {"open": False}
-	diplo = CyDiplomacy()
-	iWho = state["who"]
-	result = {"open": True, "screen": _diploToken(state), "who": iWho, "whoName": gc.getPlayer(iWho).getName(), "aiComment": _typeOrNone(gc.getDiplomacyInfo, state["aiComment"]), "aiText": _plainText(state["aiText"]), "aiArgs": [_plainText(unicode(arg)) for arg in (state.get("aiArgs") or ())]}
-	result["replies"] = [{"n": i, "comment": gc.getDiplomacyInfo(response["comment"]).getType(), "data1": response["data1"], "data2": response["data2"], "text": _plainText(response["text"])} for (i, response) in enumerate(state["responses"])]
-	result["theyOffer"] = _diploOffer(diplo.getTheirTradeOffer)
-	result["weOffer"] = _diploOffer(diplo.getPlayerTradeOffer)
-	result["atWar"] = bool(diplo.atWar())
-	# <!-- custom: Which conversation this is, counted as each begins (see CvDiplomacy.SASPilotScreen), so a client sequence such as SASPilotClient.py's 'price' can stop when another leader's screen takes over (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	result["conversation"] = state.get("conversation", 0)
-	return result
-
-
-_HELP["contact"] = "Open the diplomacy screen with an AI player, as clicking its leader does; then 'diplo' shows its greeting and the replies, such as declaring war or asking for peace, and 'reply' answers. The screen opens on the next frames. With give= and/or take= (items as on 'propose'), it opens on the trade table with that deal on it, as Ctrl+clicking the leader and clicking the items does; 'diplo' then lists Propose and 'What would you want?'. args: with (player ID), give (list), take (list)."
-
-
-def cmd_contact(args):
-	# <!-- custom: A person declares war or asks for peace by talking to a leader; CyPlayer.contact opens that screen (tested at turn 97 of the fog-on playthrough, 2026-11-13), so war and peace go through the screen's own replies instead of commands of their own. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(_activePlayerId())
-	# <!-- custom: An out-of-range ID would reach GET_PLAYER in the DLL, and a human target is not what the screen is for here (Codex's review); the checks now live in _otherAiId, shared with 'trade' and 'propose'. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	iOther = _otherAiId(player, args["with"])
-	if _diploState()["open"]:
-		raise ValueError("a diplomacy screen is already open; see 'diplo'")
-	# <!-- custom: One queued contact at a time, so a second cannot replace the first's pending record (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if _pendingContact() is not None:
-		raise ValueError("a contact is already queued; read 'diplo' once its screen opens")
-	give = args.get("give", [])
-	take = args.get("take", [])
-	if not give and not take:
-		player.contact(iOther)
-		_state["contactPending"] = (iOther, False, time.clock())
-		return {"contacted": _who(iOther)}
-	# <!-- custom: With give= or take=, the screen opens on its trade table with those items on it, as Ctrl+clicking the leader and clicking the items does, so the screen's own replies answer the deal: Propose, and "What would you want?" with the AI's counter-offer, which 'propose' skips (2026-11-13). (Claude code Opus 5.5) -->
-	szWeGive = ",".join([_tradeArg(item, player) for item in give])
-	szTheyGive = ",".join([_tradeArg(item, gc.getPlayer(iOther)) for item in take])
-	if not _pilotGame("tableSASPilotDeal").tableSASPilotDeal(player.getID(), iOther, szWeGive, szTheyGive):
-		raise ValueError("not a deal player %d can put on the table with player %d: %s" % (player.getID(), iOther, _dealRefusal(player, gc.getPlayer(iOther), give, take) or "check the items against 'trade'"))
-	_state["contactPending"] = (iOther, True, time.clock())
-	return {"contacted": _who(iOther), "table": True}
-
-
-_HELP["reply"] = "Answer the diplomacy screen with one of the replies 'diplo' lists, as clicking it does; returns the screen after, which may show a new AI line and replies or be closed. screen is the number 'diplo' gave: a reply to a screen that has changed since is refused. comment= names the reply instead of n (USER_DIPLOCOMMENT_ prefix optional), which is safer: the list changes with the table, such as FISH_FOR_DEAL and GIFT when only our side is filled. args: n, comment, screen."
-
-
-def cmd_reply(args):
-	# <!-- custom: Calls CvDiplomacy.handleUserResponse with the reply's comment and data, the same handler the EXE calls for a click, so war, peace, deals and the screen closing all follow the screen's own rules. (Claude code Opus 5.5) -->
-	# <!-- custom: Through CvDiplomacyInterface, the module the EXE calls: BUG extends its handleUserResponse (Assets/Config/init.xml) to send its diplomacy events, which calling CvDiplomacy directly skipped (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	import CvDiplomacyInterface
-	state = _diploState()
-	if not state["open"]:
-		raise ValueError("no diplomacy screen is open")
-	# <!-- custom: Required, as Codex's review found a reply chosen from one 'diplo' could land on a newer screen, such as a second AI contact opening after the first closed; the replies list alone does not tell them apart. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	# <!-- custom: An older number is accepted when that screen showed exactly what this one shows (AI line, replies, both sides of the table): after a counter-offer the EXE refreshes the screen once more, and 'reply' to the screen 'diplo' had just read was refused as stale although nothing had changed (2026-11-13, screen 14 then 15). (Claude code Opus 5.5) -->
-	if args.get("screen") is None:
-		raise ValueError("screen is required; read 'diplo' for it")
-	iScreen = int(args["screen"])
-	content = _screenContent(state)
-	if _state.get("diploSeen", {}).get(iScreen) != content:
-		raise ValueError("the screen no longer shows what read %s showed; read 'diplo' again" % iScreen)
-	if (("truncated", True),) in [item for side in content[-2:] for item in side]:
-		raise ValueError("the deal has more than %d items on a side, too many to check; answer in the window" % DIPLO_OFFER_MAX_ITEMS)
-	# <!-- custom: The screen's partner as well, as Codex's review suggested: the count is per screen this module filled, and the partner is what the EXE shows now. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if CyDiplomacy().getWhoTradingWith() != state["who"]:
-		raise ValueError("the screen is now with player %d, not %d; read 'diplo' again" % (CyDiplomacy().getWhoTradingWith(), state["who"]))
-	# <!-- custom: By name too: at turn 128 of the turn-0 game (2026-11-14) the agent sent n=1 meaning "What would make this deal work?", as on a screen with both sides filled, but with only our Pig on the table the screen offers FISH_FOR_DEAL and GIFT, and reply 1 gave the Pig away. A comment names the reply, so a different list refuses instead of picking its neighbour. (Claude code Opus 5.5) -->
-	comments = [gc.getDiplomacyInfo(response["comment"]).getType() for response in state["responses"]]
-	if args.get("comment") is not None:
-		szComment = args["comment"]
-		if not szComment.startswith("USER_DIPLOCOMMENT_"):
-			szComment = "USER_DIPLOCOMMENT_" + szComment
-		if szComment not in comments:
-			raise ValueError("%s is not offered; the screen offers %s" % (szComment, ", ".join(comments)))
-		# <!-- custom: A name can be offered several times with different data, such as one TARGET_CITY reply per city; the first match was taken silently, and the right n for a later one was refused (Codex's review, round 37).
-		# Such a name now needs n, which must name that reply. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		matches = [i for i in range(len(comments)) if comments[i] == szComment]
-		if args.get("n") is not None:
-			iN = int(args["n"])
-			if iN not in matches:
-				raise ValueError("n=%s is not %s; %s is reply %s" % (args["n"], szComment, szComment, ", ".join([str(i) for i in matches])))
-		elif len(matches) > 1:
-			raise ValueError("%s is offered %d times (replies %s, with different data); give n as well" % (szComment, len(matches), ", ".join([str(i) for i in matches])))
-		else:
-			iN = matches[0]
-	else:
-		iN = int(args["n"])
-	if iN < 0 or iN >= len(state["responses"]):
-		raise ValueError("reply %d is not offered; 'diplo' lists %d" % (iN, len(state["responses"])))
-	response = state["responses"][iN]
-	CvDiplomacyInterface.handleUserResponse((response["comment"], response["data1"], response["data2"]))
-	return cmd_diplo({})
-
-
-_HELP["trade"] = "The two columns of the diplomacy screen with another player: what each side could put on the table, techsNotOffered (techs they hold and we lack that are off the table, each with why: bTrade off in the XML, a prerequisite we lack, or the game's trade rules), tradeRoutes (whether a route with them can exist: a foreign trade route needs open borders or other free trade, the partner city revealed to us and our trade networks connected, so exploring finds partners; resource trades follow a stricter rule, CvPlayer::canTradeNetworkWith with advc.124, where their city must also reach their own capital, given as bonustrade's connected), and for each item the other player would not give, the game's reason (DENIAL_ type). Gold is the most each side could give. args: with (player ID), player."
-
-
 def _tradeItemsJson(giver, iReceiver, iKind=-1):
 	# <!-- custom: Written in C++ by CyGame.getSASPilotTradeItemsJson since 2026-11-13: the Python loop here, every tradeable item with canTradeItem and getTradeDenial, took 3.5 ms of game time per 'trade' at turn 176 against 0.23 ms for a bare request, the slowest list command measured, and the user prefers the faster version even for a small measured gain.
 	# Same entries, in the enum's order. (Claude code Opus 5.5) -->
 	return _pilotGame("getSASPilotTradeItemsJson").getSASPilotTradeItemsJson(giver.getID(), iReceiver, iKind)
-
-
-def _tradeTechs(giver, iReceiver):
-	# <!-- custom: The techs giver could put on the table, by ID, with the AI's denial (None when it would trade). (Claude code Opus 5.5) -->
-	result = {}
-	# <!-- custom: Tech rows only: reading the whole table for them made 'techs' take 3.3 ms against 0.77 ms before the port (2026-11-13). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	for entry in fromJson(_tradeItemsJson(giver, iReceiver, int(TradeableItems.TRADE_TECHNOLOGIES))):
-		result[entry["data"]] = entry.get("denial")
-	return result
-
-
-_HELP["rivaltechs"] = "Met rivals' tech trees beside ours, as the tech screen shows which met civs know each tech. With one rival: the techs they know, the ones they could research next, what they have that we lack (to ask for), what we have that they lack (to offer), and races (one of their next techs that we research or queue). layout gives the tree by tech-screen column, each tech with who knows it ('us' and player IDs) and next:ID for a rival that could research it next; with several rivals (with=8,3 or with=all for every met one) the layout overlaps them all. args: with (player ID, list or all), player."
-
-
-def cmd_rivaltechs(args):
-	# <!-- custom: The user's idea at turn 65 of the islands replay (2026-11-15), just after first contact with Pericles: research a tech he lacks to trade for his, and lay the rivals' trees out beside ours, one or several overlapped, to reason about them. The tech screen shows which met civs know each tech, so these are a player's facts; what a rival researches now needs espionage ('research ahead=N' shows it then). (Claude code Opus 5.5) -->
-	player = _player(args)
-	ourTeam = gc.getTeam(player.getTeam())
-	if args.get("with") is None:
-		raise ValueError("this command needs with=<player ID>, a list or all; 'players' lists them")
-	# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (GPT-6.2-Sol) -->
-	if str(args["with"]) == "all":
-		rivals = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if gc.getPlayer(i).isAlive() and i != player.getID() and gc.getPlayer(i).getTeam() != player.getTeam() and ourTeam.isHasMet(gc.getPlayer(i).getTeam())]
-	else:
-		rivals = []
-		for szId in str(args["with"]).replace("[", "").replace("]", "").split(","):
-			rival = gc.getPlayer(int(szId))
-			if rival is None or rival.isNone() or not rival.isAlive():
-				raise ValueError("no living player %s" % szId)
-			if not ourTeam.isHasMet(rival.getTeam()):
-				raise ValueError("%s is not met; their techs are not shown to us" % rival.getName())
-			rivals.append(rival)
-	if not rivals:
-		raise ValueError("no met rival")
-	# <!-- custom: CyPlayer has no queue list; isResearchingTech covers the current tech and the queue (a first version called a getResearchQueueTech that does not exist). (Claude code Opus 5.5) -->
-	queued = {}
-	for i in range(gc.getNumTechInfos()):
-		if player.isResearchingTech(i):
-			queued[i] = True
-	columns = {}
-	single = len(rivals) == 1
-	known, nextUp, weLack, theyLack, races = [], [], [], [], []
-	for i in range(gc.getNumTechInfos()):
-		info = gc.getTechInfo(i)
-		holders = []
-		if ourTeam.isHasTech(i):
-			holders.append("us")
-		nexts = []
-		for rival in rivals:
-			bThem = gc.getTeam(rival.getTeam()).isHasTech(i)
-			if bThem:
-				holders.append(str(rival.getID()))
-			elif rival.canResearch(i, False):
-				nexts.append("next:%d" % rival.getID())
-			if single:
-				if bThem:
-					known.append(info.getType())
-					if not ourTeam.isHasTech(i):
-						weLack.append({"tech": info.getType(), "xmlTradeable": bool(info.isTrade())})
-				elif rival.canResearch(i, False):
-					nextUp.append(info.getType())
-					if queued.has_key(i):
-						races.append(info.getType())
-				# <!-- custom: Each with the XML trade flag: SAS turns it off for Writing and The Wheel, so Writing, the one tech we had and Pericles lacked, was never on the trade screen. (Claude code Opus 5.5) -->
-				if ourTeam.isHasTech(i) and not bThem:
-					theyLack.append({"tech": info.getType(), "xmlTradeable": bool(info.isTrade())})
-		if holders or nexts:
-			columns.setdefault(info.getGridX(), []).append("%s[%s]" % (info.getType()[5:], ",".join(holders + nexts)))
-	layout = ["col %d: %s" % (iColumn, " ".join(columns[iColumn])) for iColumn in sorted(columns.keys())]
-	result = {"with": [{"player": rival.getID(), "name": rival.getName()} for rival in rivals], "layout": layout}
-	if single:
-		result.update({"knownCount": len(known), "next": nextUp, "theyHaveWeLack": weLack, "weHaveTheyLack": theyLack, "races": races})
-	return result
-
-
-_HELP["techs"] = "The tech market across the players met: each tech the player lacks that some of them have, with its research cost, whether the XML lets it be traded at all (bTrade; SAS turns that off for some techs), and per holder whether it can be traded now and the AI's answer (DENIAL_ type, or null when it would trade). Then the techs we can research that none of them has (nobodyHas, research these and trade them on; unseenPlayers counts met players whose techs the fog hides), and per player met, the techs the player could give them. A holder at war ('atWar') can still answer for a tech put in the same deal as a peace treaty, as the diplomacy screen allows. args: player."
-
-
-def cmd_techs(args):
-	# <!-- custom: Buying techs well needs the whole market: who has what, which techs the XML forbids trading (32 in SAS by bTrade, such as Bronze Working, Iron Working, Engineering, Gunpowder and Code of Laws), and which holder would trade.
-	# 'trade' answered one leader at a time; the user asked for a view to get the best deals (2026-11-13). (Claude code Opus 5.5) -->
-	player = _player(args)
-	team = gc.getTeam(player.getTeam())
-	# <!-- custom: Under fog, as the Foreign Advisor's tech tab shows it (CvForeignAdvisor.py): a met player's techs only when canSeeTech allows, and a tech they hold but cannot trade only when we could research it.
-	# The first version listed every met player's techs, which Codex's review found reveals more than the window (2026-11-13). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	iFogTeam = _fogTeam(args)
-	if iFogTeam >= 0 and player.getTeam() != iFogTeam:
-		raise ValueError("with fog on, 'techs' is only for the viewing team")
-	others = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if i != player.getID() and gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isBarbarian() and not gc.getPlayer(i).isMinorCiv() and team.isHasMet(gc.getPlayer(i).getTeam())]
-	iMet = len(others)
-	if iFogTeam >= 0:
-		others = [other for other in others if player.canSeeTech(other.getID())]
-	wanted = []
-	nobodyHas = []
-	offers = dict([(other.getID(), []) for other in others])
-	# <!-- custom: One C++ table read per player and direction, rather than canTradeItem and getTradeDenial per tech and player. (Claude code Opus 5.5) -->
-	theyCan = dict([(other.getID(), _tradeTechs(other, player.getID())) for other in others])
-	weCan = dict([(other.getID(), _tradeTechs(player, other.getID())) for other in others])
-	for iTech in range(gc.getNumTechInfos()):
-		info = gc.getTechInfo(iTech)
-		if team.isHasTech(iTech):
-			for other in others:
-				if iTech in weCan[other.getID()]:
-					offers[other.getID()].append(info.getType())
-			continue
-		holders = []
-		for other in others:
-			if not gc.getTeam(other.getTeam()).isHasTech(iTech):
-				continue
-			entry = {"player": other.getID(), "name": other.getName(), "atWar": bool(team.isAtWar(other.getTeam())), "canTrade": iTech in theyCan[other.getID()]}
-			if iFogTeam >= 0 and not entry["canTrade"] and not player.canResearch(iTech, False):
-				continue
-			if entry["canTrade"] and not other.isHuman():
-				entry["denial"] = theyCan[other.getID()][iTech]
-				# <!-- custom: canTradeItem says the tech may go in a deal, not that its holder would: the advisor marks "Will Trade" only with no denial and a leader willing to talk (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-				entry["willTalk"] = bool(other.AI_isWillingToTalk(player.getID()))
-			holders.append(entry)
-		if holders:
-			wanted.append({"tech": info.getType(), "cost": team.getResearchCost(iTech), "progress": team.getResearchProgress(iTech), "xmlTradeable": bool(info.isTrade()), "canResearch": bool(player.canResearch(iTech, False)), "holders": holders})
-		# <!-- custom: Techs we can research that no player listed here has: the user pointed out at turn 139 of the turn-0 game (2026-11-14) that the agent kept researching techs every neighbour had, which trade buys far cheaper (Zara sold Philosophy, 425 beakers, for 70 gold), while a tech nobody has can be traded to several leaders.
-		# Players whose techs the fog hides are not listed, so 'unseenPlayers' says how many could still hold these. (Claude code Opus 5.5) -->
-		elif player.canResearch(iTech, False):
-			nobodyHas.append({"tech": info.getType(), "cost": team.getResearchCost(iTech), "progress": team.getResearchProgress(iTech), "xmlTradeable": bool(info.isTrade())})
-	weCouldGive = []
-	for other in others:
-		entry = {"player": other.getID(), "name": other.getName(), "techs": offers[other.getID()]}
-		# <!-- custom: The gold each leader could pay at once, as the Foreign Advisor's Techs tab shows it under its coin column (AI_maxGoldTrade, when either side has gold trading and the leader will talk): the user pointed to the tab at turn 140 of the turn-0 game (2026-11-14), where Zara Yaqob held 590, a buyer for a tech nobody else has. (Claude code Opus 5.5) -->
-		if not other.isHuman() and other.AI_isWillingToTalk(player.getID()) and (team.isGoldTrading() or gc.getTeam(other.getTeam()).isGoldTrading()):
-			entry["maxGoldTrade"] = other.AI_maxGoldTrade(player.getID())
-		weCouldGive.append(entry)
-	return {"wanted": wanted, "nobodyHas": nobodyHas, "unseenPlayers": iMet - len(others), "weCouldGive": weCouldGive}
-
-
-def cmd_trade(args):
-	# <!-- custom: The AI announced "Pacal II will trade Agriculture, Mysticism" in the fog-on playthrough (2026-11-13), but SASPilot could not see the diplomacy screen's table.
-	# These are the same per-item checks the screen makes (canTradeItem, getTradeDenial); proposing a deal is not covered. (Claude code Opus 5.5) -->
-	player = _player(args)
-	other = gc.getPlayer(_otherAiId(player, args["with"]))
-	# <!-- custom: Which kinds of trade each side's techs allow, and the techs that allow each, read from the XML (CvTechInfo's is*Trading flags) so a mod-mod or other rules are followed: the user asked at turn 73 of the islands replay (2026-11-15), recalling Writing and Currency from BtS.
-	# A kind counts when either team has it, as CvPlayer::canTradeItem asks for techs. (Claude code Opus 5.5) -->
-	ourTeam = gc.getTeam(player.getTeam())
-	theirTeam = gc.getTeam(other.getTeam())
-	rules = {}
-	for (szKind, szTeam, szTech) in (("tech", "isTechTrading", "isTechTrading"), ("gold", "isGoldTrading", "isGoldTrading"), ("maps", "isMapTrading", "isMapTrading"), ("openBorders", "isOpenBordersTrading", "isOpenBordersTrading"), ("defensivePact", "isDefensivePactTrading", "isDefensivePactTrading"), ("permanentAlliance", "isPermanentAllianceTrading", "isPermanentAllianceTrading"), ("vassalState", "isVassalStateTrading", "isVassalStateTrading")):
-		rules[szKind] = {"us": bool(getattr(ourTeam, szTeam)()), "them": bool(getattr(theirTeam, szTeam)()), "enabledBy": [gc.getTechInfo(i).getType() for i in range(gc.getNumTechInfos()) if getattr(gc.getTechInfo(i), szTech)()]}
-	result = {"we": RawJson(_tradeItemsJson(player, other.getID())), "they": RawJson(_tradeItemsJson(other, player.getID())), "attitude": _enumName(AttitudeTypes, other.AI_getAttitude(player.getID())), "tradeRules": rules}
-	# <!-- custom: At turn 54 of the 2026-11-19 validation run Cyrus held The Wheel and Construction but 'trade' listed neither, with no reason; the Foreign Advisor's tech tab showed The Wheel has bTrade off in SAS and Construction needs The Wheel first.
-	# So each tech they hold, that we lack and that is off the table, comes with why, from the XML flag and our prerequisites, as the advisor shows them (only when we can see their techs). (Claude code Opus 5.5) -->
-	if player.canSeeTech(other.getID()):
-		offered = _tradeTechs(other, player.getID())
-		notOffered = []
-		for iTech in range(gc.getNumTechInfos()):
-			if ourTeam.isHasTech(iTech) or not theirTeam.isHasTech(iTech) or iTech in offered:
-				continue
-			info = gc.getTechInfo(iTech)
-			if not info.isTrade():
-				szWhy = "not tradeable: bTrade is off in the XML"
-			elif not player.canResearch(iTech, False):
-				szWhy = "we lack a prerequisite; 'tech type=%s' gives the path" % info.getType()
-			else:
-				szWhy = "refused by the game's trade rules (CvPlayer::canTradeItem)"
-			notOffered.append({"tech": info.getType(), "why": szWhy})
-		result["techsNotOffered"] = notOffered
-	# <!-- custom: The user at turn 54 of the 2026-11-19 validation run: trade routes depend on exploration.
-	# The DLL agrees (CvCity::updateTradeRoutes, CvPlayer::canHaveTradeRoutesWith): a foreign city can be a route partner only with open borders or other free trade, when the city is revealed to us (advc.124), and when our trade networks connect.
-	# So each civ's reply says which of these hold: routes allowed at all, its cities we have seen, and those our capital's network reaches. (Claude code Opus 5.5) -->
-	capital = player.getCapitalCity()
-	seen = [city for city in _cities(other) if city.isRevealed(player.getTeam(), False)]
-	connected = []
-	if capital is not None and not capital.isNone():
-		connected = [city.getName() for city in seen if capital.plot().isTradeNetworkConnected(city.plot(), player.getTeam())]
-	result["tradeRoutes"] = {"allowed": bool(player.canHaveTradeRoutesWith(other.getID())), "openBorders": bool(ourTeam.isOpenBorders(other.getTeam())), "citiesSeen": [city.getName() for city in seen], "connected": connected}
-	return result
-
-
-_HELP["propose"] = "Propose a deal to an AI, as the diplomacy screen's Propose button does: the AI accepts or refuses, and an accepted deal is handed to the game to carry out ('accepted' is the AI's answer; the deal itself can still be refused by the game, so read the result back). Not in network games. Items as on 'trade', e.g. give=[\"TRADE_TECHNOLOGIES:TECH_METAL_CASTING\"] take=[\"TRADE_TECHNOLOGIES:TECH_MYSTICISM\",\"TRADE_OPEN_BORDERS\"]; data is a type, a city name, a team or an amount. args: with (player ID), give (list), take (list), player."
-
-
-def _tradeArg(szItem, giver):
-	# <!-- custom: An item as "TRADE_KIND" or "TRADE_KIND:data", data being what 'trade' shows under "what" (an XML type or a city name) or a number (gold, a team); turned into the "kind:data" numbers proposeSASPilotDeal reads. (Claude code Opus 5.5) -->
-	if ":" in szItem:
-		(szKind, szData) = szItem.split(":", 1)
-	else:
-		(szKind, szData) = (szItem, "0")
-	eKind = int(_enum(TradeableItems, szKind))
-	table = _TRADE_INFO_TABLES.get(eKind)
-	if szData.lstrip("-").isdigit():
-		iData = int(szData)
-	elif eKind == int(TradeableItems.TRADE_CITIES):
-		iData = _city({"city": szData, "player": giver.getID()}).getID()
-	elif table is not None:
-		iData = _typedIndex(szData, table[0], getattr(gc, table[1])(), getattr(gc, table[2]))
-	else:
-		raise ValueError("%s takes a number, not %s" % (szKind, szData))
-	return "%d:%d" % (eKind, iData)
-
-
-_TRADE_ITEMS_WITH_ID = (int(TradeableItems.TRADE_CITIES), int(TradeableItems.TRADE_PEACE), int(TradeableItems.TRADE_WAR), int(TradeableItems.TRADE_EMBARGO))
-
-
-def _dealRefusal(player, other, give, take):
-	# <!-- custom: Both deal commands said only "check the items against 'trade'" when the DLL refused: on 2026-11-22 (JOAO turn-120 save) TECH_FEUDALISM, offered to Huayna Capac at turn 115, had left our list as he got it elsewhere, and the message named neither the item nor why.
-	# Names each item missing from its giver's list in 'trade' (the same C++ list), or gold above what the giver can pay; None when every item is listed, as the refusal then has another cause, such as the turn being over. (Claude code Opus 5.5) -->
-	missing = []
-	for (giver, receiver, items, szSide) in ((player, other, give, "we give"), (other, player, take, "they give")):
-		listed = fromJson(_tradeItemsJson(giver, receiver.getID()))
-		for szItem in items:
-			(iKind, iData) = [int(x) for x in _tradeArg(szItem, giver).split(":")]
-			szKind = szItem.split(":")[0]
-			rows = [row for row in listed if int(_enum(TradeableItems, row["item"])) == iKind]
-			if szKind in ("TRADE_GOLD", "TRADE_GOLD_PER_TURN"):
-				if not rows or iData > rows[0]["data"]:
-					missing.append("%s (%s): at most %s" % (szItem, szSide, rows and rows[0]["data"] or 0))
-				continue
-			if iKind in _TRADE_INFO_TABLES or iKind in _TRADE_ITEMS_WITH_ID:
-				rows = [row for row in rows if row["data"] == iData]
-			if not rows:
-				missing.append("%s (%s): not tradeable now" % (szItem, szSide))
-			elif rows[0].get("denial"):
-				missing.append("%s (%s): %s" % (szItem, szSide, rows[0]["denial"]))
-	if not missing:
-		return None
-	return "; ".join(missing)
 
 
 def _who(iPlayer):
@@ -6411,101 +4600,6 @@ def _who(iPlayer):
 	# Only the ID is unique: with duplicate leaders or civilizations allowed (game options, scenarios, mod-mods), two players can share both name and civilization (the user, 2026-11-14). (Claude code Opus 5.5) -->
 	player = gc.getPlayer(iPlayer)
 	return {"player": iPlayer, "name": player.getName(), "civ": _typeOrNone(gc.getCivilizationInfo, player.getCivilizationType())}
-
-
-def cmd_propose(args):
-	# <!-- custom: The second half of trading after 'trade' (fog-on playthrough, 2026-11-13); asking the AI and making the deal need the DLL, see proposeSASPilotDeal in CvGameInterface.cpp. (Claude code Opus 5.5) -->
-	player = _player(args)
-	other = gc.getPlayer(_otherAiId(player, args["with"]))
-	szWeGive = ",".join([_tradeArg(item, player) for item in args.get("give", [])])
-	szTheyGive = ",".join([_tradeArg(item, other) for item in args.get("take", [])])
-	text = _pilotGame("proposeSASPilotDeal").proposeSASPilotDeal(player.getID(), other.getID(), szWeGive, szTheyGive)
-	# <!-- custom: sas-ci-string-compare-exemption: The DLL bridge returns the JSON null sentinel as text. (GPT-6.2-Sol) -->
-	if text == "null":
-		raise ValueError("not a deal player %d can propose to player %d: %s" % (player.getID(), other.getID(), _dealRefusal(player, other, args.get("give", []), args.get("take", [])) or "check the items against 'trade'"))
-	result = fromJson(text)
-	result["with"] = _who(other.getID())
-	return result
-
-
-_HELP["odds"] = "The odds the window shows when a unit is pointed at a plot to attack: the defender the game would pick, both strengths, and the chance to win in per mille. With stack=1, every unit of ours on the unit's plot that could attack, best odds first, each with the defender it would meet, its group's size and the path's turns (attacksThisTurn when the attack comes this turn; a unit in a group moves the whole group), as hovering a stack over a target shows the attacker the game would send. args: unit, x, y, stack, player."
-
-
-def cmd_odds(args):
-	# <!-- custom: stack=1 ranks every unit on the attacker's plot: at turn 302 of the ASOKA Huge save (2026-11-22) choosing among 26 units in Babylon against Dur-Kurigalzu took one 'odds' call per unit, while the window shows the best attacker on one hover. (Claude code Opus 5.5) -->
-	if args.get("stack"):
-		lead = _unit(args)
-		target = _plot(args)
-		iTeam = _fogTeam(args)
-		_requireOwnTeamUnderFog(args, gc.getPlayer(lead.getOwner()), "stack odds")
-		if iTeam >= 0 and not target.isVisible(iTeam, False):
-			raise ValueError("plot %d,%d is not in sight; fog is on" % (target.getX(), target.getY()))
-		rows = []
-		paths = {}
-		plot = lead.plot()
-		for i in range(plot.getNumUnits()):
-			other = plot.getUnit(i)
-			if other.getOwner() != lead.getOwner() or not other.canAttack() or other.isCargo():
-				continue
-			one = dict(args)
-			del one["stack"]
-			one["unit"] = other.getID()
-			try:
-				reply = cmd_odds(one)
-			except ValueError, error:
-				rows.append({"unit": other.getID(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "refused": str(error)})
-				continue
-			# <!-- custom: Each row also gives the unit's group size and the path's turns to the target: the first version showed a Modern Tank at 1000 per mille, but it led a 28-unit group 4 turns away, so 'move' on it marched the whole Babylon stack out of the city (2026-11-22).
-			# The window's hover shows the path's turns. (Claude code Opus 5.5) -->
-			group = other.getGroup()
-			iGroup = group.getID()
-			if iGroup not in paths:
-				path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(other.getOwner(), other.getID(), target.getX(), target.getY(), 0))
-				paths[iGroup] = path and path.get("found") and path.get("turns") or None
-			iTurns = paths[iGroup]
-			# <!-- custom: Group ETA is shared.
-			# This unit must still have moves and be eligible to attack, even if other members can reach and attack this turn. (GPT-6.2-Sol) -->
-			bReady = other.canMove() and (not other.isMadeAttack() or other.isBlitz())
-			bAttacksThisTurn = iTurns == 1 and bReady and other.canMoveInto(target, True, False, False)
-			rows.append({"unit": other.getID(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "damage": other.getDamage(), "movesLeft": other.movesLeft(), "oddsPerMille": reply["oddsPerMille"], "defender": reply["defender"]["type"], "defenderStrength": reply["defenderStrength"], "groupSize": group.getNumUnits(), "pathTurns": iTurns, "attacksThisTurn": bAttacksThisTurn})
-		rows.sort(lambda a, b: cmp(b.get("oddsPerMille", -1), a.get("oddsPerMille", -1)))
-		return {"x": int(args["x"]), "y": int(args["y"]), "attackers": rows}
-	# <!-- custom: A person sees the combat odds on hovering an enemy before attacking; SASPilot had moves and paths but no odds (fog-on playthrough, 2026-11-13).
-	# The defender is the one the game would pick against this attacker, as getBestDefender does for the hover text; with fog on, only a plot in sight. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	plot = _plot(args)
-	iTeam = _fogTeam(args)
-	if iTeam >= 0 and not plot.isVisible(iTeam, False):
-		raise ValueError("plot %d,%d is not in sight; fog is on" % (plot.getX(), plot.getY()))
-	# <!-- custom: The game picks the defender with the attacker's own sight, so with player= naming another team's unit, a defender the viewing team cannot see could be named under fog (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	if iTeam >= 0 and unit.getTeam() != iTeam:
-		raise ValueError("with fog on, odds are only given for the viewing team's own units")
-	# <!-- custom: CyPlot.getBestDefender names its last argument bTestCanMove, but passes it to CvPlot::getBestDefender's bTestVisible; with False an invisible defender on a visible plot could be named under fog (Codex's review).
-	# Pass whether fog is on. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	defender = plot.getBestDefender(PlayerTypes.NO_PLAYER, unit.getOwner(), unit, True, False, iTeam >= 0)
-	if defender is None or defender.isNone():
-		# <!-- custom: At turn 155 two withdrawn Catapults left two Aztec Trebuchets at 75 damage, the Catapult's combat limit, and the other Catapults got only "no unit at 29,28 that it could attack" although both stood there; Longbowmen then finished them (2026-11-13).
-		# The refusal now names the limit when it is the reason. (Claude code Opus 5.5) -->
-		# <!-- custom: Only units the player can see, and none aboard a ship: Codex's review mocked an invisible enemy at 75 damage on a visible plot, and the first version named the limit, revealing it.
-		# Phrased as possible, as the game's own test also covers hidden nationality and the air combat limit. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		iLimit = unit.combatLimit()
-		limited = []
-		for i in range(plot.getNumUnits()):
-			other = plot.getUnit(i)
-			if other.isCargo() or (iTeam >= 0 and other.isInvisible(iTeam, False)):
-				continue
-			if gc.getTeam(unit.getTeam()).isAtWar(other.getTeam()) and other.getDamage() >= iLimit:
-				limited.append(other)
-		if iLimit < 100 and limited:
-			raise ValueError("no unit at %d,%d that %d could attack; possibly its combat limit: %d, and enemies there are already damaged that much, which a unit without a limit can still attack" % (plot.getX(), plot.getY(), unit.getID(), iLimit))
-		raise ValueError("no unit at %d,%d that %d could attack" % (plot.getX(), plot.getY(), unit.getID()))
-	result = {"defender": _unitBrief(defender, iTeam), "defenderStrength": defender.currCombatStrFloat(plot, unit), "oddsPerMille": getCombatOdds(unit, defender)}
-	# <!-- custom: The attacker's own strength is currCombatStr(NULL, NULL) in C++, but CyUnit's wrapper dereferenced both pointers, so unit.currCombatStrFloat(None, None) raised "unidentifiable C++ exception" (2026-11-13); the wrapper now passes NULL through, and a DLL without that fix leaves the field out. (Claude code Opus 5.5) -->
-	try:
-		result["attackerStrength"] = unit.currCombatStrFloat(None, None)
-	except RuntimeError:
-		pass
-	return result
 
 
 _HELP["sites"] = "The city sites the window circles when this Settler is selected: the player's recommended sites it reaches within 7 turns, best first, each with its plot, found value, rank in the player's list and path turns. args: unit, player."
@@ -6661,262 +4755,6 @@ def cmd_plansites(args):
 	return {"spread": iSpread, "sites": plan, "upkeepReference": upkeep}
 
 
-_HELP["builds"] = "What a unit could build on a plot, as the window's buttons offer once the unit stands there: each build with its turns for this unit once it stands there, the improvement or route it makes, and the improvement's yield change on that plot. With refused=1, also each build this unit type can make that the plot refuses, with the reason. args: unit, x, y (default the unit's plot), refused, player."
-
-
-def cmd_builds(args):
-	# <!-- custom: 'unit' lists builds for the unit's own plot only, so choosing where to send a new Worker in the fog-on playthrough (2026-11-13) meant moving it first or a 'py' call per plot; a person sees a tile's options before sending it. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	if args.get("x") is None:
-		plot = unit.plot()
-	else:
-		plot = _plot(args)
-	iTeam = _fogTeam(args)
-	if iTeam >= 0 and not plot.isRevealed(iTeam, False):
-		raise ValueError("plot %d,%d is not revealed; fog is on" % (plot.getX(), plot.getY()))
-	result = []
-	for i in range(gc.getNumBuildInfos()):
-		if not unit.canBuild(plot, i, False):
-			continue
-		info = gc.getBuildInfo(i)
-		entry = {"build": info.getType(), "turns": plot.getBuildTurnsLeft(i, unit.getOwner(), unit.workRate(True), unit.workRate(True)), "improvement": _typeOrNone(gc.getImprovementInfo, info.getImprovement()), "route": _typeOrNone(gc.getRouteInfo, info.getRoute())}
-		if info.getImprovement() >= 0:
-			entry["yieldChange"] = [plot.calculateImprovementYieldChange(info.getImprovement(), YieldTypes(j), unit.getOwner(), False) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-		# <!-- custom: The hammers a build that clears the plot's feature gives the city, as the window's build hover says: in the scouting trial (2026-11-14) the user and the agent weighed chopping forests into a Settler, and only the XML (30 per forest, with Masonry in SAS) and the DLL (chop hammers take the city's production multipliers, so a settler bonus would double them; Justinian has none in SAS) answered it.
-		# CyPlot.getFeatureProduction fills a city pointer it does not return, so the receiving city is not named here; the amount already counts distance and the team's techs. (Claude code Opus 5.5) -->
-		if plot.getFeatureType() >= 0 and info.isFeatureRemove(plot.getFeatureType()):
-			entry["featureProduction"] = plot.getFeatureProduction(i, unit.getTeam(), CyCity())
-			# <!-- custom: The hammers go to whatever that city builds when the chop ends: at turn 32 of the 2026-11-19 validation run a chop meant for the Settler fed a filler Work Boat.
-			# The city working the plot is named as the likely receiver. (Claude code Opus 5.5) -->
-			city = plot.getWorkingCity()
-			if city is not None and not city.isNone() and city.getOrderQueueLength() > 0:
-				entry["featureProductionTo"] = {"city": city.getName(), "buildingNow": str(_orderData(city.getOrderFromQueue(0))), "note": "hammers go to the city's build when the chop ends: have the intended build first by then"}
-		result.append(entry)
-	if not args.get("refused"):
-		return result
-	# <!-- custom: Why a Worker cannot build somewhere, which twice took 'py' snippets in the turn-0 game (2026-11-14): a road at 26,28 was refused because in SAS a road drains Marsh, a feature removal that AdvCiv allows on unclaimed land only with CAN_CHOP_UNOWNED_FEATURES (advc.119).
-	# The user asked that such a question become reusable.
-	# The reasons follow CvPlayer::canBuild and CvPlot::canBuild in their order; a build refused for none of them is refused by the plot itself, such as a Mine off hills. (Claude code Opus 5.5) -->
-	player = gc.getPlayer(unit.getOwner())
-	team = gc.getTeam(unit.getTeam())
-	infoUnit = gc.getUnitInfo(unit.getUnitType())
-	iFeature = plot.getFeatureType()
-	iOwner = plot.getOwner()
-	if iTeam >= 0:
-		iOwner = plot.getRevealedOwner(iTeam, False)
-	refused = []
-	for i in range(gc.getNumBuildInfos()):
-		if not infoUnit.getBuilds(i) or unit.canBuild(plot, i, False):
-			continue
-		info = gc.getBuildInfo(i)
-		if info.getImprovement() < 0 and info.getRoute() < 0 and (iFeature < 0 or not info.isFeatureRemove(iFeature)):
-			continue
-		iTech = info.getTechPrereq()
-		# <!-- custom: In CvPlayer::canBuild's order, from the game's own checks where Python has them: the plot's (CyPlot.canBuild), then the build's tech, the feature's tech and the gold.
-		# The first version asked the tech before the plot and the XML gold cost, which ignored inflation and that a build already begun costs nothing more (CvPlayer::getBuildCost), so a resumed build could read as too dear (Codex's review, round 32).
-		# calculateInflationRate and getBuildProgress were exposed all along. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		if not plot.canBuild(i, unit.getOwner(), False):
-			# <!-- custom: The plot's reasons, as the plot check gives no reason of its own; CvPlot::canBuild asks canHaveImprovement before the feature, so a Mine on flat Marsh is refused for the terrain, not for draining the Marsh. (Claude code Opus 5.5) -->
-			if info.getImprovement() >= 0 and not plot.canHaveImprovement(info.getImprovement(), unit.getTeam(), True):
-				reason = "%s cannot be on this plot (terrain, feature or another rule)" % gc.getImprovementInfo(info.getImprovement()).getType()
-			elif iFeature >= 0 and info.isFeatureRemove(iFeature) and iOwner < 0 and not SASCurrentDefines.getInt("CAN_CHOP_UNOWNED_FEATURES"):
-				reason = "removes %s, which unclaimed land does not allow (advc.119, CAN_CHOP_UNOWNED_FEATURES)" % gc.getFeatureInfo(iFeature).getType()
-			elif iFeature >= 0 and info.isFeatureRemove(iFeature) and iOwner >= 0 and gc.getPlayer(iOwner).getTeam() != unit.getTeam():
-				reason = "removes %s on another team's land" % gc.getFeatureInfo(iFeature).getType()
-			else:
-				reason = "the plot does not take it (terrain, feature, existing improvement or route)"
-		elif iTech >= 0 and not team.isHasTech(iTech):
-			reason = "needs %s" % gc.getTechInfo(iTech).getType()
-		elif iFeature >= 0 and info.getFeatureTech(iFeature) >= 0 and not team.isHasTech(info.getFeatureTech(iFeature)):
-			reason = "needs %s to work on %s" % (gc.getTechInfo(info.getFeatureTech(iFeature)).getType(), gc.getFeatureInfo(iFeature).getType())
-		else:
-			# <!-- custom: CvPlayer::getBuildCost: nothing once begun, else the XML cost with inflation. (Claude code Opus 5.5) -->
-			iCost = 0
-			if plot.getBuildProgress(i) <= 0:
-				iCost = max(0, info.getCost() * (100 + player.calculateInflationRate())) / 100
-			if max(0, player.getGold()) < iCost:
-				reason = "costs %d gold, inflation included" % iCost
-			else:
-				reason = "this unit cannot start it here now (the player could)"
-		refused.append({"build": info.getType(), "reason": reason})
-	return {"builds": result, "refused": refused}
-
-
-_HELP["workers"] = "Planning Workers by hand. Without city: each Worker with where it is, whether automated and its current mission; per city the worked plots with no improvement and the city AI's three most valued builds; and per leader we can trade with whether their capital is on our trade network (no road link means no foreign trade routes with them). With city: each plot of its radius with terrain, feature, bonus, river, improvement, route, yields, whether worked, the city AI's best build and value, and every improvement build a Worker could make there with its yield change and turns for one Worker. The AI's choice is a reference to compare with, not an order. args: city, player."
-
-
-def _workerTurns(plot, iBuild, player):
-	# <!-- custom: Turns for one ordinary Worker, as the plot's own build progress counts them: the Worker's XML work rate with the player's worker speed modifier. (Claude code Opus 5.5) -->
-	iWorker = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(getInfoTypeOrFail("UNITCLASS_WORKER"))
-	if iWorker < 0:
-		return None
-	iRate = gc.getUnitInfo(iWorker).getWorkRate() * (100 + player.getWorkerSpeedModifier()) / 100
-	if iRate <= 0:
-		return None
-	return plot.getBuildTurnsLeft(iBuild, player.getID(), iRate, iRate)
-
-
-def _improvable(plot, player):
-	# <!-- custom: An unimproved plot some improvement build could go on now. (Claude code Opus 5.5) -->
-	if plot.getImprovementType() >= 0:
-		return False
-	for i in range(gc.getNumBuildInfos()):
-		if gc.getBuildInfo(i).getImprovement() >= 0 and player.canBuild(plot, i, False, False):
-			return True
-	return False
-
-
-def cmd_workers(args):
-	# <!-- custom: SASPilot only automated Workers until the user asked it to plan them itself and compare its choices with the AI's (2026-11-14): yields, rivers, roads to neighbours for trade.
-	# The city AI's per-plot best build comes from getSASPilotCityBuildsJson, as Python had no getter; the rest is read here. (Claude code Opus 5.5) -->
-	player = _player(args)
-	_requireOwnTeamUnderFog(args, player, "Worker planning")
-	if not hasattr(gc.getGame(), "getSASPilotCityBuildsJson"):
-		raise ValueError("this DLL predates getSASPilotCityBuildsJson; build or install a current one")
-	bAdvice = _adviceAllowed()
-	if args.get("city") is not None:
-		city = _city(args)
-		aiRows = fromJson(_pilotGame("getSASPilotCityBuildsJson").getSASPilotCityBuildsJson(player.getID(), city.getID()))
-		plots = []
-		for row in aiRows:
-			plot = gc.getMap().plot(row["x"], row["y"])
-			if plot.getOwner() != player.getID():
-				continue
-			entry = {"x": row["x"], "y": row["y"], "worked": row["worked"], "terrain": _typeOrNone(gc.getTerrainInfo, plot.getTerrainType()), "feature": _typeOrNone(gc.getFeatureInfo, plot.getFeatureType()), "bonus": _typeOrNone(gc.getBonusInfo, plot.getBonusType(player.getTeam())), "river": bool(plot.isRiver()), "hills": bool(plot.isHills()), "improvement": _typeOrNone(gc.getImprovementInfo, plot.getImprovementType()), "route": _typeOrNone(gc.getRouteInfo, plot.getRouteType()), "yields": [plot.getYield(YieldTypes(j)) for j in range(YieldTypes.NUM_YIELD_TYPES)]}
-			# <!-- custom: The city AI's pick is advice no screen shows, so only where the session's role allows advice (the facts-versus-advice split, 2026-11-14). (Claude code Opus 5.5) -->
-			if bAdvice:
-				entry["aiBuild"] = row["bestBuild"]
-				entry["aiValue"] = row["bestValue"]
-			options = []
-			for i in range(gc.getNumBuildInfos()):
-				info = gc.getBuildInfo(i)
-				# <!-- custom: CyPlayer.canBuild, not CyPlot.canBuild: the plot's check skips the player's tech, feature-removal tech and gold, so builds the player could not start were offered (Codex's review); the same in _improvable and routeGain. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-				if info.getImprovement() < 0 or not player.canBuild(plot, i, False, False):
-					continue
-				change = [plot.calculateImprovementYieldChange(info.getImprovement(), YieldTypes(j), player.getID(), False) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-				# <!-- custom: yieldChange is against the bare plot, so at Hippo (turn 287) a Farm showed +1 food where it would replace a Town worth +6 commerce; netChange subtracts what the current improvement gives. (Claude code Opus 5.5) -->
-				current = [0] * YieldTypes.NUM_YIELD_TYPES
-				if plot.getImprovementType() >= 0:
-					current = [plot.calculateImprovementYieldChange(plot.getImprovementType(), YieldTypes(j), player.getID(), False) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-				# <!-- custom: A build that clears the plot's feature also loses the feature's yields, as the build tooltip counts (Codex's review), e.g. a Farm on a forest loses its production. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-				iFeature = plot.getFeatureType()
-				if iFeature >= 0 and info.isFeatureRemove(iFeature):
-					current = [current[j] + gc.getFeatureInfo(iFeature).getYieldChange(j) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-				options.append({"build": info.getType(), "yieldChange": change, "netChange": [change[j] - current[j] for j in range(YieldTypes.NUM_YIELD_TYPES)], "removesFeature": bool(iFeature >= 0 and info.isFeatureRemove(iFeature)), "turns": _workerTurns(plot, i, player)})
-			entry["options"] = options
-			plots.append(entry)
-		return {"city": city.getName(), "plots": plots}
-	workers = []
-	for unit in _units(player):
-		if gc.getUnitInfo(unit.getUnitType()).getWorkRate() <= 0 or unit.getDomainType() != DomainTypes.DOMAIN_LAND:
-			continue
-		group = unit.getGroup()
-		row = {"id": unit.getID(), "type": gc.getUnitInfo(unit.getUnitType()).getType(), "x": unit.getX(), "y": unit.getY(), "automated": bool(group.isAutomated())}
-		if group.getLengthMissionQueue() > 0:
-			row["mission"] = gc.getMissionInfo(group.getMissionType(0)).getType()
-			if row["mission"] == "MISSION_BUILD":
-				row["build"] = gc.getBuildInfo(group.getMissionData1(0)).getType()
-		workers.append(row)
-	cities = []
-	for city in _cities(player):
-		aiRows = fromJson(_pilotGame("getSASPilotCityBuildsJson").getSASPilotCityBuildsJson(player.getID(), city.getID()))
-		# <!-- custom: Water without a resource takes no improvement, and listed coastal cities' ocean plots as "unimproved" on the first try (turn 286, 2026-11-14). (Claude code Opus 5.5) -->
-		unimproved = [[row["x"], row["y"]] for row in aiRows if row["worked"] and _improvable(gc.getMap().plot(row["x"], row["y"]), player) and not (row["x"] == city.getX() and row["y"] == city.getY())]
-		suggestions = [row for row in aiRows if row["bestBuild"] and gc.getMap().plot(row["x"], row["y"]).getOwner() == player.getID()]
-		suggestions.sort(lambda a, b: cmp(b["bestValue"], a["bestValue"]))
-		# <!-- custom: The city AI's best builds leave out routes, yet a railroad adds +1 production to SAS's mines, lumbermills and quarries (ImprovementInfo RouteYieldChanges); on turn 287 of the modern baseline every such plot already had one (2026-11-14).
-		# Listed for any route that adds yield to the plot's improvement. (Claude code Opus 5.5) -->
-		routeGain = []
-		for row in aiRows:
-			plot = gc.getMap().plot(row["x"], row["y"])
-			if plot.getOwner() != player.getID() or plot.getImprovementType() < 0:
-				continue
-			info = gc.getImprovementInfo(plot.getImprovementType())
-			for iRoute in range(gc.getNumRouteInfos()):
-				# <!-- custom: The tech a route needs is on its build, not its RouteInfo, so ask whether some build of that route can go on the plot. (Claude code Opus 5.5) -->
-				if iRoute == plot.getRouteType() or not [i for i in range(gc.getNumBuildInfos()) if gc.getBuildInfo(i).getRoute() == iRoute and player.canBuild(plot, i, False, False)]:
-					continue
-				gain = [info.getRouteYieldChanges(iRoute, j) for j in range(YieldTypes.NUM_YIELD_TYPES)]
-				if max(gain) > 0:
-					routeGain.append({"x": row["x"], "y": row["y"], "route": gc.getRouteInfo(iRoute).getType(), "yieldChange": gain, "worked": row["worked"]})
-		entry = {"id": city.getID(), "name": city.getName(), "workedUnimproved": unimproved, "routeGain": routeGain}
-		if bAdvice:
-			entry["aiTop"] = [{"x": r["x"], "y": r["y"], "build": r["bestBuild"], "value": r["bestValue"], "worked": r["worked"]} for r in suggestions[:3]]
-		cities.append(entry)
-	# <!-- custom: Foreign trade routes need the two capitals on one trade network, roads or rivers or coast; a missing road link to a neighbour is a Worker job a person might take.
-	# Only capitals the team has revealed are listed, so fog hides nothing more than the map does. (Claude code Opus 5.5) -->
-	# <!-- custom: CyCity.isConnectedTo, not CyPlot.isTradeNetworkConnected: the plot test checks a single network edge, so two roaded capitals could read as connected with a gap between them (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	trade = []
-	capital = player.getCapitalCity()
-	iTeam = player.getTeam()
-	for iOther in range(gc.getMAX_CIV_PLAYERS()):
-		other = gc.getPlayer(iOther)
-		if iOther == player.getID() or not other.isAlive() or other.isBarbarian() or not gc.getTeam(iTeam).isHasMet(other.getTeam()) or gc.getTeam(iTeam).isAtWar(other.getTeam()):
-			continue
-		theirs = other.getCapitalCity()
-		# <!-- custom: The capital itself revealed, not only its plot, as in 'relations' (Codex's review, round 35). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		if capital is None or theirs is None or theirs.isNone() or not theirs.isRevealed(iTeam, False):
-			continue
-		trade.append({"player": iOther, "name": other.getName(), "capital": theirs.getName(), "x": theirs.getX(), "y": theirs.getY(), "connected": bool(capital.isConnectedTo(theirs)), "openBorders": bool(gc.getTeam(iTeam).isOpenBorders(other.getTeam()))})
-	return {"workers": workers, "cities": cities, "tradeLinks": trade}
-
-
-_HELP["move"] = "Move a unit to a plot (MISSION_MOVE_TO). Only to a plot one step away unless whole=1, which orders the whole path, continuing over later turns: moves over several plots go a plot at a time with 'step', to react to what each reveals. args: unit, x, y, whole, player."
-
-
-def cmd_move(args):
-	unit = _unit(args)
-	plot = _plot(args)
-	# <!-- custom: Checked with Python's CyUnit.generatePath first.
-	# At turn 81 of the fog-on playthrough (2026-11-13), right after Open Borders with Ethiopia were signed, 'path' found a 7-turn route for a Warrior inside Ethiopia's borders while 'move' said it had no path; the same pathfinder as 'path', GroupPathFinder, now decides both, so they cannot disagree. (Claude code Opus 5.5) -->
-	path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), plot.getX(), plot.getY(), 0))
-	if not path.get("found"):
-		raise ValueError("unit %d has no path to %d,%d" % (unit.getID(), plot.getX(), plot.getY()))
-	# <!-- custom: One plot unless whole=1, the user's rule (2026-11-15): any movement over several plots goes a plot at a time, reacting to what each step reveals, and a guard holds better than a habit; a Work Boat sent round Suleiman's island in one order went north into the ice. 'step' moves one plot toward a far target. (Claude code Opus 5.5) -->
-	if len(path.get("steps") or []) > 1 and not args.get("whole"):
-		raise ValueError("%d,%d is %d plots away: move one plot at a time ( 'step unit=%d x=%d y=%d' ), or pass whole=1 to order the whole path" % (plot.getX(), plot.getY(), len(path["steps"]), unit.getID(), plot.getX(), plot.getY()))
-	if _state.get("follow", True):
-		_lookAt(plot)
-	return cmd_mission({"unit": args["unit"], "player": args.get("player"), "mission": "MISSION_MOVE_TO", "data1": plot.getX(), "data2": plot.getY()})
-
-
-_HELP["step"] = "Move a unit one plot along its path toward x, y, and report what that step showed, so the next can react: where it stands, moves left, the steps of the path still to go, how many plots it newly revealed, and the foreign units now in sight within two plots. For any move over several plots in a turn (a scout, a mounted unit, roads), as each plot can reveal what changes the plan. args: unit, x, y, player."
-
-
-def cmd_step(args):
-	# <!-- custom: The user's rule (2026-11-15): any movement over several plots in a turn goes one plot at a time, not a long path in one order, to react, retreat or change course on what each step reveals; a Work Boat sent round Suleiman's island in one order went north into the ice before the next look. (Claude code Opus 5.5) -->
-	unit = _unit(args)
-	iTeam = unit.getTeam()
-	if _fogTeam(args) >= 0 and iTeam != _fogTeam(args):
-		raise ValueError("with fog on, 'step' takes the team's own units")
-	target = _plot(args)
-	path = fromJson(_pilotGame("getSASPilotPathJson").getSASPilotPathJson(unit.getOwner(), unit.getID(), target.getX(), target.getY(), 0))
-	if not path or not path.get("found") or not path.get("steps"):
-		raise ValueError("unit %d has no path to %d,%d" % (unit.getID(), target.getX(), target.getY()))
-	first = path["steps"][0]
-	kMap = gc.getMap()
-	before = 0
-	for i in range(kMap.numPlots()):
-		if kMap.plotByIndex(i).isRevealed(iTeam, False):
-			before += 1
-	cmd_move({"unit": unit.getID(), "player": unit.getOwner(), "x": first["x"], "y": first["y"]})
-	after = 0
-	for i in range(kMap.numPlots()):
-		if kMap.plotByIndex(i).isRevealed(iTeam, False):
-			after += 1
-	foreign = []
-	for dy in range(-2, 3):
-		for dx in range(-2, 3):
-			plot = plotXY(unit.getX(), unit.getY(), dx, dy)
-			if plot is None or plot.isNone() or not plot.isVisible(iTeam, False):
-				continue
-			for i in range(plot.getNumUnits()):
-				other = plot.getUnit(i)
-				if other.getTeam() != iTeam and not other.isInvisible(iTeam, False):
-					foreign.append({"owner": other.getOwner(), "type": gc.getUnitInfo(other.getUnitType()).getType(), "x": plot.getX(), "y": plot.getY(), "atWar": bool(gc.getTeam(iTeam).isAtWar(other.getTeam()))})
-	return {"unit": unit.getID(), "x": unit.getX(), "y": unit.getY(), "movesLeft": unit.movesLeft(), "stepsLeft": len(path["steps"]) - 1, "newlyRevealed": after - before, "foreignNear": foreign}
-
-
 _HELP["look"] = "Turn the window's camera to a plot, a unit or a city, as clicking the minimap does, so a person watching sees what SASPilot acts on. Following is on by default: each 'move' (attacks included) looks at its destination first, and an order on one of our units or cities (mission, command, group, hurry with hurry=, produce, dequeue, citizens with automated=, work, specialist, emphasize); reads never move it looks at it; follow=0 stops that and follow=1 restores it. zoom sets the camera's distance (the EXE's scale; the window starts near 1). args: x, y, unit, city, follow, zoom, player."
 
 
@@ -7016,67 +4854,6 @@ def cmd_command(args):
 				result["upgradedTo"] = _unitFull(upgraded[0])
 		return result
 	return _unitFull(unit)
-
-
-_HELP["produce"] = "Put an item in a city's build queue: a UNIT_, BUILDING_, PROJECT_ or PROCESS_ type. By default it replaces the queue; append=1 adds at the end, first=1 puts it first and keeps the rest. args: city, item, append, first, player."
-
-
-def cmd_produce(args):
-	city = _city(args)
-	szItem = args["item"]
-	iItem = _infoIndex(szItem)
-	if szItem.startswith("UNIT_"):
-		eOrder = OrderTypes.ORDER_TRAIN
-		bCan = city.canTrain(iItem, False, False)
-	elif szItem.startswith("BUILDING_"):
-		eOrder = OrderTypes.ORDER_CONSTRUCT
-		bCan = city.canConstruct(iItem, False, False, False)
-	elif szItem.startswith("PROJECT_"):
-		eOrder = OrderTypes.ORDER_CREATE
-		bCan = city.canCreate(iItem, False, False)
-	elif szItem.startswith("PROCESS_"):
-		eOrder = OrderTypes.ORDER_MAINTAIN
-		bCan = city.canMaintain(iItem, False)
-	else:
-		raise ValueError("%s is not a UNIT_, BUILDING_, PROJECT_ or PROCESS_ type" % szItem)
-	if not bCan:
-		# <!-- custom: At turn 71 of the fog-on playthrough (2026-11-13) Carthage could not train a Settler and the error said no more; the window shows such an item greyed with its hover text, which held the reason, "National Unit: 0 Left", as the Settler on its way still counted.
-		# Give that text when the item is shown in the window at all. (Claude code Opus 5.5) -->
-		szHelp = None
-		if eOrder == OrderTypes.ORDER_TRAIN and city.canTrain(iItem, False, True):
-			szHelp = CyGameTextMgr().getUnitHelp(iItem, False, False, False, city)
-		elif eOrder == OrderTypes.ORDER_CONSTRUCT and city.canConstruct(iItem, False, True, False):
-			szHelp = CyGameTextMgr().getBuildingHelp(iItem, False, False, False, city)
-		elif eOrder == OrderTypes.ORDER_CREATE and city.canCreate(iItem, False, True):
-			szHelp = CyGameTextMgr().getProjectHelp(iItem, False, city)
-		# <!-- custom: 'produce item=BUILDING_MONUMENT' in a city that had one was refused with no reason, as the window hides a built building (turn 94, 2026-11-13). (Claude code Opus 5.5) -->
-		if eOrder == OrderTypes.ORDER_CONSTRUCT and city.getNumRealBuilding(iItem) > 0:
-			raise ValueError("%s already has %s" % (city.getName(), szItem))
-		if szHelp:
-			raise ValueError("%s cannot produce %s now; the window's hover text: %s" % (city.getName(), szItem, _plainText(szHelp).replace(u"\n", u" | ")))
-		# <!-- custom: An item the window does not list at all has no hover text: Kerkouane's Archer at turn 129 of the fog-on playthrough (2026-11-13) was refused with no more said, as the Longbowman had made it obsolete. (Claude code Opus 5.5) -->
-		raise ValueError("%s cannot produce %s now: the window does not offer it, for instance obsolete or missing its tech or resource; 'city' lists what it offers" % (city.getName(), szItem))
-	bAppend = bool(args.get("append", False))
-	# <!-- custom: Putting a Galley ahead of a half-built Library at turn 105 of the fog-on playthrough (2026-11-13) meant replacing the queue or appending; first=1 inserts at the front and keeps the rest, as the city screen's ctrl-click does. CyCity.pushOrder with bAppend false inserts at position 0. (Claude code Opus 5.5) -->
-	bFirst = bool(args.get("first", False))
-	if not bAppend and not bFirst:
-		city.clearOrderQueue()
-	city.pushOrder(eOrder, iItem, -1, False, False, bAppend, False)
-	return _cityBrief(city)
-
-
-_HELP["dequeue"] = "Remove one item from a city's build queue, as clicking it in the city screen's queue does; production put into it stays with the city as for any change. index is its place in the queue as 'city' lists it (0 is what is being built now). args: city, index, player."
-
-
-def cmd_dequeue(args):
-	# <!-- custom: The city screen removes any queued item with a click, while 'produce' could only replace the queue, append or put first, so dropping one item meant rebuilding the rest (2026-11-14).
-	# CyCity.popOrder with bFinish and bChoose off is what that click does. (Claude code Opus 5.5) -->
-	city = _city(args)
-	iIndex = int(args["index"])
-	if iIndex < 0 or iIndex >= city.getOrderQueueLength():
-		raise ValueError("%s has no queue item %d; its queue: %s" % (city.getName(), iIndex, _cityBrief(city)["queue"]))
-	city.popOrder(iIndex, False, False)
-	return _cityBrief(city)
 
 
 _HELP["finance"] = "The Domestic Advisor's Finance tab: treasury and net gold per turn, the sliders, gross gold, trade routes split into domestic and foreign, gold from deals with other players, and the expenses with inflation as the tab adds them (unit cost, unit supply, city maintenance, civic upkeep). args: player."
@@ -7295,9 +5072,6 @@ def cmd_military(args):
 	return {"units": player.getNumUnits(), "military": iMilitary, "byDomain": domains, "where": where, "wounded": wounded, "upgradeable": upgradeable, "upgradeTotalCost": sum([u["cheapest"] for u in upgradeable]), "greatGeneralProgress": player.getCombatExperience(), "greatGeneralThreshold": player.greatPeopleThreshold(True), "greatGeneralsCreated": player.getGreatGeneralsCreated(), "cities": player.getNumCities(), "citiesWith": defenses}
 
 
-_HELP["relations"] ="Each player met, for weighing whom to please or anger: attitude toward the player, whether they will talk, war, peace treaty, open borders and defensive pact, the shortest distance between the two empires' cities and how many of their cities lie within 10 plots of ours, their score, their power against ours in per mille (powerRatioPerMille, 1489 is 1.489 times ours) wherever the scoreboard shows that ratio, and without fog their power. With graph=1 return player nodes and directed attitude edges, keyed by IDs. args: graph, player."
-
-
 def _attitudeCount(iFrom, iTo):
 	# <!-- custom: The number the Glance tab shows: the sum of the hover's modifiers, as AttitudeUtil.getAttitudeCount reads them, since AI_getAttitudeVal is not exposed to Python. (Claude code Opus 5.5) -->
 	iTotal = 0
@@ -7306,96 +5080,6 @@ def _attitudeCount(iFrom, iTo):
 		if match:
 			iTotal += int(match.group(1))
 	return iTotal
-
-
-def _addRelationLink(edge, source, target):
-	# <!-- custom: The F3 links are team relationships.
-	# Keep direction for vassalage and retain both treaties when the screen draws two lines. (GPT-6.1-Sol) -->
-	iTarget = target.getID()
-	edge["sameTeam"] = source.getID() == iTarget
-	edge["vassalOfTarget"] = bool(source.isVassal(iTarget))
-	edge["openBorders"] = bool(source.isOpenBorders(iTarget))
-	edge["defensivePact"] = bool(source.isDefensivePact(iTarget))
-
-
-def cmd_relations(args):
-	# <!-- custom: Refusing Roosevelt's demand to stop trading with Kublai at turn 265 (2026-11-14) was weighed on power alone; the user pointed out that attitude and nearness matter as much: angering a strong rival far away costs less than angering a weak neighbour.
-	# One reply now gives them side by side.
-	# Under fog, distances use only the cities the player has seen, and power, which the window shows only through espionage, is left out. (Claude code Opus 5.5) -->
-	player = _player(args)
-	_requireOwnTeamUnderFog(args, player, "relations")
-	team = gc.getTeam(player.getTeam())
-	iFogTeam = _fogTeam(args)
-	ours = _cities(player)
-	result = []
-	bGraph = bool(args.get("graph"))
-	nodes = [{"id": player.getID(), "team": player.getTeam(), "name": player.getName()}]
-	edges = []
-	for iOther in range(gc.getMAX_CIV_PLAYERS()):
-		other = gc.getPlayer(iOther)
-		if iOther == player.getID() or not other.isAlive() or other.isBarbarian() or not team.isHasMet(other.getTeam()):
-			continue
-		if bGraph and other.isMinorCiv():
-			continue
-		# <!-- custom: The city, not its plot: a plot seen before the city was founded on it counted the city, so Gilgamesh's city 4 plots away was in citiesSeen and closestCityDistance while 'map' showed none (Codex's review, round 35).
-		# The window shows a city once the city itself is revealed, as 'map' and 'cities' check. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-		theirs = [city for city in _cities(other) if iFogTeam < 0 or city.isRevealed(iFogTeam, False)]
-		distances = [plotDistance(a.getX(), a.getY(), b.getX(), b.getY()) for a in ours for b in theirs]
-		near = [b for b in theirs if [a for a in ours if plotDistance(a.getX(), a.getY(), b.getX(), b.getY()) <= 10]]
-		entry = {"player": iOther, "name": other.getName(), "team": other.getTeam(), "attitude": _enumName(AttitudeTypes, other.AI_getAttitude(player.getID())), "willTalk": bool(other.AI_isWillingToTalk(player.getID())), "atWar": bool(team.isAtWar(other.getTeam())), "peaceTreaty": bool(team.isForcePeace(other.getTeam())), "openBorders": bool(team.isOpenBorders(other.getTeam())), "defensivePact": bool(team.isDefensivePact(other.getTeam())), "score": gc.getGame().getPlayerScore(iOther), "citiesSeen": len(theirs), "citiesWithin10": len(near)}
-		if distances:
-			entry["closestCityDistance"] = min(distances)
-		if iFogTeam < 0:
-			entry["power"] = other.getPower()
-		# <!-- custom: Their power against ours, as the scoreboard shows it beside each leader (1.9 is nearly twice as strong) wherever canSeeDemographics allows, which is the scoreboard's own condition (CvMainInterface, K-Mod), so under fog too: the user pointed to the scoreboard at turn 90 of the turn-0 game (2026-11-14), where Gilgamesh showed 1.9 and Zara Yaqob 2.0, while this command left power out under fog. (Claude code Opus 5.5) -->
-		# <!-- custom: The attitude's modifiers as the hover over a met leader lists them (CvGameTextMgr::getAttitudeString), such as border tension or a shared religion: the user advised at turn 100 of the turn-0 game (2026-11-14) that settling by a strong neighbour, as Hastings was, costs attitude, and that these modifiers show it, so settling and trading choices can steer them.
-		# Plain lines, the first being the attitude itself. (Claude code Opus 5.5) -->
-		entry["attitudeModifiers"] = [szLine for szLine in _plainText(CyGameTextMgr().getAttitudeString(iOther, player.getID())).split(u"\n") if szLine.strip()]
-		# <!-- custom: In integer per mille (1489 for 1.489): a float came back as 1.4889999628067017, as Direct3D sets the FPU to single precision inside Civ4 (as for time.time(), see KI#1093). (Claude code Opus 5.5) -->
-		if (iFogTeam < 0 or player.canSeeDemographics(iOther)) and player.getPower() > 0:
-			entry["powerRatioPerMille"] = other.getPower() * 1000 / player.getPower()
-		# <!-- custom: How this leader sees each other player we have met, as the Foreign Advisor's Glance tab shows it; the user noted attitudes are not symmetric (2026-11-14), and a weak target is best one its own neighbours dislike, so none comes to its aid. (Claude code Opus 5.5) -->
-		if bGraph:
-			nodes.append({"id": iOther, "team": other.getTeam(), "name": other.getName()})
-		views = {}
-		for iThird in range(gc.getMAX_CIV_PLAYERS()):
-			third = gc.getPlayer(iThird)
-			if iThird == iOther or not third.isAlive() or third.isBarbarian() or not gc.getTeam(other.getTeam()).isHasMet(third.getTeam()):
-				continue
-			if iThird != player.getID() and not team.isHasMet(third.getTeam()):
-				continue
-			if bGraph and third.isMinorCiv():
-				continue
-			# <!-- custom: The Glance tab's cell, not just the category: the user had the agent compare the tab with this reply at turn 127 of the turn-0 game (2026-11-14), and it showed numbers (+11 against +1 for the same Cautious-to-Pleased range), the worst-enemy icon, war and forced peace, and whether the leader would join a war against that player if asked (advc.152), all of which help pick a war target and its likely friends.
-			# Computed as AttitudeUtil.getAttitudeText does. (Claude code Opus 5.5) -->
-			otherTeam = gc.getTeam(other.getTeam())
-			bSameTeam = other.getTeam() == third.getTeam()
-			cell = {"attitude": _enumName(AttitudeTypes, other.AI_getAttitude(iThird))[9:], "value": _attitudeCount(iOther, iThird), "worstEnemy": bool(not bSameTeam and not otherTeam.isHuman() and other.getWorstEnemyName() and other.getWorstEnemyName() == gc.getTeam(third.getTeam()).getName()), "atWar": bool(otherTeam.isAtWar(third.getTeam()))}
-			# <!-- custom: Only the guards AttitudeUtil.getAttitudeText applies: forced peace only where our team is one side, and the war-trade test only between two other teams, neither human, not the same team.
-			# The first version asked a team to declare war on its own teammate, which trips AI_declareWarTrade's assertions, and showed peace between two third parties, which the tab hides (Codex's review, round 37). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-			if third.getTeam() == player.getTeam() and otherTeam.isForcePeace(third.getTeam()):
-				cell["peaceTreaty"] = True
-			if not bSameTeam and other.getTeam() != player.getTeam() and third.getTeam() != player.getTeam() and not otherTeam.isHuman() and not cell["atWar"] and otherTeam.AI_declareWarTrade(third.getTeam(), player.getTeam()) == -1:
-				cell["wouldJoinWarIfAsked"] = True
-			if bGraph:
-				_addRelationLink(cell, otherTeam, gc.getTeam(third.getTeam()))
-				cell["from"] = iOther
-				cell["to"] = iThird
-				edges.append(cell)
-			else:
-				views[third.getName()] = cell
-		if bGraph:
-			edge = {"from": player.getID(), "to": iOther, "atWar": entry["atWar"], "peaceTreaty": entry["peaceTreaty"]}
-			_addRelationLink(edge, team, gc.getTeam(other.getTeam()))
-			edges.append(edge)
-		else:
-			entry["viewsOf"] = views
-		entry["attitudeValue"] = _attitudeCount(iOther, player.getID())
-		result.append(entry)
-	if bGraph:
-		return {"viewer": player.getID(), "turn": gc.getGame().getGameTurn(), "nodes": nodes, "edges": edges}
-	result.sort(lambda a, b: cmp(a.get("closestCityDistance", 999), b.get("closestCityDistance", 999)))
-	return {"ourScore": gc.getGame().getPlayerScore(player.getID()), "players": result}
 
 
 _HELP["espionage"] ="The espionage screen: per team met, the points gathered against it, the spending weight given to it and its counterespionage against us. With team and weight, set that weight, as the screen's +/- buttons do. args: team, weight, player."
@@ -7450,29 +5134,6 @@ def cmd_spy(args):
 	return reply
 
 
-_HELP["hurry"] = "Hurry a city's production. Without hurry, lists each HURRY_ type with whether the city can use it now and its gold and population cost, as the window's buttons show. args: city, hurry (HURRY_ type), player."
-
-
-def cmd_hurry(args):
-	city = _city(args)
-	# <!-- custom: 'hurry city=Gondar' without a type raised a bare KeyError while looking for a way to rush a Trireme (2026-11-13, turn 154); like 'freetech' and 'research', it now lists the choices instead. (Claude code Opus 5.5) -->
-	if args.get("hurry") is None:
-		# <!-- custom: maxHurryPopulation, the most citizens a whip may take (half the city in CvCity::maxHurryPopulation): in the scouting trial (2026-11-14) a size-3 Constantinople read can=false for a 2-citizen whip with no reason given, and the DLL's canHurry showed the cap. (Claude code Opus 5.5) -->
-		result = {"city": city.getName(), "gold": gc.getPlayer(city.getOwner()).getGold(), "population": city.getPopulation(), "maxHurryPopulation": city.maxHurryPopulation(), "hurries": [{"hurry": gc.getHurryInfo(i).getType(), "can": bool(city.canHurry(i, False)), "goldCost": city.hurryGold(i), "populationCost": city.hurryPopulation(i)} for i in range(gc.getNumHurryInfos())]}
-		# <!-- custom: What a whip trades: at turn 38 of the 2026-11-19 validation run 1 citizen (a 24-food bar to regrow) saved about 3 turns of a food-production Settler, which the user called a last resort at that stage.
-		# Hammers it would add and turns saved, against the food bar a citizen costs. (Claude code Opus 5.5) -->
-		if city.getOrderQueueLength() > 0:
-			iLeft = city.getProductionNeeded() - city.getProduction()
-			iRate = max(1, city.getCurrentProductionDifference(False, True))
-			result["whipTrade"] = {"hammersLeft": iLeft, "turnsSaved": (iLeft + iRate - 1) / iRate - 1, "foodToRegrowOneCitizen": city.growthThreshold(), "note": "worth it when the turns saved matter (a contested site, a defender in time) or the city is at its happy or health cap; otherwise growing is usually better"}
-		return result
-	iHurry = _typedIndex(args["hurry"], "HURRY_", gc.getNumHurryInfos(), gc.getHurryInfo)
-	if not city.canHurry(iHurry, False):
-		raise ValueError("%s cannot hurry with %s now" % (city.getName(), args["hurry"]))
-	city.hurry(iHurry)
-	return _cityBrief(city)
-
-
 _HELP["endturn"] = "End the active player's turn, as the End Turn button does once nothing waits for orders."
 
 
@@ -7485,7 +5146,7 @@ def cmd_endturn(args):
 	# <!-- custom: Moctezuma's war declaration at turn 148 stayed open on the diplomacy screen while three 'endturn' calls went through, each reporting it under 'skipped' (2026-11-13); in the window that screen covers the End Turn button until it is answered, so 'endturn' refuses as well. (Claude code Opus 5.5) -->
 	if _diploState()["open"]:
 		# <!-- custom: The refusal carries the screen's leader, comment and replies with a screen token, so its options are seen once and answered at once: at Sitting Bull's first contact (Continents game, turn 32, 2026-11-19) it said only "see 'diplo'", and the user suggested checking the options at every meeting. (Claude code Opus 5.5) -->
-		screen = cmd_diplo({})
+		screen = _command("diplo")({})
 		szReplies = "; ".join(["%d %s" % (reply["n"], reply["comment"]) for reply in screen["replies"]])
 		raise ValueError(("a diplomacy screen waits for an answer: %s (player %d), %s; replies: %s; answer with 'reply n=N screen=%d'" % (screen["whoName"], screen["who"], screen["aiComment"], szReplies, screen["screen"])).encode("ascii", "replace"))
 	# <!-- custom: A contact SASPilot queued opens on later frames, so an 'endturn' right after it could slip past the check above (Codex's review); refused as 'menu' does. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
@@ -7869,163 +5530,6 @@ def cmd_answer(args):
 
 # <!-- custom: City screen (Claude code Opus 5.5) -->
 
-def _cityPlots(city):
-	plots = []
-	for i in range(gc.getNUM_CITY_PLOTS()):
-		plot = city.getCityIndexPlot(i)
-		if plot is None or plot.isNone():
-			continue
-		entry = {"index": i, "x": plot.getX(), "y": plot.getY(), "worked": city.isWorkingPlot(plot), "canWork": city.canWork(plot), "yields": _yields(plot.getYield)}
-		# <!-- custom: Match the city UI's known ownership, competing city and work requirements.
-		# A visible enemy can make a tile unsafe, but canWork also tests siege and blockades, so a generic enemy on the tile alone does not explain a refusal. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
-		if not entry["canWork"] and i != gc.getCITY_HOME_PLOT():
-			iTeam = gc.getPlayer(city.getOwner()).getTeam()
-			if not plot.isRevealed(iTeam, False):
-				entry["why"] = "not revealed"
-			else:
-				iOwner = plot.getRevealedOwner(iTeam, False)
-				if iOwner != city.getOwner():
-					entry["why"] = iOwner < 0 and "unowned" or "owned by player %d" % iOwner
-				elif plot.isVisible(iTeam, False):
-					working = plot.getWorkingCity()
-					if working is not None and not working.isNone() and working.getOwner() == city.getOwner() and working.getID() != city.getID():
-						entry["why"] = "assigned to %s" % working.getName()
-						entry["workedBy"] = working.getID()
-					elif plot.isWater() and not gc.getTeam(iTeam).isWaterWork():
-						entry["why"] = "water work is not unlocked"
-					elif not plot.hasYield():
-						entry["why"] = "yields nothing"
-		plots.append(entry)
-	return plots
-
-
-def _citizens(city):
-	result = {"city": city.getName(), "population": city.getPopulation(), "angry": city.angryPopulation(0), "automated": city.isCitizensAutomated(), "foodDifference": city.foodDifference(True), "yieldRate": _yields(city.getYieldRate)}
-	result.update(_foodProduction(city))
-	result["plots"] = _cityPlots(city)
-	# <!-- custom: A citizen neither on a plot nor a specialist, as the city that lost the Sheep to 'work' had in the islands replay (2026-11-15) until its governor reassigned it; a click in that moment made it a specialist instead of working the plot clicked. (Claude code Opus 5.5) -->
-	result["unassigned"] = city.getPopulation() - city.getWorkingPopulation() - city.getSpecialistPopulation()
-	specialists = {}
-	for i in range(gc.getNumSpecialistInfos()):
-		iCount = city.getSpecialistCount(i)
-		iMax = city.getMaxSpecialistCount(i)
-		if iCount > 0 or iMax > 0 or city.isSpecialistValid(i, 1):
-			specialists[gc.getSpecialistInfo(i).getType()] = {"count": iCount, "max": iMax, "forced": city.getForceSpecialistCount(i), "canAdd": city.isSpecialistValid(i, 1), "free": city.getFreeSpecialistCount(i)}
-	result["specialists"] = specialists
-	result["emphasize"] = [gc.getEmphasizeInfo(i).getType() for i in range(gc.getNumEmphasizeInfos()) if city.AI_isEmphasize(i)]
-	swaps = _tileSwaps(city, result["plots"])
-	if swaps is not None:
-		result["swaps"] = swaps
-	return result
-
-
-# <!-- custom: What each single swap of a worked plot for a free one does to the current build and to growth, so a trade such as stalling growth for a faster build is computed rather than played out.
-# At turn 0 of the Continents replay (2026-11-19) the user had Dublin work a 0/3/0 forested hill instead of a 1/2/0 hill: growth stalled, and the Fish's Work Boat came out on turn 7 instead of 9; the user then asked for the calculation in the API.
-# Production uses the city's own modifier; food counts as production while a Settler or Worker is built.
-# Plots with yields shown as they are now. (Claude code Opus 5.5) -->
-SWAPS_SHOWN = 6
-SWAPS_SHOWN_GROWTH = 3
-
-
-def _tileSwaps(city, plots):
-	if city.getOrderQueueLength() == 0:
-		return None
-	iNeeded = city.getProductionNeeded() - city.getProduction()
-	iBaseHammers = city.getBaseYieldRate(YieldTypes.YIELD_PRODUCTION)
-	iModifier = city.getBaseYieldRateModifier(YieldTypes.YIELD_PRODUCTION, 0)
-	iFood = city.getYieldRate(YieldTypes.YIELD_FOOD)
-	iEat = city.foodConsumption(False, 0)
-	iGrowthLeft = city.growthThreshold() - city.getFood()
-	bFoodProduction = city.isFoodProduction()
-
-	def outcome(iHammers, iFoodNow):
-		iSurplus = iFoodNow - iEat
-		iRate = iHammers * iModifier / 100 + (bFoodProduction and max(0, iSurplus) or 0)
-		entry = {"turns": iRate > 0 and (iNeeded + iRate - 1) / iRate or None, "foodSurplus": iSurplus}
-		entry["growsIn"] = (not bFoodProduction and iSurplus > 0) and (iGrowthLeft + iSurplus - 1) / iSurplus or None
-		return entry
-
-	result = {"build": str(_orderData(city.getOrderFromQueue(0))), "now": outcome(iBaseHammers, iFood), "swaps": []}
-	worked = [p for p in plots if p["worked"] and (p["x"], p["y"]) != (city.getX(), city.getY())]
-	free = [p for p in plots if not p["worked"] and p["canWork"]]
-	for w in worked:
-		for f in free:
-			entry = outcome(iBaseHammers - w["yields"][1] + f["yields"][1], iFood - w["yields"][0] + f["yields"][0])
-			entry["free"] = [w["x"], w["y"]]
-			entry["work"] = [f["x"], f["y"]]
-			result["swaps"].append(entry)
-	result["swaps"].sort(key=lambda e: (e["turns"] is None, e["turns"], -e["foodSurplus"]))
-	# <!-- custom: Fastest builds alone hid the improved Fish at turn 9 of the 2026-11-19 validation run (+5 food, 0 hammers), so the most food is listed too. (Claude code Opus 5.5) -->
-	byBuild = result["swaps"][:SWAPS_SHOWN]
-	byFood = [e for e in sorted(result["swaps"], key=lambda e: -e["foodSurplus"]) if e not in byBuild][:SWAPS_SHOWN_GROWTH]
-	result["swaps"] = byBuild
-	result["growthSwaps"] = byFood
-	return result
-
-
-_HELP["citizens"] = "A city's screen: each plot in its radius with whether it is worked and can be, its specialists with their limits, whether the governor assigns citizens, and its emphasis buttons. While it builds something, swaps gives the build's turns, food surplus and turns to grow now and after each single swap of a worked plot for a free one, fastest build first, so a trade such as stalling growth for a faster build is computed. With automated=1 or 0, switch the governor first. args: city, automated, player."
-
-
-def cmd_citizens(args):
-	# <!-- custom: The city screen's controls go through CvCity::doTask, as its buttons do, so the governor reacts as it would for a person: a hand-picked plot is kept as an override, and freed citizens are reassigned. (Claude code Fable 5.2) -->
-	city = _city(args)
-	if args.get("automated") is not None:
-		city.doTask(TaskTypes.TASK_SET_AUTOMATED_CITIZENS, -1, -1, bool(args["automated"]))
-	return _citizens(city)
-
-
-_HELP["work"] = "Click a plot in a city's radius, as on the city screen: a worked plot is freed, a free one is worked (taking a citizen from elsewhere), the city's own plot switches the governor back on, and a plot of the player's that another city works is claimed for this city (claimOnly then says to click again in a new request to work it, as the game applies the click after the reply); that city's screen then comes as claimedFrom, as its freed citizen stays unassigned until its governor runs (click a plot for it, or wait for the turn). args: city, x, y, player."
-
-
-def cmd_work(args):
-	city = _city(args)
-	plot = _plot(args)
-	iIndex = city.getCityPlotIndex(plot)
-	if iIndex < 0 or iIndex >= gc.getNUM_CITY_PLOTS():
-		raise ValueError("%d,%d is outside %s's radius" % (plot.getX(), plot.getY(), city.getName()))
-	# <!-- custom: Every click is TASK_CHANGE_WORKING_PLOT, as on the city screen, whose handler CvCity::alterWorkingPlot switches the governor back on for the city's own plot and, for a plot the city cannot work but owns, claims it from the city working it.
-	# The first version sent TASK_CLEAR_WORKING_OVERRIDE for the city's own plot and refused plots the city could not work; Codex's review pointed out the difference. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
-	# <!-- custom: When the click claims a plot another city works, that city is shown too, as its freed citizen waits unassigned until its governor runs (islands replay, 2026-11-15).
-	# Only another city of the same player, and only when the claim took the plot from it: for a rival's city the game refuses the claim, and returning its screen anyway would show a rival's specialists and yields (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	other = None
-	if plot.isBeingWorked() and plot.getWorkingCity() and plot.getWorkingCity().getID() != city.getID() and plot.getWorkingCity().getOwner() == city.getOwner():
-		other = plot.getWorkingCity()
-	# <!-- custom: A click on a plot the city cannot work (another of our cities holds it) only claims it, and the citizen it moves may land in a specialist slot: at turn 74 of the islands replay (2026-11-15) The Hague claimed the Rice and worked neither it nor its Horses.
-	# A second click works it, but in a later request: doTask sends a game message applied after this request returns, so a second click sent here saw the old state and never fired.
-	# The reply says claimOnly so the agent clicks again. (Claude code Opus 5.5) -->
-	bClaim = not city.canWork(plot) and plot.getOwner() == city.getOwner() and iIndex != 0
-	city.doTask(TaskTypes.TASK_CHANGE_WORKING_PLOT, iIndex, -1, False)
-	result = _citizens(city)
-	if bClaim:
-		result["claimOnly"] = "the click claimed %d,%d for %s; click again in a new request to work it" % (plot.getX(), plot.getY(), city.getName())
-	if other is not None and not other.isWorkingPlot(plot):
-		result["claimedFrom"] = _citizens(other)
-	return result
-
-
-_HELP["specialist"] = "Add or remove a city's specialists, as the plus and minus buttons do. args: city, type (SPECIALIST_ type), change (default 1; negative removes), player."
-
-
-def cmd_specialist(args):
-	city = _city(args)
-	iSpecialist = _typedIndex(args["type"], "SPECIALIST_", gc.getNumSpecialistInfos(), gc.getSpecialistInfo)
-	iChange = int(args.get("change", 1))
-	if iChange > 0 and not city.isSpecialistValid(iSpecialist, iChange):
-		raise ValueError("%s cannot take %d more %s" % (city.getName(), iChange, args["type"]))
-	if iChange < 0 and city.getSpecialistCount(iSpecialist) < -iChange:
-		raise ValueError("%s has only %d %s" % (city.getName(), city.getSpecialistCount(iSpecialist), args["type"]))
-	city.doTask(TaskTypes.TASK_CHANGE_SPECIALIST, iSpecialist, iChange, False)
-	return _citizens(city)
-
-
-_HELP["emphasize"] = "Switch one of a city's emphasis buttons, such as EMPHASIZE_FOOD or EMPHASIZE_AVOID_GROWTH. args: city, type (EMPHASIZE_ type), on (default 1), player."
-
-
-def cmd_emphasize(args):
-	city = _city(args)
-	city.doTask(TaskTypes.TASK_SET_EMPHASIZE, _typedIndex(args["type"], "EMPHASIZE_", gc.getNumEmphasizeInfos(), gc.getEmphasizeInfo), -1, bool(args.get("on", True)))
-	return _citizens(city)
-
 
 # <!-- custom: Empire choices (Claude code Opus 5.5) -->
 
@@ -8169,7 +5673,7 @@ def cmd_religion(args):
 	met = [gc.getPlayer(i) for i in range(gc.getMAX_CIV_PLAYERS()) if i != player.getID() and gc.getPlayer(i).isAlive() and not gc.getPlayer(i).isBarbarian() and gc.getTeam(player.getTeam()).isHasMet(gc.getPlayer(i).getTeam())]
 	# <!-- custom: The user, same game: align with a neighbour's faith, a strong one especially, though even a weaker one may attack; so each civ comes with its power against ours and its closest city's distance, from 'relations', which applies the scoreboard's visibility. (Claude code Opus 5.5) -->
 	known = {}
-	for row in cmd_relations({"player": player.getID(), "fog": args.get("fog")})["players"]:
+	for row in _command("relations")({"player": player.getID(), "fog": args.get("fog")})["players"]:
 		known[row["name"]] = {"name": row["name"], "powerRatioPerMille": row.get("powerRatioPerMille"), "closestCityDistance": row.get("closestCityDistance")}
 	candidates = []
 	for i in range(gc.getNumReligionInfos()):
@@ -8179,72 +5683,9 @@ def cmd_religion(args):
 	return {"stateReligion": _typeOrNone(gc.getReligionInfo, player.getStateReligion()), "canConvertTo": [gc.getReligionInfo(i).getType() for i in range(gc.getNumReligionInfos()) if player.canConvert(i)], "anarchyLength": player.getReligionAnarchyLength(), "happinessFromCivics": player.getStateReligionHappiness(), "candidates": candidates}
 
 
-# <!-- custom: Sevopedia (Claude code Opus 5.5) -->
+# <!-- custom: Game text, which several commands read; the Sevopedia's data commands moved to SASPilotCatalog.py on 2026-11-28. (Claude code Opus 5.5) -->
 
 _reMarkup = re.compile(r"<[^>]*>")
-
-
-# <!-- custom: Static facts are in the XML files, which an agent can read directly; what the files lack is the effects text the DLL composes from them and from its own rules, as the Sevopedia shows it, so 'pedia' returns that (the user's point, 2026-11-13).
-# One function per kind, with differing arguments. (Claude code Fable 5.2) -->
-def _pediaEffects(szPrefix, iType):
-	mgr = CyGameTextMgr()
-	if szPrefix == "UNIT_":
-		return mgr.getUnitHelp(iType, True, False, False, None)
-	if szPrefix == "BUILDING_":
-		return mgr.getBuildingHelp(iType, True, False, False, None)
-	if szPrefix == "PROJECT_":
-		return mgr.getProjectHelp(iType, True, None)
-	if szPrefix == "TECH_":
-		return mgr.getTechHelp(iType, True, False, False, False, -1)
-	if szPrefix == "PROMOTION_":
-		return mgr.getPromotionHelp(iType, True)
-	if szPrefix == "BONUS_":
-		return mgr.getBonusHelp(iType, True)
-	if szPrefix == "IMPROVEMENT_":
-		return mgr.getImprovementHelp(iType, True)
-	if szPrefix == "TERRAIN_":
-		return mgr.getTerrainHelp(iType, True)
-	if szPrefix == "FEATURE_":
-		return mgr.getFeatureHelp(iType, True)
-	if szPrefix == "CIVIC_":
-		return mgr.parseCivicInfo(iType, True, False, True)
-	if szPrefix == "RELIGION_":
-		return mgr.parseReligionInfo(iType, True)
-	if szPrefix == "CORPORATION_":
-		return mgr.parseCorporationInfo(iType, True)
-	if szPrefix == "SPECIALIST_":
-		return mgr.getSpecialistHelp(iType, True)
-	return None
-
-
-# <!-- custom: The kinds are CvScreenEnums.PEDIA_ITEM_KINDS, which the Sevopedia's link() reads too; this file kept its own copy until 2026-11-28, which lacked UNITCOMBAT_, CONCEPT_, VOTE_ and EVENTTRIGGER_.
-# Each row is (prefix, count method, info method, category, landing categories, link-matched). See KI#1110.2. (Claude code Opus 5.5) -->
-_PEDIA_KINDS = CvScreenEnums.PEDIA_ITEM_KINDS
-
-
-def _pediaPrefixes():
-	prefixes = []
-	for kind in _PEDIA_KINDS:
-		if kind[0] not in prefixes:
-			prefixes.append(kind[0])
-	return prefixes
-
-
-def _pediaKindsOf(szPrefixOrType):
-	kinds = [kind for kind in _PEDIA_KINDS if szPrefixOrType.startswith(kind[0])]
-	if not kinds:
-		raise ValueError("no Sevopedia kind for %s; kinds: %s" % (szPrefixOrType, " ".join(_pediaPrefixes())))
-	return kinds
-
-
-def _pediaKind(szType):
-	# <!-- custom: The kind whose table holds szType, checked by the entry's own type: a BUILDINGCLASS_ or UNITCLASS_ type also starts with BUILDING or UNIT, and a CONCEPT_ type is in one of two concept tables. See KI#1110.2. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
-	kinds = _pediaKindsOf(szType)
-	iType = _infoIndex(szType)
-	for kind in kinds:
-		if iType < getattr(gc, kind[1])() and getattr(gc, kind[2])(iType).getType() == szType:
-			return kind
-	raise ValueError("%s is not a %s type" % (szType, kinds[0][0]))
 
 
 _symbolNames = None
@@ -8269,38 +5710,6 @@ def _plainText(text):
 	for ch in text:
 		parts.append(_symbolNames.get(ord(ch), ch))
 	return u"".join(parts).strip()
-
-
-_HELP["types"] = "The XML types of one kind, to browse as the Sevopedia's lists: kind is a prefix such as UNIT_, BUILDING_, TECH_, CIVIC_, BONUS_, PROMOTION_; without it, the kinds. args: kind."
-
-
-def cmd_types(args):
-	if args.get("kind") is None:
-		return _pediaPrefixes()
-	# <!-- custom: CONCEPT_ lists both concept tables. See KI#1110.2. (Claude code Opus 5.5) -->
-	types = []
-	for kind in _pediaKindsOf(args["kind"]):
-		types.extend([getattr(gc, kind[2])(i).getType() for i in range(getattr(gc, kind[1])())])
-	return types
-
-
-_HELP["pedia"] = "A type's Sevopedia entry as text: its name, the effects text the Sevopedia shows beside it, and its help and strategy texts, with markup removed. 'info' gives the same type's raw getters. args: type (e.g. UNIT_WARRIOR), long (1 to include the Civilopedia text, default 0)."
-
-
-def cmd_pedia(args):
-	szType = args["type"]
-	kind = _pediaKind(szType)
-	iType = _infoIndex(szType)
-	info = getattr(gc, kind[2])(iType)
-	result = {"type": szType, "name": info.getDescription(), "effects": None}
-	szEffects = _pediaEffects(kind[0], iType)
-	if szEffects is not None:
-		result["effects"] = _plainText(szEffects)
-	result["help"] = _plainText(info.getHelp())
-	result["strategy"] = _plainText(info.getStrategy())
-	if args.get("long"):
-		result["civilopedia"] = _plainText(info.getCivilopedia())
-	return result
 
 
 _HELP["batch"] = "Run several commands in one request, in order, stopping at the first failure. args: commands (list of {cmd, args}). From the CLI: SASPilotClient.py batch 'commands=[{\"cmd\":\"units\"},{\"cmd\":\"cities\"}]'."
@@ -8379,7 +5788,8 @@ def cmd_py(args):
 	namespace["game"] = gc.getGame()
 	namespace["map"] = CyMap()
 	namespace["interface"] = CyInterface()
-	namespace["describe"] = describe
+	# <!-- custom: describe lives in SASPilotCatalog.py since 2026-11-28, and is looked up when called: looked up here, a catalog that failed to load stopped every 'py' snippet, the tool to diagnose it with (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	namespace["describe"] = _describe
 	namespace["saspilot"] = sys.modules.get(__name__) or globals()
 	iActive = gc.getGame().getActivePlayer()
 	if iActive >= 0:

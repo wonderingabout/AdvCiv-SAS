@@ -6,6 +6,15 @@ Built and tested by Claude Code Fable 5.2 on 2026-11-13, at the user's request f
 
 The mailbox idea comes from CIVAI, whose repository the user keeps at `C:\Users\PC\Downloads\civai-main`; the goal differs: CIVAI makes LLMs fair opponents behind fog of war, while SASPilot gives one agent full information and control of the active player, for AI research and for reproducing bugs and crashes.
 
+Examples of its uses, as the user gave them on 2026-11-28:
+
+- Strategy: playing the game through its data as a player does, with the commands and the [news](#news-since-the-last-reply) every reply carries.
+- AI audit and improvement: playing against the AI to find its flaws, then logging, analyzing and improving it.
+- UI tuning: testing the screens as a player clicks them, with [SASPilotUI](#screens-and-buttons-by-name-saspilotui).
+- Several LLMs in one game, against each other in a tournament or together in co-op.
+
+The data commands, such as `info type=UNIT_WARRIOR`, read the game's API directly rather than through its screens, which only the UI commands open.
+
 The video demos cover two stages of the playtest.
 
 - Part 1 covers the early diplomacy playtest and agent review. Video link to add.
@@ -32,6 +41,7 @@ The video demos cover two stages of the playtest.
 &emsp;[SASPilotConsole](#saspilotconsole)\
 &emsp;[Watching a person play](#watching-a-person-play)\
 &emsp;[Running Python in the game](#running-python-in-the-game)\
+&emsp;[News since the last reply](#news-since-the-last-reply)\
 &emsp;[Using it from a script](#using-it-from-a-script)\
 &emsp;[Replaying commands](#replaying-commands)\
 [Popups](#popups)\
@@ -579,6 +589,36 @@ python SASPilotClient.py py "print player.getName(); result = [c.getName() for c
 - `pyerrors` gives this client's Python error output since SASPilot started, the one read that is surely this client's, as `PythonErr.log` is shared; see [Python errors and their dialogs](#python-errors-and-their-dialogs).
   - Any reply also carries `pythonErrors`, the writes since the previous reply and their last 12 lines, and the client prints them to stderr, so an agent learns of an error without thinking to look (the user's idea, 2026-11-28). The command log keeps them on the same row, so a session's errors can be read back beside its orders.
   - Why: that day the Options screen's refresh raised after `resolution` ([KI#123.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7)). The EXE ran that code between requests, so no reply showed the error, and the user saw it while testing went on.
+
+### News since the last reply
+
+- The purpose, in the user's words (2026-11-28): an agent sees the game as a player does, acting, reading the state as text, and receiving news about what changed. [`SASPilotNews.py`](/SASPilot/game/SASPilotNews.py) builds it.
+- Any reply also carries `news`, what changed for the active player since the previous reply, as a person sees it on the screen.
+  - The client prints it to stderr as one line, such as `Civ4 620 since the last reply: Ulm pop 13->14, Assyrian pop 8->9`.
+  - SASPilotConsole shows it under the command that brought it, numbered like notes and errors, such as `news #00004 (op1): turn 323->324`, so a piece of news can be pointed at (the user, 2026-11-28).
+  - The fields, each only when it differs: `turn`, `techsLearned`, `research`, `era`, `goldenAge`, `greatPeople` (born so far), `units` (count), `citiesGained` and `citiesLost` (by city ID, so a renamed city is not new), `population`, `built` (the building a city was producing, now in it: finished, bought or hurried), `disorder` and `disorderEnded`, `starving` and `starvingEnded` (food below zero, as the city bar shows in red), `anarchy`, `civicsAdopted`, `stateReligion`, `resourcesGained` and `resourcesLost` (as the resource bar shows them, from a trade, a connection, a pillage or a cancelled deal), `treasuryShort` (gold plus its rate below zero, which leads to a strike) and `strike`, `vassalOf` and `vassalEnded`, `warsStarted` and `warsEnded` (by peace or the other team's elimination, named as the snapshot before it kept them, as an eliminated team's name reads empty: the first version wrote `"warsEnded": [""]` at turn 320 of the Asoka save), and `rank` with `ranked`, the score rank among the living major civilizations, only the met ones with fog, whether the session's or the request's `fog=1`, so it never counts a player not yet met; `eliminated` in its place once the player is.
+  - And what the game announces to every player, met or not: `religionsFounded`, `corporationsFounded` and `worldWondersBuilt` (by building type, such as `BUILDING_PYRAMID`).
+  - And `messages`, what the player received since the previous reply, as the window shows them at its top left and in the Event Log, each `{"text": ..., "type": ...}`, the type such as `MAJOR_EVENT`, `INFO` or `COMBAT_MESSAGE`, as the Event Log and the Combat Log draw from this one list; BUG's Python alerts, such as "Wang Kon will export Copper", come too (the user's question, 2026-11-28).
+    - At most 20, with `messagesNotShown` for the rest and `messagesSince`, the turn they were read from, so `messages since=N` lists them all; plain `messages` reads two turns back only, which after a gap of several turns left some out (Codex's review).
+    - Messages are read from the turn before the previous reply's, so a gap of several turns keeps those still in the game's list, and counted by occurrence, so the same text twice on one plot and turn counts twice (both Codex's review).
+    - The Timeline tab's entries are left to `timeline`, on demand: its history of met rivals' milestones, rankings and session markers is a view of the past, read when asked, while the news is what just reached the player; `profile cmd=timeline` took 47 ms against under 1 ms for the rest of the news, as it rebuilds the replay each time, and its events of the moment come as messages anyway (the user and Codex, 2026-11-28).
+    - Seen live from the turn-320 autosave: "Suryavarman II and Moctezuma II have declared war on Cyrus and Ewuare!", "Isvarapura (Cyrus) has been captured by the Khmer Empire!!!"; `profile cmd=messages` stays under the game timer's resolution, as the DLL builds the list.
+  - And the game's end, `gameState` with `winner` and `victory`, as the victory screen shows every player; the winner is compared on its own, as One More Turn moves the game from over to extended with the same winner, which the first version announced again (Codex reproduced it).
+    - Why: the Asoka save ended at turn 324 with no news, and `autoplay` then waited without a word, its game over; replayed from the turn-320 autosave with AI Auto Play of player 1 (Charlemagne), the last news read `game GAMESTATE_ON->GAMESTATE_OVER, won by Suleiman (VICTORY_SPACE_RACE)` (2026-11-28).
+    - The scoreboard's own list also follows BUG options, such as Show Minor Civs and dead civilizations, which the rank does not: the first version counted a met minor civilization the scoreboard hid (Codex's review).
+  - Why: the user asked for the game to talk back as it would to a person, a new turn, what happened, an error (2026-11-28). Before, an agent learned of these only by asking `turn`, `cities` or `relations`, and the AI's turn changes several at once.
+  - Named `news`, as the user found the first name, `changes`, too generic: a change can go forward or backward, and be the agent's own action or something that happened to it (2026-11-28).
+    - `updates` and `feedback` were weighed too, but an update still means some intervention, active or passive, and feedback reads as a reaction to the agent's order; news is what a person hears about between orders, good or bad, whoever caused it.
+  - The first reply, a loaded save, another active player or a fog switch starts a new baseline and reports nothing, as its differences would be the whole game; the baseline moves only once the reply carrying the news is written, as for `pythonErrors`.
+    - Nothing is reported while a game loads, nor to a request of another session, which Codex found could set a baseline before the launch role's fog applied.
+  - The cost is the game's: one pass over the player's cities, techs and the other players per reply, under the 1 ms resolution of the game's timer in 19 of 20 pings with 31 cities (turn 314 of the Asoka save).
+  - First test (turn 308 of that save): `endturn` printed the new turn, but the console did not, as `endturn` waits for the AI's turn with `ping`, which the client did not log. A ping is now logged when its reply carries `news` or `pythonErrors`; errors raised during an AI turn had the same gap.
+  - To watch the news over several turns of a test game, `autoplay turns=N` plays them with the AI answering its own diplomacy; the first tests here wrote a loop declining each diplomacy screen by hand, which `endturn --turns` stops at by design, as a person must answer it.
+  - Seen live from the turn-320 autosave with AI Auto Play: cities starving and then fed again as the AI reassigned citizens, resources gained by trades (Corn, Deer, Spices, Wine) and "You and Wang Kon have declared war on Suryavarman II and Moctezuma II! (At the request of Suleiman.)".
+  - `built` seen live at turn 322 of that save: Walls queued in Babylon arrived as `{"city": "Babylon", "building": "BUILDING_WALLS"}`.
+  - The snapshot's key starts with `SNAPSHOT_FORMAT` in `SASPilotNews.py`, bumped when its fields change, so a baseline kept from the file's previous version starts a new one rather than failing to compare.
+  - `SASPilotNews.py` is loaded like `SASPilotUI.py`, through the same loader; a read error makes the next successful read compile the file again, as clearing the read error alone once hid a compile error (Codex reproduced it).
+  - A possible extension: other players' visible events, such as a rival's city founded in sight.
 
 ### Using it from a script
 

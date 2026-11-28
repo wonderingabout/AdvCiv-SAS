@@ -85,13 +85,48 @@ def command_kind(command, args):
 	return "read"
 
 
+# <!-- custom: Result fields that are text drawn one line per item: a map's rows ('map', 'routes'), and the tech tree's columns ('rivaltechs' layout), which the console printed as one long cut line (the user, 2026-11-28). (Claude code Opus 5.5) -->
+ROW_FIELDS = ("rows", "layout")
+
+
+def row_field(result):
+	# <!-- custom: The first such field a result has as a list of strings, else None; shared by the log's cut and SASPilotConsole.py. (Claude code Opus 5.5) -->
+	if not isinstance(result, dict):
+		return None
+	for key in ROW_FIELDS:
+		value = result.get(key)
+		if isinstance(value, list) and all(isinstance(row, str) for row in value):
+			return key
+	return None
+
+
+def _set_operator(operator=None):
+	# <!-- custom: Who sends the commands, from --operator or the agent's environment; run by main and when a script imports this module, as scripts that imported it sent no operator, and the console marked their rows with a question mark for the operator (the user, 2026-11-28). (Claude code Opus 5.5) -->
+	_log_context["operator"] = operator or os.environ.get("SAS_PILOT_OPERATOR") or None
+	# <!-- custom: SAS_PILOT_OPERATOR_SESSION for any agent; Claude Code sets CLAUDE_CODE_SESSION_ID in its shell (seen 2026-11-14).
+	# Codex sets CODEX_THREAD_ID (and CODEX_SESSION_ID), its rollout ID, as it reported the same day. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+	_log_context["session"] = os.environ.get("SAS_PILOT_OPERATOR_SESSION") or os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or None
+	# <!-- custom: An agent's shell gives its session but not its model, and an agent can forget SAS_PILOT_OPERATOR for one call: two of this session's 'py' commands were logged without an operator (2026-11-14).
+	# So the agent's kind names the operator when none is given; the session, the same either way, keeps those rows with the named ones. (Claude code Opus 5.5) -->
+	if not _log_context["operator"]:
+		if os.environ.get("CLAUDE_CODE_SESSION_ID"):
+			_log_context["operator"] = "Claude Code"
+		elif os.environ.get("CODEX_THREAD_ID"):
+			_log_context["operator"] = "Codex"
+
+
+_set_operator()
+
+
 def _log_request(pid, command, args, reply, error, kind=None):
 	# <!-- custom: A failed log write never fails the command: the log is for watching and review, the command is the work. (Claude code Opus 5.5) -->
 	# <!-- custom: The gate comes first: with SAS_PILOT_LOG=0 in the environment nothing is opened or formatted. The game never pays for this log, which the client writes. (Claude code Opus 5.5) -->
 	# <!-- custom: Returns whether the line was written, which the explicit operator markers report (Codex's review); other callers ignore it. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	if os.environ.get("SAS_PILOT_LOG") == "0":
 		return False
-	if command == "ping" and _log_context["command"] != "ping":
+	# <!-- custom: Except a ping whose reply carries news: 'endturn' waits for the AI's turn with pings, so the new turn and the Python errors raised meanwhile came on pings, which reached stderr but never the log or the console (talk-back test, turn 308 of the Asoka save, 2026-11-28). (Claude code Opus 5.5) -->
+	bNews = reply is not None and (reply.get("pythonErrors") or reply.get("news") or reply.get("newsError"))
+	if command == "ping" and _log_context["command"] != "ping" and not bNews:
 		return False
 	try:
 		path = log_path(pid)
@@ -121,22 +156,34 @@ def _log_request(pid, command, args, reply, error, kind=None):
 			# <!-- custom: The Python errors a reply carried go in the log too, so a session's errors can be read back with the orders around them (the user's question, 2026-11-28). (Claude code Opus 5.5) -->
 			if reply.get("pythonErrors"):
 				record["pythonErrors"] = reply["pythonErrors"]
+			# <!-- custom: And what changed for the player since the previous reply, so the console shows it as it happens (the user's idea, 2026-11-28). (Claude code Opus 5.5) -->
+			for key in ("news", "newsError"):
+				if reply.get(key):
+					record[key] = reply[key]
 			if reply.get("ok"):
 				text = json.dumps(reply.get("result"), ensure_ascii=False, separators=(",", ":"))
 				record["bytes"] = reply.get("replyBytes")
 				# <!-- custom: A text map ('map', 'routes') keeps whole rows within the budget, with how many were left out, so the watcher can still draw it: cut as a string, a 70x40 map lost its rows (Codex reproduced it, 2026-11-14). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 				result = reply.get("result")
-				if len(text) > LOG_RESULT_CHARS and isinstance(result, dict) and isinstance(result.get("rows"), list):
-					kept = dict((key, value) for (key, value) in result.items() if key != "rows")
+				rowKey = row_field(result)
+				if len(text) > LOG_RESULT_CHARS and rowKey:
+					kept = dict((key, value) for (key, value) in result.items() if key != rowKey)
+					# <!-- custom: The other fields get at most a third of the budget, cut to one string when they need more, and a row longer than what is left is cut rather than dropped: rivaltechs' player lists took the whole budget, so its log kept 2,486 characters of them and no tech column (Codex reproduced it, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+					szRest = json.dumps(kept, ensure_ascii=False)
+					if len(szRest) > LOG_RESULT_CHARS // 3:
+						kept = {"otherFieldsCut": szRest[:LOG_RESULT_CHARS // 3]}
 					budget = LOG_RESULT_CHARS - len(json.dumps(kept, ensure_ascii=False))
 					rows = []
-					for row in result["rows"]:
-						budget -= len(json.dumps(row, ensure_ascii=False)) + 1
-						if budget < 0:
+					for row in result[rowKey]:
+						cost = len(json.dumps(row, ensure_ascii=False)) + 1
+						if cost > budget:
+							if budget > 80:
+								rows.append(row[:budget - 10] + " ...")
 							break
+						budget -= cost
 						rows.append(row)
-					kept["rows"] = rows
-					kept["rowsOmitted"] = len(result["rows"]) - len(rows)
+					kept[rowKey] = rows
+					kept[rowKey + "Omitted"] = len(result[rowKey]) - len(rows)
 					record["result"] = kept
 					record["truncated"] = True
 				elif len(text) > LOG_RESULT_CHARS:
@@ -459,7 +506,46 @@ def request(pid, command, args=None, timeout=60.0):
 		print("Civ4 %d: %d Python error output writes since the last reply ('pyerrors' keeps the last 400):" % (pid, reply["pythonErrors"]["writes"]), file=sys.stderr)
 		for line in reply["pythonErrors"]["lines"]:
 			print("  " + line, file=sys.stderr)
+	# <!-- custom: What changed for the player since the previous reply, one line on stderr like the errors above, so a script's stdout stays its result. (Claude code Opus 5.5) -->
+	if reply.get("news"):
+		print("Civ4 %d since the last reply: %s" % (pid, news_text(reply["news"])), file=sys.stderr)
+	if reply.get("newsError"):
+		print("Civ4 %d: the news since the last reply failed: %s" % (pid, reply["newsError"]), file=sys.stderr)
 	return reply
+
+
+def news_text(news):
+	# <!-- custom: A reply's 'news' as one short line, "turn 307->308, learned TECH_FLIGHT, Delhi 12->13", shared with SASPilotConsole.py. (Claude code Opus 5.5) -->
+	parts = []
+	if news.get("eliminated"):
+		parts.append("ELIMINATED")
+	if "gameState" in news:
+		parts.append("game %s->%s" % tuple(news["gameState"]))
+	if news.get("winner"):
+		parts.append("won by %s (%s)" % (news["winner"], news.get("victory")))
+	for (key, label) in (("turn", "turn"), ("rank", "score rank"), ("units", "units"), ("greatPeople", "Great People"), ("goldenAge", "golden age")):
+		if key in news:
+			part = "%s %s->%s" % (label, news[key][0], news[key][1])
+			if key == "rank":
+				part += " of %s" % news.get("ranked")
+			parts.append(part)
+	for (key, label) in (("era", "era"), ("techsLearned", "learned"), ("citiesGained", "cities gained"), ("citiesLost", "cities lost"), ("disorder", "disorder in"), ("disorderEnded", "disorder ended in"), ("warsStarted", "war with"), ("warsEnded", "war ended with"), ("religionsFounded", "religion founded"), ("corporationsFounded", "corporation founded"), ("worldWondersBuilt", "world wonder built"), ("starving", "starving in"), ("starvingEnded", "starving ended in"), ("civicsAdopted", "civics adopted"), ("resourcesGained", "resources gained"), ("resourcesLost", "resources lost"), ("vassalOf", "vassal of"), ("vassalEnded", "no longer vassal of")):
+		value = news.get(key)
+		if value:
+			parts.append("%s %s" % (label, value if isinstance(value, str) else ", ".join(value)))
+	if "research" in news:
+		parts.append("research %s->%s" % tuple(news["research"]))
+	for (key, label) in (("anarchy", "anarchy"), ("treasuryShort", "treasury short"), ("strike", "strike"), ("stateReligion", "state religion")):
+		if key in news:
+			parts.append("%s %s->%s" % (label, news[key][0], news[key][1]))
+	for entry in news.get("population") or []:
+		parts.append("%s pop %s->%s" % (entry["city"], entry["pop"][0], entry["pop"][1]))
+	for entry in news.get("built") or []:
+		parts.append("%s built %s" % (entry["city"], entry["building"]))
+	if news.get("messages"):
+		# <!-- custom: A message as text alone is read too: the first rows of 2026-11-28 logged them so, before each got its type, and a reopened console replays its log from the start, which raised TypeError on them (Codex reproduced it). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		parts.append("messages: %s%s" % (" | ".join([isinstance(message, str) and message or message["text"] for message in news["messages"]]), news.get("messagesNotShown") and " (+%d more; 'messages since=%s' lists them)" % (news["messagesNotShown"], news.get("messagesSince")) or ""))
+	return ", ".join(parts)
 
 
 def _request(pid, command, args=None, timeout=60.0):
@@ -1345,17 +1431,7 @@ def main():
 	args.arguments = kept
 	if args.note:
 		_log_context["note"] = args.note
-	_log_context["operator"] = args.operator or os.environ.get("SAS_PILOT_OPERATOR") or None
-	# <!-- custom: SAS_PILOT_OPERATOR_SESSION for any agent; Claude Code sets CLAUDE_CODE_SESSION_ID in its shell (seen 2026-11-14).
-	# Codex sets CODEX_THREAD_ID (and CODEX_SESSION_ID), its rollout ID, as it reported the same day. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
-	_log_context["session"] = os.environ.get("SAS_PILOT_OPERATOR_SESSION") or os.environ.get("CLAUDE_CODE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or None
-	# <!-- custom: An agent's shell gives its session but not its model, and an agent can forget SAS_PILOT_OPERATOR for one call: two of this session's 'py' commands were logged without an operator (2026-11-14).
-	# So the agent's kind names the operator when none is given; the session, the same either way, keeps those rows with the named ones. (Claude code Opus 5.5) -->
-	if not _log_context["operator"]:
-		if os.environ.get("CLAUDE_CODE_SESSION_ID"):
-			_log_context["operator"] = "Claude Code"
-		elif os.environ.get("CODEX_THREAD_ID"):
-			_log_context["operator"] = "Codex"
+	_set_operator(args.operator)
 	_log_context["command"] = args.command
 	# <!-- custom: City and leader names can hold characters the Windows console code page lacks. (Claude code Fable 5.2) -->
 	sys.stdout.reconfigure(encoding="utf-8", errors="replace")

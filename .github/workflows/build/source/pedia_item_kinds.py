@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[4]
 ENUMS = Path("Assets/Python/Screens/CvScreenEnums.py")
 SCREENS_INTERFACE = Path("Assets/Python/EntryPoints/CvScreensInterface.py")
 # <!-- custom: Each file reading the table, with the name it assigns from it. (Claude code Opus 5.5) -->
-CONSUMERS = ((Path("Assets/Python/Contrib/Sevopedia/SevoPediaMain.py"), "self.SAS_linkMatchDefs"), (Path("SASPilot/game/SASPilotCommands.py"), "_PEDIA_KINDS"))
+CONSUMERS = ((Path("Assets/Python/Contrib/Sevopedia/SevoPediaMain.py"), "self.SAS_linkMatchDefs"), (Path("SASPilot/game/SASPilotCatalog.py"), "_PEDIA_KINDS"))
 # <!-- custom: Entry points whose item is not an index into one XML table, with why. (Claude code Opus 5.5) -->
 JUMPS_WITHOUT_ROW = {"PEDIA_GAME_SPEED_CHART": "pediaJumpToGameSpeed's item packs a speed and a culture level, which SevoPediaGameSpeedChart unpacks"}
 

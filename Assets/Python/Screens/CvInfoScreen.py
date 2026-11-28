@@ -80,6 +80,16 @@ class CvInfoScreen:
 		# </advc.077>
 
 		self.screenId = screenId
+		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
+		# <!-- custom: Read here, when the screen object is made, rather than in initText, which runs only when the screen opens: SASPilot's 'timeline' reads the records through this object with the screen never opened, and failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" once the Greatest Civilizations ranking added that setting there.
+		# They are session settings, independent of the layout initText also sizes. See KI#1101.2. (Claude code Opus 5.5) -->
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON > 0)
+		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_CACHE_ON > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_TOP_CIVS_ON > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASSessionTunables.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH
+		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_X_GRID_LINES
+		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_Y_GRID_LINES
 		self.DEMO_SCREEN_NAME = "DemographicsScreen"
 		self.TOP_CITIES_SCREEN_NAME = "TopCitiesScreen"
 
@@ -464,15 +474,6 @@ class CvInfoScreen:
 		self.sDateWonders = BugUtil.getPlainText("TXT_KEY_WONDER_DATE")
 		self.sOwnerWonders = BugUtil.getPlainText("TXT_KEY_WONDER_OWNER")
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
-
-		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON > 0)
-		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_CACHE_ON > 0)
-		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_TOP_CIVS_ON > 0)
-		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASSessionTunables.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH
-		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_X_GRID_LINES
-		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_Y_GRID_LINES
 
 	def reset(self):
 

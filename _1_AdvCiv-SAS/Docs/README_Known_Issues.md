@@ -1326,6 +1326,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
 [KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
+[KI#1101.2 - (Fixed AdvCiv-SAS slip, SASPilot branch only) SASPilot's `timeline` failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" whenever the Info Screen had not been opened that session, as the Greatest Civilizations filter's setting was read only when the screen opens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101.2)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
@@ -39899,6 +39900,25 @@ uipress {'widget': 'InfoTabButton2'}: NameError: global name 'iNumMessages' is n
 
 Found by `SASPilotUISweep.py`; fixed by Claude Code Opus 5.5, the user asking for this entry.
 
+<a id="ki-1101.2"></a>
+
+## KI#1101.2 - (Fixed AdvCiv-SAS slip, SASPilot branch only) SASPilot's `timeline` failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" whenever the Info Screen had not been opened that session, as the Greatest Civilizations filter's setting was read only when the screen opens
+
+On 2026-11-28, while deciding whether the Timeline's entries should join SASPilot's news, `timeline limit=6` on the turn-322 Asoka game raised:
+
+```text
+AttributeError: CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'
+  File "CvInfoScreen", line 976, in getTimelineRecords
+```
+
+- `timeline` reads the records through `CvInfoScreen.getTimelineRecords` on a copy of the screen object, so SASPilot and the tab share one filter (see [KI#1101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)).
+  - The screen sets its session settings, such as that switch, in `initText`, which runs only when the screen opens; `initText` also sizes the layout, so `timeline` could not call it and already set the one text it needed by hand.
+  - The Greatest Civilizations filter (`ec029819d`, merged into the SASPilot branch on 2026-11-20) added `IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` to `initText` and read it in `getTimelineRecords`, so `timeline` failed from then on in any session where the Info Screen was not opened first.
+  - The fix for KI#1101 did not show it, as `SASPilotUISweep.py` opens the screen before reading it.
+- Fixed by reading the six session settings, which do not depend on the layout, in the screen's `__init__` in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py), rather than setting one more attribute by hand in `timeline`, which the next setting added to `initText` would have broken again.
+
+Found and fixed by Claude Code Opus 5.5.
+
 <a id="ki-1102"></a>
 
 ## KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing
@@ -40411,3 +40431,5 @@ Rechecked, and the mailbox fixed, by Codex (GPT-6.2-Sol), 2026-11-27.
 - [`pedia_item_kinds.py`](/.github/workflows/README.md#buildsourcepedia_item_kindspy) guards the table from then on: a `pediaJumpTo*` entry point whose Sevopedia page has no row fails CI, the rule that would have caught the missing votes and event triggers, as does either consumer writing a list of its own.
 
 Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5, 2026-11-28.
+
+- Update (2026-11-28, later the same day): `_PEDIA_KINDS`, with `types`, `pedia` and `info`, moved to [`SASPilotCatalog.py`](/SASPilot/game/SASPilotCatalog.py), the first part of `SASPilotCommands.py` moved out by topic; `pedia_item_kinds.py` reads it there.

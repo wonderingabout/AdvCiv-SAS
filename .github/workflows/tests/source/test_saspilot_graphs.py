@@ -19,6 +19,10 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[4]
 COMMANDS = ROOT / "SASPilot/game/SASPilotCommands.py"
+# <!-- custom: The diplomacy commands and their helpers, such as _addRelationLink, moved out of SASPilotCommands.py on 2026-11-28. (Claude code Opus 5.5) -->
+DIPLOMACY = ROOT / "SASPilot/game/SASPilotDiplomacy.py"
+# <!-- custom: The map commands, such as cmd_grid and cmd_plots, moved out of SASPilotCommands.py the same day. (Claude code Opus 5.5) -->
+MAP = ROOT / "SASPilot/game/SASPilotMap.py"
 
 
 def infos(relative_path, element):
@@ -27,6 +31,15 @@ def infos(relative_path, element):
 
 def getter(rows, index):
     return SimpleNamespace(getType=lambda: rows[index].findtext("Type"), getDescription=lambda: rows[index].findtext("Type"))
+
+
+class ScopeView:
+    # <!-- custom: Attribute access on a dict, for a moved module's saspilot.<name> in tests. (Claude code Opus 5.5) -->
+    def __init__(self, scope):
+        self.scope = scope
+
+    def __getattr__(self, name):
+        return self.scope[name]
 
 
 class PilotGraphTests(unittest.TestCase):
@@ -47,7 +60,17 @@ class PilotGraphTests(unittest.TestCase):
                                      "SASCurrentDefines": ModuleType("SASCurrentDefines"), "SASBattleHistory": ModuleType("SASBattleHistory"),
                                      "SASUtils": utils}):
             commands = runpy.run_path(str(COMMANDS))
+            self.diplomacy = runpy.run_path(str(DIPLOMACY))
+            mapModule = runpy.run_path(str(MAP))
         self.scope = commands["cmd_graph"].__globals__
+        # <!-- custom: The map module's own globals, as run_path returns a copy; it reaches the command module as saspilot, here a view of the test scope, so the stubs each test puts in self.scope reach the moved commands too. (Claude code Opus 5.5) -->
+        self.mapScope = mapModule["cmd_grid"].__globals__
+        self.mapScope["saspilot"] = ScopeView(self.scope)
+
+    def mapFunction(self, name):
+        # <!-- custom: A map command or helper, with the gc the test put in self.scope, as the map module keeps its own. (Claude code Opus 5.5) -->
+        self.mapScope["gc"] = self.scope["gc"]
+        return self.mapScope[name]
 
     def test_poll_retries_a_request_that_cannot_be_read_yet(self):
         with TemporaryDirectory() as directory:
@@ -142,9 +165,9 @@ class PilotGraphTests(unittest.TestCase):
         master = SimpleNamespace(getID=lambda: 0, isVassal=lambda i: False, isOpenBorders=lambda i: True, isDefensivePact=lambda i: False)
         vassal = SimpleNamespace(getID=lambda: 1, isVassal=lambda i: i == 0, isOpenBorders=lambda i: True, isDefensivePact=lambda i: False)
         edge = {}
-        self.scope["_addRelationLink"](edge, vassal, master)
+        self.diplomacy["_addRelationLink"](edge, vassal, master)
         self.assertEqual({"sameTeam": False, "vassalOfTarget": True, "openBorders": True, "defensivePact": False}, edge)
-        self.scope["_addRelationLink"](edge, master, vassal)
+        self.diplomacy["_addRelationLink"](edge, master, vassal)
         self.assertFalse(edge["vassalOfTarget"])
 
     def test_history_respects_contact_and_demographics(self):
@@ -167,12 +190,12 @@ class PilotGraphTests(unittest.TestCase):
     def test_grid_links_wrap_and_only_join_tiles_in_the_snapshot(self):
         kmap = SimpleNamespace(getGridWidth=lambda: 6, getGridHeight=lambda: 5,
             isWrapX=lambda: True, isWrapY=lambda: False)
-        self.assertEqual((0, 0, 5, 4), self.scope["_gridBounds"](kmap, {}))
-        self.assertEqual((2, 1, 5, 4), self.scope["_gridBounds"](kmap, {"box": [2, 1, 5, 4]}))
+        self.assertEqual((0, 0, 5, 4), self.mapFunction("_gridBounds")(kmap, {}))
+        self.assertEqual((2, 1, 5, 4), self.mapFunction("_gridBounds")(kmap, {"box": [2, 1, 5, 4]}))
         with self.assertRaises(ValueError):
-            self.scope["_gridBounds"](kmap, {"box": [2, 1, 6, 4]})
+            self.mapFunction("_gridBounds")(kmap, {"box": [2, 1, 6, 4]})
         plot = SimpleNamespace(isTradeNetworkConnected=lambda other, team: team == 3)
-        result = self.scope["_gridTradeLinks"](kmap, {(0, 2): plot, (5, 2): plot, (2, 2): plot}, 3)
+        result = self.mapFunction("_gridTradeLinks")(kmap, {(0, 2): plot, (5, 2): plot, (2, 2): plot}, 3)
         self.assertEqual([{"from": [5, 2], "to": [0, 2], "step": [1, 0]}], result)
 
     def test_grid_hides_unseen_current_state_and_trade_links(self):
@@ -202,7 +225,7 @@ class PilotGraphTests(unittest.TestCase):
                 getBonusInfo=info, getTerrainInfo=info, getImprovementInfo=info, getRouteInfo=info)})
         # <!-- custom: Feature and resource are given off sight too, as the window draws them on fogged plots (Claude code Opus 5.5, 2026-11-14); owner, improvement and route stay the remembered ones. (GPT-6.1-Sol + Claude code Opus 5.5) -->
         self.scope["gc"].getFeatureInfo = info
-        reply = self.scope["cmd_grid"]({})
+        reply = self.mapFunction("cmd_grid")({})
         self.assertEqual([{"x": 0, "y": 0, "visible": False, "owner": -1, "feature": "SAMPLE", "bonus": None, "terrain": "SAMPLE", "hill": True,
             "peak": False, "water": False, "improvement": "SAMPLE", "route": None}], reply["tiles"])
         self.assertEqual([], reply["tradeLinks"])
@@ -226,14 +249,14 @@ class PilotGraphTests(unittest.TestCase):
             "_typeOrNone": lambda getter, value: None,
             "gc": SimpleNamespace(getGame=lambda: game, getMap=lambda: kmap, getBonusInfo=None,
                 getTerrainInfo=None, getImprovementInfo=None, getRouteInfo=None, getFeatureInfo=None)})
-        self.assertEqual([{"x": 1, "y": 0, "water": True}], self.scope["cmd_grid"]({})["fogEdge"])
-        self.assertEqual([], self.scope["cmd_grid"]({"edge": 0})["fogEdge"])
+        self.assertEqual([{"x": 1, "y": 0, "water": True}], self.mapFunction("cmd_grid")({})["fogEdge"])
+        self.assertEqual([], self.mapFunction("cmd_grid")({"edge": 0})["fogEdge"])
 
     def test_plot_query_uses_a_unit_anchor_and_preserves_the_fog_argument(self):
         self.scope["_player"] = lambda args: "owner"
         with patch.dict(self.scope, {"_requireOwnTeamUnderFog": lambda args, player, what: self.assertEqual("owner", player),
                 "_unit": lambda args: SimpleNamespace(plot=lambda: SimpleNamespace(getX=lambda: 4, getY=lambda: 9)),
                 "_fogTeam": lambda args: 2, "_plotsJson": lambda x, y, radius, team: str((x, y, radius, team))}):
-            self.assertEqual("(4, 9, 2, 2)", self.scope["cmd_plots"]({"unit": 7, "radius": 2}).text)
+            self.assertEqual("(4, 9, 2, 2)", self.mapFunction("cmd_plots")({"unit": 7, "radius": 2}).text)
             with self.assertRaises(ValueError):
-                self.scope["cmd_plots"]({"unit": 7, "x": 4, "y": 9})
+                self.mapFunction("cmd_plots")({"unit": 7, "x": 4, "y": 9})

@@ -40,7 +40,7 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) with its [`define_values.py`](#define_valuespy) |
 | `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
-| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
+| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy), [`split_python_module.py`](#split_python_modulepy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
 | `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`SASPilot/`](/SASPilot/README.md) at the root |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
@@ -183,6 +183,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`move_defines_to_tunables.py`](#move_defines_to_tunablespy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
+    - [`split_python_module.py`](#split_python_modulepy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
     - [`reflow_cpp_logging_calls.py`](#reflow_cpp_logging_callspy)
     - [`collapse_cpp_log_guards.py`](#collapse_cpp_log_guardspy)
@@ -1896,6 +1897,25 @@ Renames identifiers, such as SAS defines, in every tracked or new untracked text
 ```powershell
 python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ SAS_EXE_PATCH_SETUP_SCREEN_=SAS_EXE_P_MAIN_MENU_
 python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ --write
+```
+
+#### `split_python_module.py`
+
+Moves a group of commands and the helpers only they use out of a large Python module into a sibling module, which reaches the rest through a prefix such as `saspilot.`, and checks that nothing was lost.
+
+- Written on 2026-11-28 while `SASPilotCommands.py`, over 8,000 lines, was split by topic into `SASPilotCatalog.py`, `SASPilotDiplomacy.py` and `SASPilotCities.py`; the steps began as scratchpad scripts and are kept here, as the next split needs them again.
+- `graph FILE city,produce,...` lists, from the commands named, the helpers only they use (the group), the names the group shares with the rest (left in place) and the moved names the rest still calls, with a JSON config for `move`.
+  - A moved command the rest still calls keeps working in SASPilot, whose loader adds a sibling's commands to the command module; a moved helper the rest calls would not, so it stays.
+- `move FILE CONFIG` moves each definition verbatim, with the comments directly above it and its `_HELP["name"]` line wherever that is, adds the prefix to the shared names and writes the new module under the config's header; `--dry-run` only counts.
+- `check BEFORE FILE MODULE` compares a copy of the module made before the move with the two files after, line for line once the prefix is removed, and lists the names the new module takes from the old one without the prefix.
+  - Where it tripped: the first name check counted only definitions and plain imports, so `getInfoTypeOrFail`, which `SASPilotCommands.py` has from `from SASUtils import getInfoTypeOrFail`, reached the game unresolved and `trainable` raised `NameError`; it counts from-imports and classes now, and replaying that move on a copy flags the name.
+- Guards added from Codex's reviews: names are changed only in code, not in strings or comments, nor after a dot, even with spaces between (`obj. shared` is an attribute); a definition's decorators move with it, as one left behind applied itself to the next function; a shared name the moved code also binds locally, such as a parameter, is refused, as the prefix would give `def cmd_b(old.shared)`, found by Python 2.4's own parser, since a line-by-line text match let a multiline tuple target through and the move changed game state; both results go through `compile()` with `--python` (by default Civ4's 2.4 at `C:/Python24`) before either is written, as its parser alone accepts a top-level `return`; and `graph` keeps a helper that another file in the folder reaches through the prefix, as the map's first graph would have moved `_yields`, which `SASPilotCities.py` calls.
+- The new module still needs its imports, its registration with the loader and a live test of its commands; CI tests that load the old module's scope may name a moved helper, as `test_saspilot_graphs.py` did `_addRelationLink`.
+
+```powershell
+python LLM_Helpers\formatting\split_python_module.py graph SASPilot\game\SASPilotCommands.py city,cities,produce
+python LLM_Helpers\formatting\split_python_module.py move SASPilot\game\SASPilotCommands.py cities.json --dry-run
+python LLM_Helpers\formatting\split_python_module.py check before\SASPilotCommands.py SASPilot\game\SASPilotCommands.py SASPilot\game\SASPilotCities.py
 ```
 
 ### C++ source cleanup helpers

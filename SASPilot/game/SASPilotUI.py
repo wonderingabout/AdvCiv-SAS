@@ -475,7 +475,8 @@ def _openPediaItem(szName, szType):
 	if szName != "pedia":
 		raise ValueError("item= opens a Sevopedia page, so it needs name=pedia")
 	# <!-- custom: _pediaKind checks the entry's own type, as a BUILDINGCLASS_ or UNITCLASS_ type also starts with BUILDING or UNIT. (Claude code Opus 5.5) -->
-	kind = saspilot._pediaKind(szType)
+	# <!-- custom: The Sevopedia's kinds live in SASPilotCatalog.py since 2026-11-28. (Claude code Opus 5.5) -->
+	kind = saspilot._catalog()._pediaKind(szType)
 	if kind[3] is None:
 		raise ValueError("%s has no Sevopedia page of its own" % szType)
 	iType = saspilot._infoIndex(szType)

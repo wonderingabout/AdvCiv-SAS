@@ -29,8 +29,9 @@ CONTROLS = Path("Assets/XML/Units/CIV4ControlInfos.xml")
 TEXT = Path("Assets/XML/Text")
 INHERITED = Path("_0_Legacy/Docs/Manifests/xml_sas_text_inherited_hashes.tsv")
 SASPILOT_UI = Path("SASPilot/game/SASPilotUI.py")
-# <!-- custom: The files whose cmd_ functions are SASPilot's commands, so each _TAB_COMMANDS command can be checked to exist. (Claude code Opus 5.5) -->
-SASPILOT_COMMANDS = (Path("SASPilot/game/SASPilotCommands.py"), SASPILOT_UI)
+# <!-- custom: The folder whose files' cmd_ functions are SASPilot's commands, so each _TAB_COMMANDS command can be checked to exist.
+# All of SASPilot/game since 2026-11-28, when SASPilotCatalog.py took the first commands out of SASPilotCommands.py by topic: a list of files would need each new one added. (Claude code Opus 5.5) -->
+SASPILOT_GAME = Path("SASPilot/game")
 DLL = Path("CvGameCoreDLL")
 # <!-- custom: The Info page numbers the DLL passes to showInfoScreen, with the tab each means: CvDLLWidgetData.cpp opens Score with py.showInfoScreen(1).
 # Codex's review noted that native callers pass numbers, so reordering the registry would open another tab; a number the DLL passes that is not listed here fails too, until its tab is named. See KI#1110. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
@@ -209,7 +210,7 @@ def main() -> int:
 	problems += check_registry(advisors, control_hotkeys((ROOT / CONTROLS).read_text(encoding="utf-8")), text_keys(ROOT))
 	screens = {str(path.relative_to(ROOT)).replace("\\", "/"): path.read_text(encoding="utf-8", errors="replace") for path in sorted((ROOT / PYTHON).rglob("*.py"))}
 	problems += check_screens(screens)
-	problems += check_commands(advisors, (ROOT / SASPILOT_UI).read_text(encoding="utf-8"), command_names([(ROOT / path).read_text(encoding="utf-8") for path in SASPILOT_COMMANDS]))
+	problems += check_commands(advisors, (ROOT / SASPILOT_UI).read_text(encoding="utf-8"), command_names([path.read_text(encoding="utf-8") for path in sorted((ROOT / SASPILOT_GAME).glob("*.py"))]))
 	problems += check_dll_info_pages(advisors, {str(path.relative_to(ROOT)).replace("\\", "/"): path.read_text(encoding="utf-8", errors="replace") for path in sorted((ROOT / DLL).glob("*.cpp"))})
 	if problems:
 		print("FAIL advisor tab registry:")

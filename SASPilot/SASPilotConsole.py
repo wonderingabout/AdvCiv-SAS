@@ -89,7 +89,7 @@ def _learn_operator(record):
 
 
 def _operator_number(record):
-	return _style.get("numbers", {}).get(record.get("operatorSession") or record.get("operator"), "?")
+	return _style.get("numbers", {}).get(record.get("operatorSession") or record.get("operator"), "-")
 
 
 def _count(record, kind):
@@ -177,6 +177,7 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 	# <!-- custom: Each line names its operator by number, op1, op2, as the user asked whether every command should say who sent it (2026-11-14); the log row holds the name and session, the banner when it joined says which is which.
 	# op?
 	# for a row from no known operator. (Claude code Opus 5.5) -->
+	# <!-- custom: Now op-, with SAS's dash for a missing value: the user read its question mark as a question (2026-11-28), on rows from test scripts that sent no --operator. (Claude code Opus 5.5) -->
 	operator = "op%s" % _operator_number(record)
 	head = "%-12s %s %-4s %-5s %s" % (record.get("utc", "")[11:23].rstrip("Z"), number, operator, record.get("kind", ""), record.get("cmd", ""))
 	args = record.get("args") or {}
@@ -209,6 +210,17 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 		# <!-- custom: Notes are numbered from the watcher's start like errors, "why #12", so a reason can be pointed at without counting; the user asked for an automatic number rather than one the agent writes (2026-11-14). (Claude code Opus 5.5) -->
 		# <!-- custom: Then with the operator, "why #00012 (op2)", as several agents may pilot one client (the user, 2026-11-14); see _count. (Claude code Opus 5.5) -->
 		lines.append(paint("    why %s: %s" % (_count(record, "notes"), record["note"]), "note"))
+	# <!-- custom: The Python errors and the player's news a reply carried, under the command that got them, so a person watching sees them as they happen (the user's idea, 2026-11-28). (Claude code Opus 5.5) -->
+	if record.get("pythonErrors"):
+		errors = record["pythonErrors"]
+		lines.append(paint("    PYTHON ERRORS (%s writes): %s" % (errors.get("writes"), short(" | ".join(errors.get("lines") or [])[-400:], width)), "error"))
+	if record.get("news"):
+		# <!-- custom: Imported here, as the settings check below does, so the console starts without the client; the wording is shared with the client's stderr line. (Claude code Opus 5.5) -->
+		import SASPilotClient as saspilot
+		# <!-- custom: Numbered like notes and errors, "news #00004 (op1)", so a piece of news can be pointed at (the user, 2026-11-28); it was "since the last reply:", unnumbered. (Claude code Opus 5.5) -->
+		lines.append(paint("    news %s: %s" % (_count(record, "news"), saspilot.news_text(record["news"])), "note"))
+	if record.get("newsError"):
+		lines.append(paint("    news failed: " + record["newsError"], "error"))
 	if not record.get("ok"):
 		# <!-- custom: Errors are numbered from the watcher's start, so "ERROR #3" says how many came before it without counting by eye; with the operator like notes, "ERROR #00003 (op6)". (Claude code Opus 5.5) -->
 		lines[0] = paint(lines[0], "error")
@@ -219,10 +231,13 @@ def format_record(record, width, pretty=False, max_lines=40, inline_width=140):
 		result = record["result"]
 		# <!-- custom: A text map ('map', 'routes') prints as the picture it is, one map row per line: in one JSON line its rows ran together, unreadable (2026-11-14).
 		# The other fields stay on the first line. (Claude code Opus 5.5) -->
-		if isinstance(result, dict) and isinstance(result.get("rows"), list) and all(isinstance(row, str) for row in result["rows"]):
-			rest = dict((key, value) for (key, value) in result.items() if key != "rows")
+		# <!-- custom: The tech tree's columns ('rivaltechs' layout) too, one per line, through the client's row_field (the user, 2026-11-28). (Claude code Opus 5.5) -->
+		import SASPilotClient as saspilot
+		rowKey = saspilot.row_field(result)
+		if rowKey:
+			rest = dict((key, value) for (key, value) in result.items() if key != rowKey)
 			lines.append(paint("    -> " + short(rest, width), "result"))
-			lines.extend([paint("       " + row, "result") for row in result["rows"]])
+			lines.extend([paint("       " + row, "result") for row in result[rowKey]])
 		elif pretty and not isinstance(record["result"], str):
 			# <!-- custom: The shared formatter keeps short rows together and uses inline_width for the console. (Claude code Opus 5.5) -->
 			body = format_json(record["result"], 1, inline_width).splitlines()
@@ -557,7 +572,8 @@ def main():
 				record = json.loads(line)
 			except ValueError:
 				continue
-			if args.all or record.get("kind") != "read" or not record.get("ok"):
+			# <!-- custom: A read that carried Python errors or the player's news is shown too, as both matter to whoever watches, whichever command brought them. (Claude code Opus 5.5) -->
+			if args.all or record.get("kind") != "read" or not record.get("ok") or record.get("pythonErrors") or record.get("news") or record.get("newsError"):
 				# <!-- custom: Lines show the time only, so a date line marks each new UTC day; a game played over days stays readable (the user, 2026-11-14). (Claude code Opus 5.5) -->
 				date = record.get("utc", "")[:10]
 				if date and date != last_date:

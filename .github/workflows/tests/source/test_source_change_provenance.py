@@ -387,6 +387,14 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         self.assertTrue(any("include/import change" in error for error in self.errors("LLM_Helpers/test.py", old, bad)))
         self.assertEqual(self.errors("LLM_Helpers/test.py", old, good), [])
 
+    # <!-- custom: A function-local import moved to another file with its function is no dependency change in either, as when SASPilotCommands.py was split by topic (2026-11-28); a removal not added elsewhere still needs its comment. (Claude code Opus 5.5) -->
+    def test_import_moved_to_another_file_needs_no_rationale(self):
+        old = "def f():\n\timport BugPath\n\treturn BugPath\n\nvalue = 1\n"
+        new = "value = 1\n"
+        moved = (set(["import BugPath"]), set(["import BugPath"]))
+        self.assertEqual([error for error in checker.check_change("SASPilot/game/Old.py", old, new, moved_directives=moved) if "include/import change" in error], [])
+        self.assertTrue(any("include/import change" in error for error in checker.check_change("SASPilot/game/Old.py", old, new)))
+
     def test_python_binding_requires_rationale_even_with_help_string(self):
         path = "CvGameCoreDLL/CyGameInterface.cpp"
         binding = '\t.def("observe", &CyGame::observe, "void () - observe state")\n'

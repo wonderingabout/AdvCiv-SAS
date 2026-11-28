@@ -1442,7 +1442,7 @@ Fails when the advisors' footer tabs stop coming from one place, `ADVISOR_TABS` 
 
 - Added on 2026-11-22 with the registry ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)): the tabs had lived in seven hard-coded shapes, so code needing every tab opened each screen, and a hand-kept copy would drift. A new tab is now added in the registry, and this check makes it get a label text key and a SASPilot command entry (the command, or `None` with a note).
 - The test feeds it a small registry: a stale hotkey comment, an unknown text key, a screen with its own list and a tab with no command entry each fail.
-- Each entry's command must be a `cmd_` function of `SASPilotCommands.py` or `SASPilotUI.py`, and `None` needs its note: keys alone were checked first, so `battlez` for `battles` passed and `uitabs all=1` advertised a command that does not exist (Codex's review, 2026-11-27).
+- Each entry's command must be a `cmd_` function of a file in `SASPilot/game/` (`SASPilotCommands.py` or `SASPilotUI.py` until `SASPilotCatalog.py` took the first commands out by topic, 2026-11-28), and `None` needs its note: keys alone were checked first, so `battlez` for `battles` passed and `uitabs all=1` advertised a command that does not exist (Codex's review, 2026-11-27).
 - The DLL opens the Info screen on a page by number (`py.showInfoScreen(1)` for Score in `CvDLLWidgetData.cpp`), so `DLL_INFO_PAGES` names the tab each such number means, and the check fails when the registry puts another tab there or the DLL passes a number it does not name (Codex's review, 2026-11-22).
 
 #### `build/source/checkout_byte_compares.py`
