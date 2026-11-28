@@ -1339,7 +1339,9 @@ def fit_client(hwnd, width, height):
 def place_window(hwnd, left, top, right, bottom):
 	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so SASPilotConsole.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	make_dpi_aware()
-	USER32.ShowWindow(hwnd, 9)
+	# <!-- custom: Restored only when minimized or maximized, the case a move needs it for: SW_RESTORE also activates, so the SASPilot console, laid out while the game waited to press Enter on its keep dialog, took the focus from it (2026-11-28). (Claude code Opus 5.5) -->
+	if USER32.IsIconic(hwnd) or USER32.IsZoomed(hwnd):
+		USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
 	outer = window_rect(hwnd)

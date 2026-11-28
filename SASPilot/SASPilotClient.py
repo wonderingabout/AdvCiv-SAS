@@ -149,6 +149,8 @@ def _log_request(pid, command, args, reply, error, kind=None):
 		else:
 			record["ok"] = False
 			record["error"] = error
+		# <!-- custom: Kept for main's last resort, which logs a failure the client raised itself unless an error row was already written for this invocation; errorLogged is set once the row is written, below (Codex's review, 2026-11-28: set here, a failed write suppressed the last resort with no row published). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		_log_context["pid"] = pid
 		LOGS_DIR.mkdir(parents=True, exist_ok=True)
 		# <!-- custom: Each request is numbered within its game turn (n) and within the log (seq), so the watcher can show T285-00012 and a line can be cited exactly: the user saw many rows in the same second (2026-11-14). seq is the exact reference, as a turn's numbers repeat after reloading an earlier turn.
 		# Every SASPilotClient.py call is a new process, so the counters live in a small .seq file beside the log; a failed request takes the last turn.
@@ -206,6 +208,8 @@ def _log_request(pid, command, args, reply, error, kind=None):
 				with open(path, "a", encoding="utf-8") as handle:
 					for line in lines:
 						handle.write(json.dumps(line, ensure_ascii=False) + "\n")
+				if not record["ok"]:
+					_log_context["errorLogged"] = True
 				os.lseek(descriptor, 0, 0)
 				os.ftruncate(descriptor, 0)
 				os.write(descriptor, json.dumps(counters).encode("ascii"))
@@ -889,7 +893,7 @@ def set_resolution(pid, resolution_args, timeout):
 	(width, height) = [int(part) for part in str(resolution_args["size"]).lower().replace(" ", "").split("x")]
 	# <!-- custom: An unchanged mode still gets its window fitted, with no key pressed: it returned before the fit, so a framed 4K game on a 4K monitor stayed framed (Codex's review, 2026-11-28). See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	if result.get("unchanged"):
-		borderless = fit_screen_sized(pid, width, height)
+		borderless = _fit_after_switch(pid, width, height)
 		if borderless is not None:
 			result["borderless"] = borderless
 		return result
@@ -914,20 +918,29 @@ def set_resolution(pid, resolution_args, timeout):
 		if not shown:
 			time.sleep(0.25)
 	if not shown:
-		raise PilotError("switched to %dx%d, but the keep dialog was not seen, so no key was pressed (Enter also ends the turn); answer it in the window within about 20 s, or it puts the old size back" % (width, height))
+		raise PilotError("initiated %dx%d, but the keep dialog was not seen, so no key was pressed (Enter also ends the turn); answer it in the window within about 20 s, or it puts the old size back" % (width, height))
 	# <!-- custom: The window comes to the front first and the dialog is looked for again just before the key, as key() raises the window itself: checked earlier, the dialog could close in between, by a person's answer or its timer, and Enter reach the map (Codex's third review, 2026-11-28).
 	# The key is then tapped in the same focus grab, with the window checked to be in front: desktop_windows.key() raised the window again and slept at least 150 ms after that last look, and Codex's fourth review sent Enter with the dialog gone in that gap (2026-11-28).
 	# A person answering the dialog by hand between the last look and the tap can still let Enter reach the map, so the game turn is compared afterwards, and a changed turn is reported as an error rather than a kept size. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 	previous = desktop_windows.USER32.GetForegroundWindow()
 	# <!-- custom: With the title-bar click key() used when Windows refuses the focus: without it the game stayed behind and no key was sent (2026-11-28). (Claude code Opus 5.5) -->
-	desktop_windows.bring_to_front(hwnd, pid)
+	# <!-- custom: Up to three tries, each bringing the game to the front and looking again, as another window can take the focus meanwhile: the console, reopening for the new size, did so once and no key was sent (2026-11-28). (Claude code Opus 5.5) -->
+	bPressed = False
 	try:
-		if desktop_windows.window_pid(desktop_windows.USER32.GetForegroundWindow()) != pid or not keep_dialog_shown(hwnd):
-			raise PilotError("the keep dialog went, or the game lost the front, before Enter could be pressed, so none was; read 'resolution' to see the size the game kept")
-		desktop_windows.tap(*desktop_windows.parse_key("enter"))
-		time.sleep(0.2)
+		for _attempt in range(3):
+			desktop_windows.bring_to_front(hwnd, pid)
+			if not keep_dialog_shown(hwnd):
+				break
+			if desktop_windows.window_pid(desktop_windows.USER32.GetForegroundWindow()) == pid:
+				desktop_windows.tap(*desktop_windows.parse_key("enter"))
+				bPressed = True
+				time.sleep(0.2)
+				break
+			time.sleep(0.5)
 	finally:
 		desktop_windows.give_focus_back(previous, pid)
+	if not bPressed:
+		raise PilotError("the keep dialog went, or the game did not keep the front, before Enter could be pressed, so none was; read 'resolution' to see the size the game kept")
 	time.sleep(0.8)
 	if keep_dialog_shown(hwnd):
 		raise PilotError("the keep dialog is still up after Enter; answer it in the window")
@@ -939,10 +952,22 @@ def set_resolution(pid, resolution_args, timeout):
 		raise PilotError("the game turn went from %s to %s while the keep dialog was answered: Enter, also End Turn, may have ended the turn" % (iTurnBefore, after.get("gameTurn")))
 	if not result["kept"] or result["game"].replace(" ", "").lower() != "%dx%d" % (width, height):
 		raise PilotError("the game reverted to %s in a %s window: the keep dialog was not answered in time" % (result["game"], result["window"]))
-	borderless = fit_screen_sized(pid, width, height)
+	borderless = _fit_after_switch(pid, width, height)
 	if borderless is not None:
 		result["borderless"] = borderless
+	# <!-- custom: The outcome gets a row of its own once verified, as the game's row only says which mode was initiated, before the keep dialog is answered; a failure above is logged as an error row instead (main's last resort).
+	# The user noticed the console showing the request as if done (2026-11-28). (Claude code Opus 5.5) -->
+	result["keepDialog"] = "Enter pressed (Yes)"
+	_log_request(pid, "resolution", {"size": resolution_args["size"], "step": "verified"}, {"ok": True, "result": {"kept": result["game"], "keepDialog": result["keepDialog"], "borderless": result.get("borderless")}, "gameTurn": after.get("gameTurn")}, None)
 	return result
+
+
+def _fit_after_switch(pid, width, height):
+	# <!-- custom: A desktop failure while fitting the window, after the game has the mode, becomes a PilotError saying so, which main logs as an error row: as a raw OSError or RuntimeError it escaped with no row (Codex's review, 2026-11-28). See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	try:
+		return fit_screen_sized(pid, width, height)
+	except (OSError, RuntimeError) as error:
+		raise PilotError("the game has %dx%d, but fitting its window failed: %s" % (width, height, error))
 
 
 def fit_screen_sized(pid, width, height):
@@ -1472,6 +1497,10 @@ def main():
 						return 0
 	except PilotError as error:
 		print("SASPilot: %s" % error, file=sys.stderr)
+		# <!-- custom: A failure the client raised after the game had answered, such as 'resolution' finding the keep dialog gone before it could press Enter, went to stderr only, so the console, which shows the command log, did not show it (the user, who had moved the mouse during that switch, 2026-11-28).
+		# It is logged as an error row of the command, unless a row of this invocation already holds an error. (Claude code Opus 5.5) -->
+		if _log_context.get("pid") and not _log_context.get("errorLogged"):
+			_log_request(_log_context["pid"], args.command, {}, None, "client: %s" % error)
 		remind(args, True)
 		return 1
 	remind(args, False)

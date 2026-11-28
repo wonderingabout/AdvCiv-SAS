@@ -11,6 +11,8 @@ from importlib import import_module
 import json
 # <!-- custom: os for the console's own PID, written to <log>.watch. (Claude code Opus 5.5) -->
 import os
+# <!-- custom: re strips the colour codes from the console's text log. (Claude code Opus 5.5) -->
+import re
 import subprocess
 import sys
 import time
@@ -101,6 +103,33 @@ def _count(record, kind):
 
 def paint(text, role):
 	return console_colors.paint(text, role)
+
+
+class TextLogTee:
+	# <!-- custom: Passes each write to the console as before and to the console's text log without its colour codes; a failed log write never stops the console. (Claude code Opus 5.5) -->
+	# <!-- custom: The log is written first, so a console whose host has gone, whose write raises, still leaves its text, a traceback included, in the log (Codex's review, 2026-11-28).
+	# paused skips the log while a reopened console replays rows the log already holds. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	COLOUR_CODES = re.compile(r"\x1b\[[0-9;]*m")
+
+	def __init__(self, stream, log, paused=False):
+		self.stream = stream
+		self.log = log
+		self.paused = paused
+
+	def write(self, text):
+		if not self.paused:
+			try:
+				self.log.write(self.COLOUR_CODES.sub("", text))
+				self.log.flush()
+			except (OSError, ValueError):
+				pass
+		self.stream.write(text)
+
+	def flush(self):
+		self.stream.flush()
+
+	def __getattr__(self, name):
+		return getattr(self.stream, name)
 
 
 def emit(text):
@@ -307,7 +336,11 @@ def reopen(path, args):
 		try:
 			marker.write_text(json.dumps({"opening": time.time(), "slots": args.slots, "slot": args.slot}), encoding="ascii")
 			try:
-				subprocess.Popen(child, creationflags=subprocess.CREATE_NEW_CONSOLE)
+				# <!-- custom: Shown without taking the focus (SW_SHOWNOACTIVATE), as the game's resolution switch may be waiting to press Enter on the game's keep dialog: opened in front, the new console once took the focus from it and no key was sent (2026-11-28). (Claude code Opus 5.5) -->
+				startup = subprocess.STARTUPINFO()
+				startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+				startup.wShowWindow = 4
+				subprocess.Popen(child, creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=startup)
 			except OSError as error:
 				marker.write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
 				print(paint("could not open a console for the new size, so this one stays: %s" % error, "error"), file=sys.stderr)
@@ -413,6 +446,21 @@ def main():
 			path.with_suffix(".watch").write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
 		except OSError as error:
 			print("could not write %s: %s" % (path.with_suffix(".watch"), error), file=sys.stderr)
+	# <!-- custom: A console that follows a log keeps what it prints in SASPilotConsole_<start>_<pid>.log beside it, colours stripped, so its own notices, its settings warnings and a traceback printed before it ends are kept too, none of which the command log holds (the user's question, 2026-11-28).
+	# The file is appended to, one per client; --once and --html, one-off reads, write none.
+	# A reopened console, which prints the session from its start, marks itself in the log and leaves it until its replay ends, as those rows are there already: rewriting the file, as first done, erased the console-only lines the log is kept for (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not args.once and not args.html and path.name.startswith("SASPilot_"):
+		try:
+			text_log_path = path.with_name("SASPilotConsole_" + path.stem[len("SASPilot_"):] + ".log")
+			bReplaying = bool(args.from_start and text_log_path.exists() and text_log_path.stat().st_size > 0)
+			text_log = text_log_path.open("a", encoding="utf-8")
+			if bReplaying:
+				text_log.write("=== %s console %d reopened; the rows it prints again from the start are not repeated here ===\n" % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), os.getpid()))
+				text_log.flush()
+			sys.stdout = TextLogTee(sys.stdout, text_log, bReplaying)
+			sys.stderr = TextLogTee(sys.stderr, text_log, bReplaying)
+		except OSError as error:
+			print("could not open the console's text log: %s" % error, file=sys.stderr)
 	# <!-- custom: A header saying what this console is: it opened with only "following <log>" and a date line, which the user found unclear (2026-11-14).
 	# The full UTC start time, the watcher's own command line as run (interpreter, script and arguments), the log and the Civ4 process with its start time, as the log's name holds. (Claude code Opus 5.5) -->
 	started = time.time()
@@ -470,6 +518,10 @@ def main():
 					pass
 			chunk = handle.readline()
 			if not chunk:
+				# <!-- custom: The replay has reached the log's end, so the text log takes new lines again. (Claude code Opus 5.5) -->
+				for stream in (sys.stdout, sys.stderr):
+					if isinstance(stream, TextLogTee):
+						stream.paused = False
 				if args.html:
 					# <!-- custom: Mode "x" refuses an existing file: passing the log itself as --html would have replaced the JSONL with HTML (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 					try:
@@ -515,5 +567,23 @@ def main():
 				emit(format_record(record, args.width, args.pretty, args.max_lines, args.inline_width))
 
 
+def log_failure():
+	# <!-- custom: The console's own failure, appended to SASPilotConsole_errors.log beside the command logs, with the time, this console's process and arguments, and the traceback.
+	# Why: on 2026-11-28 a console whose host had gone failed on its next print (WinError 233) and closed its window with the traceback, so nothing showed why it vanished until it was rerun with its errors redirected.
+	# The command log cannot hold this, as the client writes it and the console only reads it (the user's question about what the log misses). (Claude code Opus 5.5) -->
+	import traceback
+	try:
+		with (LOGS_DIR / "SASPilotConsole_errors.log").open("a", encoding="utf-8") as handle:
+			handle.write("=== %s console %d: %s\n%s\n" % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), os.getpid(), " ".join(sys.argv), traceback.format_exc()))
+	except OSError:
+		pass
+
+
 if __name__ == "__main__":
-	raise SystemExit(main())
+	try:
+		raise SystemExit(main())
+	except (SystemExit, KeyboardInterrupt):
+		raise
+	except BaseException:
+		log_failure()
+		raise

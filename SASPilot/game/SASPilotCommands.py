@@ -8144,7 +8144,9 @@ def cmd_resolution(args):
 	if matches[0] == iProfile:
 		raise ValueError("the profile already names %s while the screen is %s, after an unanswered keep dialog; switch to %s first" % (modes[iProfile], szCurrent, szCurrent))
 	profile.setResolution(matches[0])
-	result["switched"] = modes[matches[0]]
+	# <!-- custom: "initiated", not "switched": the EXE then asks whether to keep the mode and puts the old one back unless answered, so the switch is not done when this replies; SASPilotClient.py logs the verified outcome in a row of its own (the user, 2026-11-28).
+	# The name came from the user's review: "requested", the first one, read as asking permission, and of "attempted" and "initiated" the user chose "initiated", as the switch has begun but awaits its answer. (Claude code Opus 5.5) -->
+	result["initiated"] = modes[matches[0]]
 	return result
 
 
