@@ -395,6 +395,9 @@ public:
 	std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 	std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
 	std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: For SASPilot's 'sites' command. (Claude code Opus 5.5) -->
+	std::string getSASPilotCityConditionsJson(int iPlayer, int iCity); // <!-- custom: For SASPilot's 'city detail=conditions'. (Claude code Opus 5.5) -->
+	std::string getSASPilotFinanceJson(int iPlayer); // <!-- custom: For SASPilot's 'finance detail=sources'. (Claude code Opus 5.5) -->
+	std::string getSASPilotTradeJson(int iPlayer, int iWithPlayer); // <!-- custom: For SASPilot's 'finance detail=sources'. (Claude code Opus 5.5) -->
 	std::string proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: For SASPilot's 'propose' command. (Claude code Opus 5.5) -->
 	bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: For SASPilot's 'contact give= take='. (Claude code Opus 5.5) -->
 	std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: For SASPilot's 'group' command. (Claude code Opus 5.5) -->

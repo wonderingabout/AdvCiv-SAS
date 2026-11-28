@@ -3766,6 +3766,175 @@ std::string getSASPilotCitySitesJson(int iPlayer, int iUnit)
 
 namespace
 {
+	// <!-- custom: Points the text manager at a record list for one scope and clears it on leaving, however the scope ends: set and cleared by hand, an exception in a tooltip would have left the shared manager pointing at a destroyed list, which a later hover would write through (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	class SASHelpRecordScope
+	{
+	public:
+		explicit SASHelpRecordScope(std::vector<CvGameTextMgr::SASHelpLine>& kRecord) { GAMETEXT.setSASHelpRecord(&kRecord); }
+		~SASHelpRecordScope() { GAMETEXT.setSASHelpRecord(NULL); }
+	};
+
+	// <!-- custom: One tooltip's lines as a JSON array, for getSASPilotCityConditionsJson. (Claude code Opus 5.5) -->
+	void appendSASPilotHelpLines(std::string& szOut, std::vector<CvGameTextMgr::SASHelpLine> const& kLines)
+	{
+		szOut += '[';
+		for (size_t i = 0; i < kLines.size(); i++)
+		{
+			if (i > 0)
+				szOut += ',';
+			szOut += "{\"source\":\"";
+			szOut += kLines[i].szSource;
+			szOut += "\",\"amount\":";
+			appendSASPilotJsonInt(szOut, kLines[i].iAmount);
+			if (kLines[i].iTurns >= 0)
+			{
+				szOut += ",\"turns\":";
+				appendSASPilotJsonInt(szOut, kLines[i].iTurns);
+			}
+			// <!-- custom: The id a line names, by its kind: a civic or specialist by its XML type, a player by ID. (Claude code Opus 5.5) -->
+			if (kLines[i].iType >= 0 && kLines[i].szTypeKind != NULL)
+			{
+				szOut += ",\"";
+				szOut += kLines[i].szTypeKind;
+				szOut += "\":";
+				if (strcmp(kLines[i].szTypeKind, "player") == 0)
+					appendSASPilotJsonInt(szOut, kLines[i].iType);
+				else
+				{
+					szOut += '"';
+					if (strcmp(kLines[i].szTypeKind, "civic") == 0)
+						szOut += GC.getInfo((CivicTypes)kLines[i].iType).getType();
+					else szOut += GC.getInfo((SpecialistTypes)kLines[i].iType).getType();
+					szOut += '"';
+				}
+			}
+			if (kLines[i].iCount >= 0)
+			{
+				szOut += ",\"count\":";
+				appendSASPilotJsonInt(szOut, kLines[i].iCount);
+			}
+			szOut += '}';
+		}
+		szOut += ']';
+	}
+}
+
+
+// <!-- custom: A city's unhappiness, happiness, unhealthiness and health by source, as the city screen's tooltips list them, for SASPilot's 'city detail=conditions' (the user asked on 2026-11-28 whether advisors' hover details were covered; Codex suggested these first).
+// It runs the four tooltip functions with a record list, so each line comes from the tooltip's own code, the stepwise anger from percentages included, rather than a copy of it; their text is thrown away. "null" for a missing city. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+std::string getSASPilotCityConditionsJson(int iPlayer, int iCity)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_PLAYERS)
+		return "null";
+	CvCity const* pCity = GET_PLAYER((PlayerTypes)iPlayer).getCity(iCity);
+	if (pCity == NULL)
+		return "null";
+	std::vector<CvGameTextMgr::SASHelpLine> aUnhappy, aHappy, aUnhealthy, aHealthy;
+	CvWStringBuffer szDiscard;
+	{
+		SASHelpRecordScope scope(aUnhappy);
+		GAMETEXT.setAngerHelp(szDiscard, *pCity);
+	}
+	{
+		SASHelpRecordScope scope(aHappy);
+		GAMETEXT.setHappyHelp(szDiscard, *pCity);
+	}
+	{
+		SASHelpRecordScope scope(aUnhealthy);
+		GAMETEXT.setBadHealthHelp(szDiscard, *pCity);
+	}
+	{
+		SASHelpRecordScope scope(aHealthy);
+		GAMETEXT.setGoodHealthHelp(szDiscard, *pCity);
+	}
+	std::string szOut = "{\"unhappy\":";
+	appendSASPilotHelpLines(szOut, aUnhappy);
+	szOut += ",\"happy\":";
+	appendSASPilotHelpLines(szOut, aHappy);
+	szOut += ",\"unhealthy\":";
+	appendSASPilotHelpLines(szOut, aUnhealthy);
+	szOut += ",\"healthy\":";
+	appendSASPilotHelpLines(szOut, aHealthy);
+	szOut += '}';
+	return szOut;
+}
+
+
+// <!-- custom: The Domestic Advisor Finance tab's tooltips by source, for SASPilot's 'finance detail=sources' (Codex suggested maintenance by source, deals and paid against free units after the city conditions, 2026-11-28).
+// Each section runs one Finance tooltip function with a record list, as getSASPilotCityConditionsJson does, so the figures are the tooltip's own, inflation included; "null" for a missing player. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+std::string getSASPilotFinanceJson(int iPlayer)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_PLAYERS || !GET_PLAYER((PlayerTypes)iPlayer).isAlive())
+		return "null";
+	PlayerTypes const ePlayer = (PlayerTypes)iPlayer;
+	std::vector<CvGameTextMgr::SASHelpLine> aUnits, aSupply, aCities, aCivics, aDeals, aInflation, aSpecialists;
+	CvWStringBuffer szDiscard;
+	{
+		SASHelpRecordScope scope(aUnits);
+		GAMETEXT.buildFinanceUnitCostString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aSupply);
+		GAMETEXT.buildFinanceAwaySupplyString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aCities);
+		GAMETEXT.buildFinanceCityMaintString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aCivics);
+		GAMETEXT.buildFinanceCivicUpkeepString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aDeals);
+		GAMETEXT.buildFinanceForeignIncomeString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aInflation);
+		GAMETEXT.buildFinanceInflationString(szDiscard, ePlayer);
+	}
+	{
+		SASHelpRecordScope scope(aSpecialists);
+		GAMETEXT.buildFinanceSpecialistGoldString(szDiscard, ePlayer);
+	}
+	std::string szOut = "{\"unitCost\":";
+	appendSASPilotHelpLines(szOut, aUnits);
+	szOut += ",\"supply\":";
+	appendSASPilotHelpLines(szOut, aSupply);
+	szOut += ",\"cityMaintenance\":";
+	appendSASPilotHelpLines(szOut, aCities);
+	szOut += ",\"civicUpkeep\":";
+	appendSASPilotHelpLines(szOut, aCivics);
+	szOut += ",\"deals\":";
+	appendSASPilotHelpLines(szOut, aDeals);
+	szOut += ",\"inflation\":";
+	appendSASPilotHelpLines(szOut, aInflation);
+	szOut += ",\"specialistGold\":";
+	appendSASPilotHelpLines(szOut, aSpecialists);
+	szOut += '}';
+	return szOut;
+}
+
+
+// <!-- custom: Trade routes with one player as the scoreboard's and Foreign Advisor's trade tooltip gives them: the commerce and count of the routes, or the reasons there are none (not connected, closed borders, no foreign trade on either side, no city known), for SASPilot's 'finance detail=sources'. "null" for a missing player. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+std::string getSASPilotTradeJson(int iPlayer, int iWithPlayer)
+{
+	if (iPlayer < 0 || iPlayer >= MAX_PLAYERS || iWithPlayer < 0 || iWithPlayer >= MAX_PLAYERS)
+		return "null";
+	std::vector<CvGameTextMgr::SASHelpLine> aLines;
+	CvWStringBuffer szDiscard;
+	{
+		SASHelpRecordScope scope(aLines);
+		GAMETEXT.buildTradeString(szDiscard, (PlayerTypes)iPlayer, (PlayerTypes)iWithPlayer, false, false, false);
+	}
+	std::string szOut;
+	appendSASPilotHelpLines(szOut, aLines);
+	return szOut;
+}
+
+
+namespace
+{
 	// <!-- custom: canTradeItem assumes valid data: a tech, resource, civic or religion index in range, a team, a city of the giver, a positive amount (Codex's review of the first version, which passed anything that parsed). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
 	bool isSASPilotTradeDataValid(CvPlayer const& kGiver, TradeData const& kItem)
 	{

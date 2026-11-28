@@ -102,7 +102,7 @@ def cmd_cities(args):
 	return [saspilot._cityBrief(city) for city in saspilot._cities(player)]
 
 
-_HELP["city"] = "One city in full, with what it can produce now. args: city (ID or name), player."
+_HELP["city"] = "One city in full, with what it can produce now. detail=conditions instead gives why the city is unhappy, happy, unhealthy and healthy, as the city screen's tooltips list it: each source (such as OVERCROWDING, HURRY with its turns left, CIVIC with the civic, WAR_WEARINESS, BUILDINGS, BONUSES, POPULATION) and its amount, from the tooltips' own code, and whether the city is in resistance or its owner in anarchy, when the happiness and unhappiness tooltips list no sources though the totals can be nonzero; the health lines are listed then too. args: city (ID or name), detail, player."
 
 
 def cmd_city(args):
@@ -113,12 +113,28 @@ def cmd_city(args):
 		# A city the team has revealed stays on its map out of sight, so it is given as 'cities' lists it, and with its population while in sight; the first fix refused it out of sight, which a test showed hid a city 'cities' still listed. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
 		if not city.isRevealed(iTeam, False):
 			raise ValueError("player %d has no city %s" % (city.getOwner(), args["city"]))
+		# <!-- custom: A rival's tooltips are not shown to a player, so detail= is refused for its city rather than ignored. (Claude code Opus 5.5) -->
+		if args.get("detail") is not None:
+			raise ValueError("a city of another team shows no %s; fog is on" % args["detail"])
 		result = _cityAsSeen(city)
 		if not city.plot().isVisible(iTeam, False):
 			del result["population"]
 		else:
 			# <!-- custom: Its defence bonus while in sight, as the window's city bar shows it beside the size, so a siege can be planned without a 'py' call (Gondar at turn 118 of the fog-on playthrough, 2026-11-13). (Claude code Opus 5.5) -->
 			result["defenseModifier"] = city.getDefenseModifier(False)
+		return result
+	if args.get("detail") is not None:
+		# <!-- custom: The user asked on 2026-11-28 whether advisors' hover details were covered: 'uihover' reads any tooltip as text, but no command gave its facts.
+		# Codex suggested a city's conditions first; the DLL runs the tooltips with a record list, so the lines are the tooltips' own (getSASPilotCityConditionsJson). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (Claude code Opus 5.5) -->
+		if args["detail"] != "conditions":
+			raise ValueError("detail %r: conditions is the one detail" % (args["detail"],))
+		result = saspilot.fromJson(saspilot._pilotGame("getSASPilotCityConditionsJson").getSASPilotCityConditionsJson(city.getOwner(), city.getID()))
+		result["city"] = city.getName()
+		result["cityId"] = city.getID()
+		result["totals"] = {"happy": city.happyLevel(), "unhappy": city.unhappyLevel(0), "healthy": city.goodHealth(), "unhealthy": city.badHealth(False)}
+		result["resistance"] = bool(city.isOccupation())
+		result["anarchy"] = bool(gc.getPlayer(city.getOwner()).isAnarchy())
 		return result
 	result = _cityFull(city)
 	result["options"] = _cityOptions(city)

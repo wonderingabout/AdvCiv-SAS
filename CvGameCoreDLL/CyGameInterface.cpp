@@ -395,6 +395,11 @@ void CyGamePythonInterface()
 		.def("getSASPilotPathJson", &CyGame::getSASPilotPathJson, "string (int iPlayer, int iUnit, int iX, int iY, int iFlags) - the steps of a unit's path to a plot as JSON")
 		.def("getSASPilotMessagesJson", &CyGame::getSASPilotMessagesJson, "string (int iPlayer, int iSinceTurn) - a player's listed on-screen messages as JSON")
 		// <!-- custom: The window circles recommended city sites for a selected Settler from CvPlayerAI's site list, which Python cannot reach; SASPilot needs them to choose a site as a person does. (Claude code Opus 5.5) -->
+		// <!-- custom: The city screen's unhappiness, happiness and health tooltips build their per-source lines in C++, which Python cannot read; SASPilot needs them to see why a city is unhappy or unhealthy, as a person hovering does (2026-11-28). (Claude code Opus 5.5) -->
+		// <!-- custom: The Finance tab's tooltips build their breakdowns (maintenance by source, paid and free units, civic upkeep, deal gold, inflation, specialist gold) and the trade tooltip its blockers in C++, which Python cannot read; SASPilot needs them to see where gold goes, as a person hovering does (2026-11-28). (Claude code Opus 5.5) -->
+		.def("getSASPilotFinanceJson", &CyGame::getSASPilotFinanceJson, "string (int iPlayer) - the Finance tab's tooltips by source, as JSON")
+		.def("getSASPilotTradeJson", &CyGame::getSASPilotTradeJson, "string (int iPlayer, int iWithPlayer) - trade routes with one player, or why there are none, as the trade tooltip gives them, as JSON")
+		.def("getSASPilotCityConditionsJson", &CyGame::getSASPilotCityConditionsJson, "string (int iPlayer, int iCity) - a city's unhappiness, happiness, unhealthiness and health by source, as its tooltips list them, as JSON")
 		.def("getSASPilotCitySitesJson", &CyGame::getSASPilotCitySitesJson, "string (int iPlayer, int iUnit) - the city sites the window would circle for this Settler, as JSON")
 		// <!-- custom: Python can list tradeable items but cannot ask an AI to weigh an offer or make the deal; SASPilot needs both to trade as a person does. (Claude code Opus 5.5) -->
 		// <!-- custom: Python has no CyUnit.joinGroup; SASPilot needs it to escort a unit or move a stack as one, as selecting units together does in the window. (Claude code Opus 5.5) -->

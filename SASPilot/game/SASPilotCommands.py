@@ -4446,10 +4446,47 @@ def cmd_command(args):
 	return _unitFull(unit)
 
 
-_HELP["finance"] = "The Domestic Advisor's Finance tab: treasury and net gold per turn, the sliders, gross gold, trade routes split into domestic and foreign, gold from deals with other players, and the expenses with inflation as the tab adds them (unit cost, unit supply, city maintenance, civic upkeep). args: player."
+_HELP["finance"] = "The Domestic Advisor's Finance tab: treasury and net gold per turn, the sliders, gross gold, trade routes split into domestic and foreign, gold from deals with other players, and the expenses with inflation as the tab adds them (unit cost, unit supply, city maintenance, civic upkeep). detail=sources instead gives the tab's tooltips by source, as they are built: unit cost with paid units and free ones, military units apart, supply, city maintenance by distance, number of cities, colonies and corporations, each civic's upkeep, gold per turn from or to each player, inflation, gold from each specialist type, and per player met (ourselves for domestic routes) the trade routes' commerce and count, or what blocks them (NETWORK_NOT_CONNECTED, CLOSED_BORDERS, NO_FOREIGN_TRADE_US or _THEM, NO_KNOWN_CITIES, DEAD, ANARCHY), and canTrade, the game's own rule. args: detail, player."
+
+
+def _financeSources(player, args):
+	# <!-- custom: The Finance tab's tooltips by source, from getSASPilotFinanceJson, which runs the tooltip functions with a record list (Codex suggested it after the city conditions, 2026-11-28), and per player the trade tooltip's routes or why there are none, from getSASPilotTradeJson.
+	# Under fog, only players our team has met, as the scoreboard lists them; our own player gives the domestic routes. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	game = _pilotGame("getSASPilotFinanceJson")
+	result = fromJson(game.getSASPilotFinanceJson(player.getID()))
+	iTeam = _fogTeam(args)
+	trade = []
+	for iOther in range(gc.getMAX_CIV_PLAYERS()):
+		other = gc.getPlayer(iOther)
+		if not other.isAlive() or other.isBarbarian():
+			continue
+		if iTeam >= 0 and iOther != player.getID() and not gc.getTeam(iTeam).isHasMet(other.getTeam()):
+			continue
+		lines = fromJson(game.getSASPilotTradeJson(player.getID(), iOther))
+		row = {"player": iOther, "domestic": iOther == player.getID()}
+		routes = [line for line in lines if line["source"] == "TRADE_ROUTES"]
+		if routes:
+			row["commerce"] = routes[0]["amount"]
+			row["routes"] = routes[0]["count"]
+		row["blockedBy"] = [line["source"][len("BLOCKED_"):] for line in lines if line["source"].startswith("BLOCKED_")]
+		# <!-- custom: canTrade is the game's own rule, CvPlayer::canHaveTradeRoutesWith; AdvCiv added that a partner in anarchy has no routes (advc.124), which the BUG tooltip's blocker list never checks, so such a partner came back with no blocker (Codex's review, 2026-11-28); ANARCHY names it. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		row["canTrade"] = bool(player.canHaveTradeRoutesWith(iOther))
+		if not row["canTrade"] and iOther != player.getID() and other.isAnarchy():
+			row["blockedBy"].append("ANARCHY")
+		trade.append(row)
+	result["trade"] = trade
+	result["player"] = player.getID()
+	return result
 
 
 def cmd_finance(args):
+	# <!-- custom: Under fog, another team's finances are refused, with or without detail=: the plain tab gave a rival's treasury and costs (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	_requireOwnTeamUnderFog(args, _player(args), "finances")
+	if args.get("detail") is not None:
+		# <!-- custom: sas-ci-string-compare-exemption: The mailbox protocol accepts stable command and argument keys. (Claude code Opus 5.5) -->
+		if args["detail"] != "sources":
+			raise ValueError("detail %r: sources is the one detail" % (args["detail"],))
+		return _financeSources(_player(args), args)
 	# <!-- custom: The Finance tab breaks gold down into income and expenses, which SASPilot had only as two totals in 'player' (turn 265 of the modern baseline, 2026-11-14, visual pass over the advisors).
 	# The expense arithmetic is the tab's own (CvDomesticAdvisor.py), inflation applied per line and once overall. (Claude code Opus 5.5) -->
 	import TradeUtil

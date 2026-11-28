@@ -21,7 +21,8 @@ public:
 		return gs_GameTextMgr;
 	}
 
-	CvGameTextMgr() {}
+	// <!-- custom: m_pSASHelpRecord starts empty, so the tooltips only write text unless SASPilot asks for the lines. (Claude code Opus 5.5) -->
+	CvGameTextMgr() : m_pSASHelpRecord(NULL) {}
 	virtual ~CvGameTextMgr() {}
 
 	DllExport void Initialize() {} // allocate memory
@@ -123,6 +124,18 @@ public:
 // BUG - Building Additional Health - end
 	void setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
 	void setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity);
+	// <!-- custom: One tooltip line as data: a stable source name, its amount and, where the line has them, the turns left, the civic, player or specialist it names (iType, of szTypeKind) and a count (2026-11-28); first for a city's conditions, then the Finance tab's tooltips, so it is named for tooltips in general.
+	// While setSASHelpRecord has a list, setAngerHelp, setHappyHelp, setBadHealthHelp and setGoodHealthHelp also add each line they write to it, so SASPilot's 'city detail=conditions' reads the tooltip's own figures rather than a copy of its formulas. See CvGameInterface.cpp's getSASPilotCityConditionsJson. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	struct SASHelpLine
+	{
+		char const* szSource;
+		int iAmount;
+		int iTurns;
+		int iType;
+		char const* szTypeKind;
+		int iCount;
+	};
+	void setSASHelpRecord(std::vector<SASHelpLine>* pRecord) { m_pSASHelpRecord = pRecord; }
 // BUG - Building Additional Happiness - start
 	bool setBuildingAdditionalHappinessHelp(CvWStringBuffer &szBuffer, const CvCity& kCity, const CvWString& szStart, bool bStarted = false);
 // BUG - Building Additional Happiness - end
@@ -362,6 +375,9 @@ private:
 	  static bool listFirstUnitTypeBeforeSecond(UnitTypes eFirst, UnitTypes eSecond);
 	// </advc.061>
 	std::vector<int*> m_apbPromotion;
+	// <!-- custom: The list the condition tooltips add their lines to, NULL for the window's tooltips; see setSASHelpRecord. (Claude code Opus 5.5) -->
+	std::vector<SASHelpLine>* m_pSASHelpRecord;
+	void recordSASHelp(char const* szSource, int iAmount, int iTurns = -1, int iType = -1, char const* szTypeKind = NULL, int iCount = -1);
 };
 
 // Singleton Accessor

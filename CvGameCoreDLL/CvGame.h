@@ -1186,6 +1186,9 @@ std::string getSASPilotCityBuildsJson(int iPlayer, int iCity);
 std::string getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags);
 std::string getSASPilotMessagesJson(int iPlayer, int iSinceTurn);
 std::string getSASPilotCitySitesJson(int iPlayer, int iUnit); // <!-- custom: The city sites the window circles for a selected Settler; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string getSASPilotCityConditionsJson(int iPlayer, int iCity); // <!-- custom: A city's happiness and health by source, as its tooltips list them; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string getSASPilotFinanceJson(int iPlayer); // <!-- custom: The Finance tab's tooltips by source; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string getSASPilotTradeJson(int iPlayer, int iWithPlayer); // <!-- custom: Trade routes with one player, or why there are none; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 std::string proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: A deal proposed to an AI as the diplomacy screen does; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 bool tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive); // <!-- custom: Opens the diplomacy screen on its trade table with a deal on it; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
 std::string joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit); // <!-- custom: Groups units as selecting them together does; see CvGameInterface.cpp. (Claude code Opus 5.5) -->

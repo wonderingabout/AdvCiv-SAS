@@ -1771,6 +1771,24 @@ std::string CyGame::getSASPilotCitySitesJson(int iPlayer, int iUnit)
 	return ::getSASPilotCitySitesJson(iPlayer, iUnit);
 }
 
+// <!-- custom: For SASPilot's 'city detail=conditions'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotCityConditionsJson(int iPlayer, int iCity)
+{
+	return ::getSASPilotCityConditionsJson(iPlayer, iCity);
+}
+
+// <!-- custom: For SASPilot's 'finance detail=sources'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotFinanceJson(int iPlayer)
+{
+	return ::getSASPilotFinanceJson(iPlayer);
+}
+
+// <!-- custom: For SASPilot's 'finance detail=sources'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotTradeJson(int iPlayer, int iWithPlayer)
+{
+	return ::getSASPilotTradeJson(iPlayer, iWithPlayer);
+}
+
 std::string CyGame::proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive)
 {
 	return ::proposeSASPilotDeal(iPlayer, iOther, szWeGive, szTheyGive);
