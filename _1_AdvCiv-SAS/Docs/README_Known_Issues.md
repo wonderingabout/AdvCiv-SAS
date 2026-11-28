@@ -12007,6 +12007,10 @@ Update (2026-11-24): five option tooltips still said a restart was needed, and n
 - The tech splash layout: base AdvCiv's "Restart required." was already stale there, as K-Mod's change hook, which AdvCiv routes through `BugScreenInit.py` (advc.009b), drops the splash screen, so the next one shown uses the new layout.
 - Scale Up HUD: the main interface reads it in `initState`, which runs on each game load and resolution change, so it takes effect then rather than after a restart; switching it off needed a restart until [KI#123.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6).
 - Codex (GPT-6.2-Sol) reviewed the tooltips: it found KI#123.6, and corrected the tech splash hook's origin and the resolution wording.
+- Update (2026-11-28): with the screens following a resolution change, agents switch it during play too, through SASPilot's `resolution` command, so a test game no longer needs two launches to be checked at two sizes.
+  - The screens that follow: the Sevopedia ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)), the main interface ([KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)), the bonus bubbles ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)) and the Replay screen ([KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)).
+  - Its first use found [KI#123.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7), the Options screen's refresh failing when the screen was never drawn.
+  - SASPilot's console now reopens at the new size, so its lines wrap rather than scroll sideways. The [Game settings](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#game-settings) section of the SASPilot guide covers both.
 
 <a id="ki-123.2"></a>
 

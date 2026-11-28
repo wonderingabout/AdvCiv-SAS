@@ -277,10 +277,58 @@ def follow(civ_pid, console_hwnd, slot, slots, monitor, last_size):
 	if size == last_size or size[0] <= 0 or size[1] <= 0:
 		return last_size
 	left, top, right, bottom = desktop_windows.monitors()[monitor - 1]
+	# <!-- custom: When the console fits beside the game, the caller opens a new console laid out for the new size rather than moving this one (see reopen); arrange here kept the old text buffer, whose width a moved console keeps, so its lines scrolled sideways instead of wrapping (the user's screenshots, 2026-11-28). (Claude code Opus 5.5) -->
 	if right - (left + size[0]) >= CONSOLE_MIN_WIDTH and size[1] <= bottom - top:
-		arrange(civ_pid, console_hwnd, slot, slots, monitor)
+		raise ConsoleReopen(size)
 	# <!-- custom: When the game leaves no room, as at 3840 x 2160, the console is left where it is: it sits behind the game, out of sight, so minimizing it, tried the same day, added nothing (the user's remark, 2026-11-28). (Claude code Opus 5.5) -->
 	return size
+
+
+class ConsoleReopen(Exception):
+	# <!-- custom: Raised by follow when the console should be opened anew for the game's new size. (Claude code Opus 5.5) -->
+	pass
+
+
+def reopen(path, args):
+	# <!-- custom: Open a fresh console with this one's arguments, laid out for the game's new size and printing the log from its start, then let this one end.
+	# Why: a console moved to a narrower window keeps its text buffer's width, so its lines ran past the window with a horizontal scrollbar, while a console opened at that size wraps them (the user's screenshots at 1920 x 1080 and 2560 x 1440, 2026-11-28).
+	# Narrowing the buffer in place with SetConsoleScreenBufferSize closed the console host after the next switch (WinError 233).
+	# The user then noted that a console opened beside a game started straight at 2560 x 1440 wrapped fine, and suggested closing and reopening the console and printing its content again.
+	# Nothing is lost, as the console only shows the command log, which the new one prints again. See KI#123. (Claude code Opus 5.5) -->
+	# <!-- custom: The handover is reserved in <log>.watch as "opening", under the .watchlock saspilot.ensure_watcher takes, and this console stays until the new one has written its own PID there, else it keeps running and says so.
+	# Codex's review (2026-11-28): ending right after Popen left a gap in which a client command saw no live console and opened a second one, and a failed Popen ended this one with none.
+	# The added options go first, as appended after a "--" argparse read them as the log path (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	import msvcrt
+	marker = path.with_suffix(".watch")
+	child = [sys.executable, str(Path(__file__).resolve()), "--from-start", "--arrange-self"] + [item for item in sys.argv[1:] if item not in ("--window", "--from-start", "--arrange-self")]
+	descriptor = os.open(str(path.with_suffix(".watchlock")), os.O_RDWR | os.O_CREAT | os.O_BINARY)
+	try:
+		msvcrt.locking(descriptor, msvcrt.LK_LOCK, 1)
+		try:
+			marker.write_text(json.dumps({"opening": time.time(), "slots": args.slots, "slot": args.slot}), encoding="ascii")
+			try:
+				subprocess.Popen(child, creationflags=subprocess.CREATE_NEW_CONSOLE)
+			except OSError as error:
+				marker.write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
+				print(paint("could not open a console for the new size, so this one stays: %s" % error, "error"), file=sys.stderr)
+				return False
+		finally:
+			os.lseek(descriptor, 0, 0)
+			msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
+	finally:
+		os.close(descriptor)
+	deadline = time.monotonic() + 20.0
+	while time.monotonic() < deadline:
+		try:
+			state = json.loads(marker.read_text(encoding="ascii"))
+		except (OSError, ValueError):
+			state = {}
+		if state.get("pid") and state["pid"] != os.getpid():
+			return True
+		time.sleep(0.25)
+	marker.write_text(json.dumps({"pid": os.getpid(), "instance": process_instance(os.getpid()), "slot": args.slot, "slots": args.slots}), encoding="ascii")
+	print(paint("the console for the new size did not start within 20 s, so this one stays", "error"), file=sys.stderr)
+	return False
 
 
 def open_window(args):
@@ -414,6 +462,10 @@ def main():
 				followed_at = time.monotonic()
 				try:
 					follow_size = follow(args.pid, follow_hwnd, args.slot - 1, args.slots, args.monitor, follow_size)
+				except ConsoleReopen as change:
+					if reopen(path, args):
+						return 0
+					follow_size = change.args[0]
 				except Exception:
 					pass
 			chunk = handle.readline()
