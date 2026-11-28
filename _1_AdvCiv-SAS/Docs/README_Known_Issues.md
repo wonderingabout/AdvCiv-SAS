@@ -215,6 +215,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
 [KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)\
 [KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6)\
+[KI#123.7 - (Fixed inherited vanilla Civ4, exposed by SASPilot) A resolution change made without the Options screen raised a Python error: the screen's refresh after the change read names and widgets that only drawing the screen creates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -12073,6 +12074,27 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 - Found (2026-11-24) by Codex's (GPT-6.2-Sol) review of SAS's rewrite of that tooltip, under [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123), to say the option applies at the next game load or resolution change: true when turning it on, not off.
 - Fixed (2026-11-24): `initState` resets the factors to 1.0 before each build, then scales only with the option on.
 - Tested the same day: a game loaded at 1920 x 1080 with the option on; the option turned off in the BUG menu, then the resolution changed in Options. The main interface rebuilt unscaled: the unit panel went from about 395 to 345 pixels wide, and the minimap and buttons shrank to match.
+
+<a id="ki-123.7"></a>
+
+## KI#123.7 - (Fixed inherited vanilla Civ4, exposed by SASPilot) A resolution change made without the Options screen raised a Python error: the screen's refresh after the change read names and widgets that only drawing the screen creates
+
+- The error, in `PythonErr.log` at 09:29:25 UTC on 2026-11-28:
+
+```text
+File "CvOptionsScreenCallbackInterface", line 31, in refresh
+File "CvOptionsScreen", line 92, in refreshScreen
+File "CvOptionsScreen", line 39, in getGameOptionsTabName
+AttributeError: CvOptionsScreen instance has no attribute 'szGameOptionsTabName'
+ERR: Python function refresh failed, module CvOptionsScreenCallbackInterface
+```
+
+- What it was: after a resolution change, the EXE calls `refresh()` in [CvOptionsScreenCallbackInterface.py](/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py), which calls `refreshScreen` in [CvOptionsScreen.py](/Assets/Python/Screens/CvOptionsScreen.py). That reads the tab names `initText` sets and the tab control `interfaceScreen` creates, both only when the screen is drawn.
+- Where it came from, checked in each layer's copy: vanilla Civ4's `refreshScreen` already read them with no guard, and Warlords, BtS (both in Civ4CE) and K-Mod kept it unchanged.
+  - Base AdvCiv added only its first line, `UserProfile = CyUserProfile()` for advc.076 (practical 1435, `56127bdb6d`, 2019-03-02), and SAS's commits only reflowed its spacing.
+  - In every layer a resolution change came only from that screen's dropdown, so the screen always existed. SASPilot's `resolution` command calls `CyUserProfile.setResolution` as the dropdown does, with the screen never opened, and the first switch of a client raised the error. The switch itself held.
+- Found by the user, who saw the error while the borderless work of [KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7) was being tested.
+- Fixed (2026-11-28): `refreshScreen` returns when the screen has no tab control yet, as there is nothing to refresh; the next opening draws it from the profile.
 
 <a id="ki-124"></a>
 

@@ -84,6 +84,11 @@ class CvOptionsScreen:
 
 	def refreshScreen (self):
 
+		# <!-- custom: Nothing to refresh before interfaceScreen has drawn the screen: the EXE calls the callbacks' refresh() after a resolution change, and SASPilot's 'resolution', which calls CyUserProfile.setResolution as the screen's dropdown does with the screen never opened, raised "CvOptionsScreen instance has no attribute 'szGameOptionsTabName'" (2026-11-28).
+		# In vanilla Civ4 and every layer after it, a resolution change came only from this screen. See KI#123.7. (Claude code Opus 5.5) -->
+		if not hasattr(self, "pTabControl"):
+			return
+
 		# advc.076: Active profile may have changed
 		UserProfile = CyUserProfile()
 
