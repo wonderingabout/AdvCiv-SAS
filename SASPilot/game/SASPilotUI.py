@@ -1771,7 +1771,7 @@ def cmd_uioptions(args):
 	return {"tabs": [_plainCell(tab["label"], False) for tab in record["tabs"]], "controls": rows}
 
 
-_HELP["uioption"] = "Change one control of BUG's options screen, as a click does: its callback gets (value, id), as the screen calls it, so BUG sets the option and applies it; the screen's own drawing of the control is not refreshed until it is reopened. A checkbox takes 1 or 0, a dropdown the index of its choice ('uioptions' lists them), a slider a number. The change is saved to BUG's ini files when the screen closes ('uioptions close=1'). args: id, value."
+_HELP["uioption"] = "Change one control of BUG's options screen, as a click does: its callback gets (value, id), as the screen calls it, so BUG sets the option and applies it; the screen's own drawing of the control is not refreshed until it is reopened. A checkbox takes 1 or 0, a dropdown the index of its choice ('uioptions' lists them), a slider a number. The change reaches BUG's ini files within 250 ms, as the main interface writes BUG's changed files every tick, not only when the screen closes. 'option' sets any BUG option without the screen. args: id, value."
 
 
 def cmd_uioption(args):

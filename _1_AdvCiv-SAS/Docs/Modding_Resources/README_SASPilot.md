@@ -445,7 +445,7 @@ The scouting helpers built on `grid` came from the [scouting trial](/_1_AdvCiv-S
 
 #### Roles
 
-- Each command has a role, shown by `role`: play (what a player sees and does), advice, omniscient (seeing past the fog), create (changing the game beyond play, as the WorldBuilder or `py`) or meta (running the session). The user's idea, 2026-11-14.
+- Each command has a role, shown by `role`: play (what a player sees and does), advice, omniscient (seeing past the fog), create (changing the game beyond play, as the WorldBuilder or `py`), meta (running the session) or settings (`option`, changing the player's own Civ4 and BUG settings, which outlive the game; only `all` allows it, since 2026-11-28). The user's idea, 2026-11-14.
   - Some depend on their arguments: `fog=0` is omniscient; `control` is resolved to its value first, as `control=57` (the WorldBuilder) passed the play role when names were compared (Codex's review, round 32); `screen` is play only for the advisors and Sevopedia navigation without arguments, as `showReplay` passed a player index to native code unchecked (round 33).
 - Facts and advice are kept apart, the user's next idea the same day.
   - `play` commands state what the game shows a player, the same for anyone who can see it, and rarely change.
@@ -461,7 +461,7 @@ The scouting helpers built on `grid` came from the [scouting trial](/_1_AdvCiv-S
 
 ### Game settings
 
-The game's own settings, first the screen resolution, which a test at two sizes needs; Civ4's other options and BUG's are not commands yet.
+The game's own settings: the screen resolution, which a test at two sizes needs, then every other setting of Civ4's Options screen and BUG's options as `options` and `option` (below).
 
 ```text
 python SASPilotClient.py resolution
@@ -499,6 +499,32 @@ python SASPilotClient.py resolution size=1920x1080
 - An unanswered dialog leaves the two apart: the screen goes back to the old size while the profile keeps the new mode. Setting that mode again then does nothing, so the command refuses and says to switch to the screen's real size first.
 - Written on 2026-11-28, after an agent restarted the client to go from 2560 x 1440 to 1920 x 1080, as nothing it ran told it the screens follow a change during play.
   - The first attempt pressed Yes by its offset from the window's centre, measured in two window sizes; Enter replaced it, as a key needs no coordinates.
+
+```text
+python SASPilotClient.py options source=graphic
+python SASPilotClient.py options match=clock
+python SASPilotClient.py option name=graphic:GRAPHICOPTION_NO_MOVIES value=1
+python SASPilotClient.py option name=bug:ACO__Enabled value=1
+python SASPilotClient.py option name=profile:clockOn value=1 save=1
+```
+
+- `options` lists every setting under a name naming its source, from [`SASPilotOptions.py`](/SASPilot/game/SASPilotOptions.py):
+  - `player:PLAYEROPTION_...`, the Game tab's checkboxes, such as Quick Moves: `value` is the flag the game uses, `configured` the profile's;
+  - `graphic:GRAPHICOPTION_...`, such as No Movies or Show Health Bars;
+  - `profile:<name>`: the render, globe and movie levels, the main menu, anti-aliasing, the six volumes and their mute switches, the clock, and the resolution, read-only, as `resolution` above answers its keep dialog;
+  - `bug:<id>`, all 391 of BUG's options on 2026-11-28, also those its screen does not draw, with the INI file, section and key, the default, the choices and current index of a list, and `enabled=false` where BUG greys one out. One value per player or per item (an INI key holding `%s`, such as `UnitNaming__ByEraAndClass`) is listed without a value.
+  - `applies` says when a change takes effect: `now`, `reload` (loading a save) or `restart`, as the Options screen's own restart popups say (advc.076).
+- `option name=... value=...` sets one through the call its control makes, as the screen's callback would, so the game's own reaction runs, such as BUG's change handlers, and replies with the row before and after.
+  - A switch takes 1 or 0, a choice or a BUG list the index of its choice, a volume 0 to its range; a greyed-out BUG option, a per-item one and a value out of range are refused.
+  - A player option goes as a game message, as the Game tab sends it, so the flag is set once the game processes it: the reply's `after` shows the profile changed and the flag not yet, with `pending: true`, and the next `options` shows both; it does not wait, as Codex advised, so an agent checks with `options` when an order depends on it.
+  - It changes the player's own settings, which outlive the game and other clients may share, so it has a role of its own, `settings`, which only `all` allows; `options` is play. `uioption` has it too: left play, it set through BUG's screen what `option` refused (Codex's review).
+- Saving, tested on 2026-11-28:
+  - A BUG option is normally written to its INI file by the main interface's next update, within 250 ms (`CvMainInterface.updateScreen` calls `BugOptions.write`): `Advanced Combat Odds.ini` changed one second after `option name=bug:ACO__Enabled`. A failed write leaves the file dirty, which BUG does not report.
+  - `option ... save=1` writes the Civ4 profile explicitly, `AppData/Local/My Games/beyond the sword/Profiles/Default Profile.pfl`; without it a Civ4 setting stays in memory, unless the Options screen saves it on close. The game also writes the profile when it starts.
+    - `save=1` with nothing changed rewrote it byte for byte; `clockOn` on and back off, each with `save=1`, left the same bytes as before. Whether the EXE writes it at exit was not tested.
+    - Its reply names any BUG file still unwritten (`bugUnwritten`), as BUG catches a failed write.
+  - The design is Codex's (GPT-6.2-Sol): an adapter per source, source-qualified names, writes in the `all` role only, and saving made explicit. Its premise that both write their files only when their screens close held for Civ4, not for BUG.
+- Before, only BUG's screen was reachable, through the UI recorder below, and only the controls it draws; Civ4's own Options screen had no command but `resolution`.
 
 ### SASPilotConsole
 
@@ -1033,6 +1059,7 @@ BUG's options screen is a modal `CyGTabCtrl`, not a screen the widget recorder s
 - `uioption` turned Tick Marks off and on again; it first set a three-choice dropdown to 9, which BUG stored, so a dropdown now takes only its choices' indexes and a slider its bounds.
 - Three dropdowns' titles read "XML key ... not found", such as `TXT_KEY_BUG_OPT_MAININTERFACE__GPBAR_TYPES_TEXT`: base AdvCiv commented those texts out as unused (advc.004), and the window shows these dropdowns without a label, so no player sees it.
 - A change is saved to BUG's ini files when the screen closes, as in the window; the options changed in the test were set back first.
+  - Corrected on 2026-11-28: the main interface writes BUG's changed INI files every 250 ms, so a change is saved at once, screen open or not; see [Game settings](#game-settings).
 - A checkbox takes exactly 1 or 0 and every value a whole number. The recording belongs to the dialog SASPilot opened, so one reopened by hand must be closed and opened again with `open=1`.
 - The dialog is modal: while it is open, `uistate` says `bugOptions`, the main interface's presses are refused and the sweep stops; it does not open over the diplomacy screen or a popup on display (Codex's review).
 

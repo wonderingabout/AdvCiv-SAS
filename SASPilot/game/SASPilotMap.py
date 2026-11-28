@@ -3,7 +3,7 @@
 #
 # <!-- custom: SASPilotMap: the map as the player knows it: plots ('plot', 'plots', 'potential', 'grid'), the drawn map and its signs ('map', 'signs', 'mark'), its lands and seas ('geography', 'shore'), borders, the resources known and how to connect them ('resources', 'routes').
 # Split from SASPilotCommands.py on 2026-11-28, the fifth part moved out by topic; the user suggested the map, and resources with it, and Codex (GPT-6.2-Sol) grouped them, resources answering where they lie and how to connect them.
-# Exploration ('directions', 'scout', 'seareach') and expansion ('sites', 'plansites') stay apart, and the map helpers they share, such as _coastLaneRows, stay there and are reached as saspilot.
+# Exploration ('directions', 'scout', 'seareach') and expansion ('sites', 'plansites') stay apart, in SASPilotExpansion.py since the same day, and the map helpers they share, such as _coastLaneRows, stay in SASPilotCommands.py and are reached as saspilot.
 # SASPilotCommands.py loads it from beside itself, again whenever it changes, and adds its commands and help, so commands there that call one of these, such as 'research' calling 'resources', still find it. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 
 from CvPythonExtensions import *

@@ -178,6 +178,9 @@ def cmd_move(args):
 	for (a, b, name) in units:
 		taken.update(range(a, b))
 	kept = re.sub(r"\n{4,}", "\n\n\n", "\n".join(line for (i, line) in enumerate(lines) if i not in taken))
+	# <!-- custom: The config's module is a bare name, such as SASPilotMap, written beside the old file; a path, as first given for SASPilotExpansion (2026-11-28), failed in pathlib with "Invalid name 'SASPilot/game/SASPilotExpansion.py.py'", so it is named plainly now. (Claude code Opus 5.5) -->
+	if "/" in config["module"] or "\\" in config["module"] or config["module"].endswith(".py"):
+		raise SystemExit("module %r: give the bare module name, such as SASPilotMap; it is written beside %s" % (config["module"], path.name))
 	target = path.with_name(config["module"] + ".py")
 	if target.exists():
 		raise SystemExit("%s exists" % target)
