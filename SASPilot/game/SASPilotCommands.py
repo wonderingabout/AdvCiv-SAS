@@ -4461,10 +4461,43 @@ def cmd_finance(args):
 	return result
 
 
-_HELP["domestic"] = "The Domestic Advisor's overview: one row per city with population, happiness and health margins (negative is a problem), food surplus, production, commerce by type, culture and its next level, Great People progress and rate, maintenance, trade route commerce, what it builds and in how many turns. args: player."
+_HELP["domestic"] = "The Domestic Advisor's overview: one row per city with population, happiness and health margins (negative is a problem), food surplus, production, commerce by type, culture and its next level, Great People progress and rate, maintenance, trade route commerce, what it builds and in how many turns. With page=2, 3 or 4 instead, the tab's Overview 2 (food, production and stores, happiness and health with their parts, yield, commerce and trade route modifiers), 3 (culture and its threshold, rate and turns, Great People progress, threshold, base and full rate, modifier, turns and settled count, and the maintenance, war weariness, hurry anger, unhealthy population, military, space, air, nuke and espionage defense modifiers) or 4 (founding year, real population, corporation headquarters and active corporations, free experience, specialists by type, angry citizens, coordinates) per city, from the tab's own code. args: page, player."
+
+
+def _domesticPage(player, iPage):
+	# <!-- custom: The Domestic Advisor's Overview 2 to 4 per city, from the tab's collectOverviewNRow, split from its drawing for this on 2026-11-28, on a new advisor object set to the player (its constructor sets constants only), so the command and the table share their formulas.
+	# The commerce modifiers and specialist counts, lists by index there, become dicts by type without their zeros, as the table leaves those cells blank; the other fields keep 0, and None where the table draws "-". (Claude code Opus 5.5) -->
+	import CvDomesticAdvisor
+	view = CvDomesticAdvisor.CvDomesticAdvisor()
+	view.iActivePlayer = player.getID()
+	collect = getattr(view, "collectOverview%dRow" % iPage)
+	rows = []
+	for city in _cities(player):
+		row = collect(city)
+		if row.has_key("commerceTypeModifiers"):
+			modifiers = row.pop("commerceTypeModifiers")
+			row["commerceTypeModifiers"] = dict([(_enumName(CommerceTypes, i), modifiers[i]) for i in range(len(modifiers)) if modifiers[i]])
+		for szKey in ("corporationHeadquarters", "activeCorporations"):
+			if row.has_key(szKey):
+				row[szKey] = [gc.getCorporationInfo(iCorp).getType() for iCorp in row[szKey]]
+		if row.has_key("specialists"):
+			counts = row.pop("specialists")
+			row["specialists"] = dict([(gc.getSpecialistInfo(i).getType(), counts[i]) for i in range(len(counts)) if counts[i]])
+		row["id"] = city.getID()
+		row["name"] = city.getName()
+		rows.append(row)
+	return {"player": player.getID(), "page": iPage, "cities": rows}
 
 
 def cmd_domestic(args):
+	# <!-- custom: Under fog, another team's cities are refused, as the advisor shows only the viewing team's: player= reached the collectors unchecked (Codex's review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	_requireOwnTeamUnderFog(args, _player(args), "city details")
+	if args.get("page") is not None:
+		# <!-- custom: Overview 1 is the command's own selection, as before; pages 2 to 4 have no command fields of their own, so they are the tab's rows. (Claude code Opus 5.5) -->
+		iPage = int(args["page"])
+		if iPage not in (2, 3, 4):
+			raise ValueError("page %d: the Domestic Advisor's Overview 2, 3 or 4; without page, the overview this command gives" % iPage)
+		return _domesticPage(_player(args), iPage)
 	# <!-- custom: The Domestic Advisor shows every city's state at a glance, while 'cities' gave only population and queue and 'city' one city at a time, so judging fifteen cities took fifteen requests (visual pass, 2026-11-14). (Claude code Opus 5.5) -->
 	player = _player(args)
 	rows = []
