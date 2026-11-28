@@ -178,6 +178,8 @@ public:
 	int maxHitPoints();
 	int currHitPoints();
 	bool isHurt();
+	// <!-- custom: Turns to full health resting at a plot, as CvUnit::healTurns counts them; see the binding. (Claude code Opus 5.5) -->
+	int healTurnsAt(int iX, int iY);
 	bool isDead();
 	void setBaseCombatStr(int iCombat);
 	int baseCombatStr();

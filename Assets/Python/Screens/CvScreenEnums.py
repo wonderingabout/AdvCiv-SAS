@@ -126,6 +126,108 @@ class SevoScreenEnums:
 	PEDIA_ROUTES = 237
 
 
+# <!-- custom: The footer tabs of every tabbed advisor, in one place, as this file already holds every screen's ID (the user's idea, 2026-11-22, akin to SevoScreenEnums).
+# Each screen kept its own list in its own shape (ID lists, text keys built at draw time, two key sets in the Foreign Advisor, a Rise and Fall tab added in the Victory screen), so code that needed every tab, such as SASPilot's tab listing, had to open each screen and read what it drew.
+# Advisors are in hotkey order, each with its key from CIV4ControlInfos.xml in a comment (the Tech Chooser, F6, has no footer tabs); each is (short name as SASPilot's uiopen takes it, screen ID, control that opens it, tabs), and each tab is (key, text key of its label, game option it needs or None).
+# The screens draw their labels and tab order from here and keep their own widget names and page IDs, so input handling is unchanged. A tab's position is its page number where a screen numbers pages by position, so reordering here reorders the screen.
+# Plain tuples and string keys are enough: the keys are read when a screen sets up or draws its tab bar, not per frame, while the active page is already an integer; a separate numeric enum would be another list to keep in step.
+# Keep each tab tuple beside its advisor and hotkey so the whole entry is in one place. Naming the tuples separately also builds them once at import; the lookup dictionaries below are the same either way. (GPT-6.2-Sol)
+# Domestic's Overview labels were hard-coded English; they now have text keys. See KI#1110. (Claude code Opus 5.5) -->
+ADVISOR_TABS = (
+	("domestic", DOMESTIC_ADVISOR, "CONTROL_DOMESTIC_SCREEN", ( # <!-- custom: F1 (Claude code Opus 5.5) -->
+		("OVERVIEW1", "TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW1_TAB", None),
+		("OVERVIEW2", "TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW2_TAB", None),
+		("OVERVIEW3", "TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW3_TAB", None),
+		("OVERVIEW4", "TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW4_TAB", None),
+		("FINANCE", "TXT_KEY_ECONOMICS_ADVISOR_FINANCE_TAB", None),
+	)),
+	("policy", POLICY_ADVISOR_SCREEN, "CONTROL_CIVICS_SCREEN", ( # <!-- custom: F2 (Claude code Opus 5.5) -->
+		("CIVICS", "TXT_KEY_CONCEPT_CIVICS", None),
+		("RELIGIONS", "TXT_KEY_POLICY_TAB_RELIGIONS", None),
+		("CORPORATIONS", "TXT_KEY_POLICY_TAB_CORPORATIONS", None),
+	)),
+	# <!-- custom: The Foreign Diplomacy and Foreign Trade advisors share CvForeignAdvisor; their keys are its SCREEN_DICT keys. (Claude code Opus 5.5) -->
+	("foreigndiplomacy", FOREIGN_DIPLOMACY_ADVISOR, "CONTROL_FOREIGN_DIPLOMACY_SCREEN", ( # <!-- custom: F3 (Claude code Opus 5.5) -->
+		("RELATIONS", "TXT_KEY_FOREIGN_ADVISOR_RELATIONS", None),
+		("GLANCE", "TXT_KEY_FOREIGN_ADVISOR_GLANCE", None),
+		("INFO", "TXT_KEY_FOREIGN_ADVISOR_INFO", None),
+		("ESPIONAGE", "TXT_KEY_SAS_ESPIONAGE_SHORT", None),
+	)),
+	("foreigntrade", FOREIGN_ADVISOR, "CONTROL_FOREIGN_SCREEN", ( # <!-- custom: F4 (Claude code Opus 5.5) -->
+		# <!-- custom: renamed Active tab label to Treaties to match the reduced scope (no bonus clutter). (GPT-5.3-Codex) -->
+		("ACTIVE_TRADE", "TXT_KEY_FOREIGN_ADVISOR_TREATIES", None),
+		("BONUS", "TXT_KEY_FOREIGN_ADVISOR_RESOURCES", None),
+		("TECH", "TXT_KEY_FOREIGN_ADVISOR_TECHS", None),
+		# <!-- custom: The Cities tab comes from AdvCiv advc.ctr. (Claude code Opus 5.5) -->
+		("CITIES", "TXT_KEY_CONCEPT_CITIES", None),
+	)),
+	("military", MILITARY_ADVISOR, "CONTROL_MILITARY_SCREEN", ( # <!-- custom: F5 (Claude code Opus 5.5) -->
+		("SUMMARY", "TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB", None),
+		("MAP", "TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB", None),
+		("BATTLES", "TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", None),
+		("COMPOSITION", "TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", None),
+	)),
+	("world", WORLD_ADVISOR, "CONTROL_WORLD_ADVISOR_SCREEN", ( # <!-- custom: F7 (Claude code Opus 5.5) -->
+		# <!-- custom: Keep Environment after the territory pages and put Changes last as the more specialized persisted setup/editor provenance view. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
+		("BFC1", "TXT_KEY_WORLD_ADVISOR_BFC1_TAB", None),
+		("BFC2", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", None),
+		("TERRITORY", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", None),
+		("ENVIRONMENT", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB", None),
+		("CHANGES", "TXT_KEY_WORLD_ADVISOR_CHANGES_TAB", None),
+	)),
+	("info", INFO_SCREEN, "CONTROL_INFO", ( # <!-- custom: F8 (Claude code Opus 5.5) -->
+		# <!-- custom: Score Tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
+		# <!-- custom: Score must stay second: CvDLLWidgetData.cpp opens Info on Score with py.showInfoScreen(1), a number the DLL keeps, which advisor_tab_registry.py checks. See KI#1110. (Claude code Opus 5.5) -->
+		("GRAPH", "TXT_KEY_INFO_GRAPH", None),
+		("SCORE", "TXT_KEY_GAME_SCORE", None),
+		("TIMELINE", "TXT_KEY_SAS_INFO_TIMELINE", None),
+		("DEMOGRAPHICS", "TXT_KEY_DEMO_SCREEN_TITLE", None),
+		("TOP_CITIES", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", None),
+		("STATISTICS", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE", None),
+	)),
+	("victory", VICTORY_SCREEN, "CONTROL_VICTORY_SCREEN", ( # <!-- custom: F9 (Claude code Opus 5.5) -->
+		("VICTORIES", "TXT_KEY_MAIN_MENU_VICTORIES", None),
+		("SETTINGS", "TXT_KEY_MAIN_MENU_SETTINGS", None),
+		("RESOLUTIONS", "TXT_KEY_VOTING_TITLE", None),
+		("MEMBERS", "TXT_KEY_MEMBERS_TITLE", None),
+		# <!-- custom: advc.703's Rise and Fall score tab, which the Victory screen adds only in a Rise and Fall game. (Claude code Opus 5.5) -->
+		("RISE_FALL_SCORE", "TXT_KEY_GAME_SCORE", "GAMEOPTION_RISE_FALL"),
+	)),
+)
+
+
+# <!-- custom: Built once at import, so a lookup is a dict access rather than a loop of string compares (the user's question about cost), and each tab's position is its integer page number, the enum the screens compare against per frame.
+# Five screens kept those numbers as their own constants (Domestic PAGE_OVERVIEW1 = 0, World iTerritoryID = 2...), a second copy of the order; they now take them from getAdvisorTabIndex at init. See KI#1110. (Claude code Opus 5.5) -->
+_ADVISOR_TABS_BY_NAME = {}
+_ADVISOR_TAB_INDEX = {}
+for (_sasAdvisor, _sasScreen, _sasControl, _sasTabs) in ADVISOR_TABS:
+	_ADVISOR_TABS_BY_NAME[_sasAdvisor] = _sasTabs
+	for _sasIndex in range(len(_sasTabs)):
+		_ADVISOR_TAB_INDEX[(_sasAdvisor, _sasTabs[_sasIndex][0])] = _sasIndex
+
+
+def getAdvisorTabs(szAdvisor):
+	# <!-- custom: An advisor's tabs by its short name; an unknown name fails loudly rather than drawing no tabs. (Claude code Opus 5.5) -->
+	if not _ADVISOR_TABS_BY_NAME.has_key(szAdvisor):
+		raise KeyError("no advisor %s in CvScreenEnums.ADVISOR_TABS" % szAdvisor)
+	return _ADVISOR_TABS_BY_NAME[szAdvisor]
+
+
+def getAdvisorTabIndex(szAdvisor, szTabKey):
+	# <!-- custom: A tab's page number, its position in the registry; unknown keys fail loudly. (Claude code Opus 5.5) -->
+	if not _ADVISOR_TAB_INDEX.has_key((szAdvisor, szTabKey)):
+		raise KeyError("no tab %s in advisor %s of CvScreenEnums.ADVISOR_TABS" % (szTabKey, szAdvisor))
+	return _ADVISOR_TAB_INDEX[(szAdvisor, szTabKey)]
+
+
+def getAdvisorTabKeys(szAdvisor):
+	return [tab[0] for tab in getAdvisorTabs(szAdvisor)]
+
+
+def getAdvisorTabTextKeys(szAdvisor):
+	return [tab[1] for tab in getAdvisorTabs(szAdvisor)]
+
+
 # <!-- custom: Enrich Python screen diagnostics by deriving names once from this catalog, instead of repeating ID-to-name tables at log callers.
 # Like the derive-once category wiring in SevoPediaMain.py (SAS_CATEGORY_DEFS), reuse canonical definitions; here the inputs are integer constants, not page builders or navigation rules.
 # Both contain general screens; each contains only its own encyclopedia pages, so one selection handles the overlapping IDs.
@@ -152,3 +254,41 @@ def getSASScreenName(iScreen, bUsingSevopedia=False):
 	else:
 		names = _SAS_SCREEN_NAMES
 	return names.get(iScreen, "UNREGISTERED_SCREEN")
+
+
+# <!-- custom: The XML tables the Sevopedia has a page per entry for, in one place, as ADVISOR_TABS is for the advisors' tabs (the user's idea, 2026-11-28).
+# Two copies had grown apart: SevoPediaMain's SAS_linkMatchDefs (count and info getters on gc, category) for link(), and SASPilotCommands' _PEDIA_KINDS (XML type prefix, the same getters, a pediaJumpTo* name, the categories a page lands in) for 'types', 'pedia' and 'uiopen item='; each lacked kinds the other had, such as UNITCOMBAT_ in SASPilot and ERA_ in link().
+# Each row is (XML type prefix, gc count method, gc info method, category pediaJump takes or None for no page, categories the page may land in, whether link() matches it); pediaJump moves a building into a Wonders category and a new concept into Shortcuts, hence the landing column.
+# Row order is link()'s order, first match wins, so keep it when adding a row; the kinds link() does not match come last.
+# CONCEPT_ starts both concept tables' types, so a prefix alone does not name the table: a reader checks the entry's own type, as SASPilot's _pediaKind does. See KI#1110.2. (Claude code Opus 5.5) -->
+PEDIA_ITEM_KINDS = (
+	("TECH_", "getNumTechInfos", "getTechInfo", SevoScreenEnums.PEDIA_TECHS, (SevoScreenEnums.PEDIA_TECHS,), True),
+	("UNIT_", "getNumUnitInfos", "getUnitInfo", SevoScreenEnums.PEDIA_UNITS, (SevoScreenEnums.PEDIA_UNITS,), True),
+	("UNITCOMBAT_", "getNumUnitCombatInfos", "getUnitCombatInfo", SevoScreenEnums.PEDIA_UNIT_CATEGORIES, (SevoScreenEnums.PEDIA_UNIT_CATEGORIES,), True),
+	("PROMOTION_", "getNumPromotionInfos", "getPromotionInfo", SevoScreenEnums.PEDIA_PROMOTIONS, (SevoScreenEnums.PEDIA_PROMOTIONS,), True),
+	("BUILDING_", "getNumBuildingInfos", "getBuildingInfo", SevoScreenEnums.PEDIA_BUILDINGS, (SevoScreenEnums.PEDIA_BUILDINGS, SevoScreenEnums.PEDIA_NATIONAL_WONDERS, SevoScreenEnums.PEDIA_WORLD_WONDERS), True),
+	("PROJECT_", "getNumProjectInfos", "getProjectInfo", SevoScreenEnums.PEDIA_PROJECTS, (SevoScreenEnums.PEDIA_PROJECTS,), True),
+	("SPECIALIST_", "getNumSpecialistInfos", "getSpecialistInfo", SevoScreenEnums.PEDIA_SPECIALISTS, (SevoScreenEnums.PEDIA_SPECIALISTS,), True),
+	("TERRAIN_", "getNumTerrainInfos", "getTerrainInfo", SevoScreenEnums.PEDIA_TERRAINS, (SevoScreenEnums.PEDIA_TERRAINS,), True),
+	("FEATURE_", "getNumFeatureInfos", "getFeatureInfo", SevoScreenEnums.PEDIA_FEATURES, (SevoScreenEnums.PEDIA_FEATURES,), True),
+	("BONUS_", "getNumBonusInfos", "getBonusInfo", SevoScreenEnums.PEDIA_BONUSES, (SevoScreenEnums.PEDIA_BONUSES,), True),
+	("IMPROVEMENT_", "getNumImprovementInfos", "getImprovementInfo", SevoScreenEnums.PEDIA_IMPROVEMENTS, (SevoScreenEnums.PEDIA_IMPROVEMENTS,), True),
+	("ROUTE_", "getNumRouteInfos", "getRouteInfo", SevoScreenEnums.PEDIA_ROUTES, (SevoScreenEnums.PEDIA_ROUTES,), True),
+	("BUILD_", "getNumBuildInfos", "getBuildInfo", SevoScreenEnums.PEDIA_BUILDS, (SevoScreenEnums.PEDIA_BUILDS,), True),
+	("CIVILIZATION_", "getNumCivilizationInfos", "getCivilizationInfo", SevoScreenEnums.PEDIA_CIVS, (SevoScreenEnums.PEDIA_CIVS,), True),
+	("LEADER_", "getNumLeaderHeadInfos", "getLeaderHeadInfo", SevoScreenEnums.PEDIA_LEADERS, (SevoScreenEnums.PEDIA_LEADERS,), True),
+	# <!-- custom: Traits are matched so that clicking <link=literal>TraitName</link> in Sevopedia Leader (or anywhere else) navigates to the Sevopedia Traits page.
+	# The DLL wraps trait names in <link=literal> tags (see CvGameTextMgr.cpp parseTraits); without this row, clicking trait links had no effect. (Claude Opus 4.5) -->
+	("TRAIT_", "getNumTraitInfos", "getTraitInfo", SevoScreenEnums.PEDIA_TRAITS, (SevoScreenEnums.PEDIA_TRAITS,), True),
+	("CIVIC_", "getNumCivicInfos", "getCivicInfo", SevoScreenEnums.PEDIA_CIVICS, (SevoScreenEnums.PEDIA_CIVICS,), True),
+	("RELIGION_", "getNumReligionInfos", "getReligionInfo", SevoScreenEnums.PEDIA_RELIGIONS, (SevoScreenEnums.PEDIA_RELIGIONS,), True),
+	("CORPORATION_", "getNumCorporationInfos", "getCorporationInfo", SevoScreenEnums.PEDIA_CORPORATIONS, (SevoScreenEnums.PEDIA_CORPORATIONS,), True),
+	("CONCEPT_", "getNumConceptInfos", "getConceptInfo", SevoScreenEnums.PEDIA_CONCEPTS, (SevoScreenEnums.PEDIA_CONCEPTS,), True),
+	("CONCEPT_", "getNumNewConceptInfos", "getNewConceptInfo", SevoScreenEnums.PEDIA_BTS_CONCEPTS, (SevoScreenEnums.PEDIA_BTS_CONCEPTS, SevoScreenEnums.PEDIA_SHORTCUTS), True),
+	("VOTE_", "getNumVoteInfos", "getVoteInfo", SevoScreenEnums.PEDIA_VOTES, (SevoScreenEnums.PEDIA_VOTES,), False),
+	("EVENTTRIGGER_", "getNumEventTriggerInfos", "getEventTriggerInfo", SevoScreenEnums.PEDIA_EVENT_TRIGGERS, (SevoScreenEnums.PEDIA_EVENT_TRIGGERS,), False),
+	# <!-- custom: An era's page is its column of the Era chart, which records the era as its item. (Claude code Opus 5.5) -->
+	("ERA_", "getNumEraInfos", "getEraInfo", SevoScreenEnums.PEDIA_ERA_CHART, (SevoScreenEnums.PEDIA_ERA_CHART,), False),
+	# <!-- custom: Handicaps are shown only in the Handicap chart, with no page per handicap. (Claude code Opus 5.5) -->
+	("HANDICAP_", "getNumHandicapInfos", "getHandicapInfo", None, (), False),
+)

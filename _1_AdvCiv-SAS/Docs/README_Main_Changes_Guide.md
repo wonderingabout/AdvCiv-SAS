@@ -50,6 +50,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 &emsp;&emsp;[Runtime status and history](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#runtime-status-and-history)\
 &emsp;&emsp;[SAS assertion diagnostics](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sas-assertion-diagnostics)\
 &emsp;&emsp;[Python and engine diagnostic logs](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#python-and-engine-diagnostic-logs)\
+&emsp;&emsp;[SASPilot command and console logs](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#saspilot-command-and-console-logs)\
 &emsp;&emsp;[Logging (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-common)\
 &emsp;&emsp;[BBAI log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log)\
 &emsp;&emsp;[SASGameRecord log](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log)\
@@ -479,6 +480,9 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - (Requires AdvCiv-SAS 6648+) **Centralized Python screen IDs:** [CvScreenEnums.py](/Assets/Python/Screens/CvScreenEnums.py) now contains general screens, vanilla Civilopedia pages and Sevopedia pages, making their definitions easier to browse and maintain together.
   - The separate `SevoScreenEnums.py` was removed; its definitions now live in class `SevoScreenEnums` within `CvScreenEnums.py`, and callers import that class. Existing numeric IDs and page navigation are preserved.
   - Vanilla Civilopedia and Sevopedia reuse some numbers for different pages, so their definitions stay distinct within the shared catalog; a reusable name lookup selects the active encyclopedia.
+- **Centralized advisor tabs:** CvScreenEnums.py's `ADVISOR_TABS` lists every tabbed advisor in hotkey order (F1 to F9) with each of its footer tabs, and the advisors draw their tab labels and take their page numbers from it ([KI#1110](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)).
+  - Before, each advisor kept its tabs in its own shape (ID lists, text keys built while drawing, English literals for the Domestic Overview tabs, a Rise and Fall tab added in the Victory screen) and repeated their order as page numbers, so code that needed every tab had to open each screen. A new or renamed tab now changes one entry.
+  - SASPilot reads it to list every tab without opening a screen, and a CI check ([`advisor_tab_registry.py`](/.github/workflows/README.md#buildsourceadvisor_tab_registrypy)) fails on a screen with its own list, a stale hotkey comment or a missing label text key.
 - (Requires AdvCiv-SAS 6629+) **Centralized save-stream writer markers** in [SASSaveStreamFormat.h](/CvGameCoreDLL/SASSaveStreamFormat.h) replace scattered numeric constants (for example, values assigned to `uiFlag`, `iSaveVersion`, `savegameVersion` and replay's `REPLAY_VERSION`) with named definitions shared by serialization and diagnostics.
   - This covers core/AI records (for example `CvGame`, `CvCity`, `CvPlayer` and their AI counterparts), statistics, `UWAICache` and its city records, `MilitaryBranch`, Rise & Fall records and `CvReplayInfo`.
   - For example, `CvCity` now assigns `uiFlag = SASSaveStreamFormat::CV_CITY` instead of `17`, and replay's `REPLAY_VERSION` uses `SASSaveStreamFormat::CV_REPLAY_INFO` instead of `6`; the shared definitions retain those values.
@@ -784,6 +788,13 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
   - These changes cover DLL-controlled rows; EXE-owned writers retain their formats.
 
 See [README_Logging_Inventory.md](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#before-and-after-shared-python-log-timestamps) for matched Before/After samples, file roles and historical/mod origins, enabling conditions, writer ownership and runtime start/end evidence.
+
+#### SASPilot command and console logs
+
+- (Requires AdvCiv-SAS 6892+) **What agents did through SASPilot is logged, as SASGameRecord logs the game:** each piloted Civ4 client gets its own files in `Logs`, named by its start time and process ID.
+  - `SASPilot_<start>_<pid>.jsonl`, the command log: one row per request an agent sent, with its arguments, the agent's note on why, the operator, the turn, and the result or error. Since 2026-11-28 it also holds the Python errors a reply reported and the client's own failures. [`SASPilotClient.py`](/SASPilot/SASPilotClient.py) writes it.
+  - `SASPilotConsole_<start>_<pid>.log`: what [`SASPilotConsole.py`](/SASPilot/SASPilotConsole.py), the window that shows that log to a person watching, printed, with its own notices and warnings. Its crashes go to `SASPilotConsole_errors.log`.
+  - See the [Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log) for the fields and why each file exists.
 
 #### Logging (Common)
 
@@ -3333,7 +3344,7 @@ Make some of the data-dense advisors use using a **higher contrast background th
     - Before, it was gone once closed; it is now kept in the save, replays and Hall of Fame too, visible only to the team that saw it.
     - `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` (default on) hides these rows from the Timeline for players who find them noise; the save and replay keep them, so turning it back on shows past rankings again.
       - At SASGameRecord level 1 each ranking also adds rows with the values behind every rank, for all players (`GAME_RECORD_TOP_CIVS` and `GAME_RECORD_TOP_CIVS_RANK`; see the [SASGameRecord revision history](/_1_AdvCiv-SAS/Docs/revisions/SASGameRecord.md)).
-    - The ranking is recorded either way, so the screen itself can be turned off with `SAS_UI_TOP_CIVS_ON` (default on), as the Dawn of Man screen can be; during AI Auto Play `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON` skips it too.
+    - The ranking is recorded either way, so the screen itself can be turned off with `SAS_UI_TOP_CIVS_ON` (default on), as for the other information-only screens; during AI Auto Play `SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON` skips it too.
     - Change in [CvTopCivs.py](/Assets/Python/Screens/CvTopCivs.py) and [CyGame.cpp](/CvGameCoreDLL/CyGame.cpp), with a binding in [CyGameInterface.cpp](/CvGameCoreDLL/CyGameInterface.cpp).
 - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player color, Player ID (to distinguish identical Name/Civ/Leader/Player Color), Traits (T1 and T2) as **icon chars**, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M, Tech (total techs).
   - Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**.
@@ -3441,6 +3452,9 @@ Make some of the data-dense advisors use using a **higher contrast background th
   - (Requires AdvCiv-SAS 6830+) The **minimap and globe buttons' hovers end with (ON) or (OFF)**, such as `Toggle Grid <Ctrl+T> (ON)`; before, the player had to look at the map to tell.
   - Optionally show **Plot coordinates on hover** (e.g., `63,46`) in hover help text.
   - This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
+  - (Requires AdvCiv-SAS 6750+) Optionally show **our units' state as text** in their hover help, in the plot hover and the plot list alike (`SAS_PLOT_HELP_UNIT_STATE_ON`, on by default): automation, then the activity or the mission underway, then a ready promotion, for example `Work Boat, 0/2, Exploring (automated)`, `Ancient Maceman, 3, 1/1, Fortified 5 turns, Promotion ready` or `Swift Worker, 0/3, Moving to 98,24` (a destination city is named after its coordinates, as in `Moving to 94,25 (Utrecht)`).
+    - Without it the state showed only as small marks in the plot list or through the selected unit's buttons, so finding which units were fortified, asleep or on their way meant selecting each one.
+    - Rivals' units show none of it, as the game shows their states nowhere. SASPilot's `units` command gives the same state as data ([SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md); its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py)).
 - **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max).
   - Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow.
   - With 48 civilizations, base AdvCiv's scoreboard runs up over the turn counter; see [KI#134.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-134.2), and [UI (High player counts)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#ui-high-player-counts) for the other screens adjusted for many players.

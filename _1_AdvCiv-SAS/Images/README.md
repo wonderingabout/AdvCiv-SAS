@@ -41,9 +41,9 @@ The two-client LAN walkthrough screenshots (`1.297_m_*`) have their own folder, 
 
 ## Retaking screenshots
 
-Screenshots are taken by hand for now: choosing the save and the moment, and using the screen while doing it, is what shows its UI faults, more than a polished picture would (the user, 2026-11-21). Some shots therefore go stale between refreshes; the criteria below say what each kind should show, so a stale shot is easy to spot and to retake with the same purpose.
+Screenshots are taken by hand for now: choosing the save and the moment, and using the screen while doing it, is what shows its UI faults, more than a polished picture would (the user, 2026-11-21). Some shots therefore go stale between refreshes, so what each one is meant to show is recorded with it, in [`doc_screenshots.json`](/LLM_Helpers/game_runs/doc_screenshots.json) under `shows`, together with its save, screen, tabs and any hover. A stale shot is then easy to spot and to retake with the same purpose.
 
-- Use Civ4's own screenshot (Print Screen): the game area at 1920 x 1080 as JPG, as the existing images are, rather than a desktop capture with the window's frame.
+- Use Civ4's own screenshot (Print Screen, or `SASPilotClient.py shot`): the game area at 1920 x 1080 as JPG, as the existing images are, rather than a desktop capture with the window's frame.
   - Keep the game at 1920 x 1080, the user's own resolution, and do not maximize it on a 4K screen: a 4K shot is about four times heavier, and Civ4's art and fonts, made for far lower resolutions, show no more detail there.
 - Most advisor shots come from a turn-201 game with our civ in the top 60% of the scoreboard but not leading: too weak, it has few techs, bonuses or wonders to show; too strong, the screens look one-sided. Several tradeable resources help too.
 - The tech bar is in most shots, so pick a moment with a tech chosen and under way, ideally with some progress, and no anarchy: the bar then shows what SAS changed there, the tech's icon and no needless "Research:" before its name.
@@ -59,3 +59,4 @@ Screenshots are taken by hand for now: choosing the save and the moment, and usi
 - A hover that is part of a feature belongs in the shot, chosen to show the feature at its fullest: on the Relations tab an attitude with several modifiers, and on the Bonuses tab a resource that several buyers would take at different prices, such as Gemstones at 8, 10 and 6 gold on the turn-201 game.
 - The city screen shows SAS's breakdowns, so pick a city where they have values other than 0: its Great Person and culture breakdown hovered, with specialists, a religion or corporations among the culture sources, and enough builds for four full production chooser rows.
   - `1.400_city_screen (1)_spec_break_relig_gp_bldg.JPG` (turn 201: Great Person points from buildings, a religion's culture) and `(2)_spec_break_corp.JPG` (turn 301: specialists and corporations) together cover these.
+- When one change touches many shots, such as the commerce sliders' background on 2026-11-21, [`doc_screenshots.py`](/LLM_Helpers/README.md#doc_screenshotspy) retakes the listed ones in bulk.

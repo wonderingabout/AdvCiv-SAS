@@ -160,6 +160,9 @@ void CyUnitPythonInterface1(python::class_<CyUnit>& x)
 		.def("maxHitPoints", &CyUnit::maxHitPoints, "bool ()")
 		.def("currHitPoints", &CyUnit::currHitPoints, "bool ()")
 		.def("isHurt", &CyUnit::isHurt, "bool ()")
+		// <!-- custom: SASPilot compares healing where a wounded unit stands with walking to a friendly plot or city first: at turn 22 of the Continents replay (2026-11-19) a 3-turn walk home bought no time over healing in place, and Python had no way to count it.
+		// The game's own count includes city heal, promotions, Medics and feature damage. (Claude code Opus 5.5) -->
+		.def("healTurnsAt", &CyUnit::healTurnsAt, "int (int iX, int iY) - turns to full health resting at that plot")
 		.def("isDead", &CyUnit::isDead, "bool ()")
 		.def("setBaseCombatStr", &CyUnit::setBaseCombatStr, "void (int)")
 		.def("baseCombatStr", &CyUnit::baseCombatStr, "int ()")

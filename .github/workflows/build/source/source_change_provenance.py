@@ -128,6 +128,8 @@ def maintained_source_path(path: str) -> bool:
             lower.startswith("assets/python/")
             or lower.startswith("privatemaps/")
             or lower.startswith("llm_helpers/")
+            # <!-- custom: SASPilot moved from LLM_Helpers to the root on 2026-11-20; Codex's review found it had left this check's scope. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            or lower.startswith("saspilot/")
             or lower.startswith("tests/")
             or lower.startswith(".github/workflows/")
         )
@@ -353,16 +355,21 @@ def credit_spelling_errors(path: str, block: CommentBlock) -> list[str]:
 
 # <!-- custom: A Claude model's name alone, such as "Opus 5.5" or "code Opus 5.5", leaves out which family and app wrote the comment, so the credit reads "Claude code Opus 5.5" in full.
 # On 2026-11-26 Claude Code Opus 5.5 wrote "(Claude code Opus 4.6 + Opus 5.5)" while restoring an earlier credit, which the user caught in review; the credit parser skipped "Opus 5.5" as no known family, so no rule saw it. (Claude code Opus 5.5) -->
-INCOMPLETE_CREDIT_RE = re.compile(r"^(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable)\b", re.IGNORECASE)
+# <!-- custom: Merging main into the SASPilot branch on 2026-11-27 met that branch's own rule for the same slip, from 2026-11-20, whose tests main's rule failed: it missed a part with its own note, such as "+ Opus 5.5 (review)", and flagged a closing aside such as "(Opus 5.5 reproduced this)".
+# So a part's notes are dropped first and the whole remaining label must be a bare model name, as that rule did. (Claude code Opus 5.5) -->
+# <!-- custom: Codex's review of that merge found the first combined version too loose: it needed a version, so "+ Opus" and "+ code Sonnet" passed, which main's prefix check rejected, and it split on + before dropping notes, so "+ Opus 5.5 (review + test)" passed too.
+# The notes are now dropped from the whole list before it is split, and the version is optional. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+INCOMPLETE_CREDIT_RE = re.compile(r"(?:code\s+)?(?:Opus|Sonnet|Haiku|Fable|Mythos)(?:[ \t-]+\d+(?:\.\d+)*)?", re.IGNORECASE)
 
 
 def incomplete_credit_errors(path: str, block: CommentBlock) -> list[str]:
     errors = []
-    for credit in re.finditer(r"\(([^()]*)\)\s*-->", block.raw):
-        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", credit.group(1)):
-            if INCOMPLETE_CREDIT_RE.match(part.strip()):
+    for credit in re.finditer(r"\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*-->", block.raw):
+        for part in re.split(r"\s*[+,;/]\s*|\s+(?:and|&)\s+", re.sub(r"\s*\([^()]*\)", "", credit.group(1))):
+            label = part.strip()
+            if INCOMPLETE_CREDIT_RE.fullmatch(label):
                 line = block.start + block.raw.count("\n", 0, credit.start())
-                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, part.strip()))
+                errors.append("%s:%d: model credit '%s' leaves out the model family; name it in full, such as Claude code Opus 5.5" % (path, line, label))
     return errors
 
 
@@ -1117,7 +1124,8 @@ def has_base_game_copy_header(text: str, sources: dict[str, str]) -> bool:
 
 
 # <!-- custom: base_copy added: True for a file new in the range that is a manifest-listed base-game copy, whose original comments and imports are then not reported. (Claude code Opus 5.5) -->
-def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None, restored_comment=None, base_copy: bool = False) -> list[str]:
+# <!-- custom: Gains moved_directives, the import and include lines removed and added across all changed files, which check() gathers, so a directive moved between files with its code is not taken for a new or dropped dependency (2026-11-28). (Claude code Opus 5.5) -->
+def check_change(path: str, old_text: str | None, new_text: str | None, warnings: list[str] | None = None, restored_comment=None, base_copy: bool = False, moved_directives: tuple[set, set] = (set(), set())) -> list[str]:
     suffix = Path(path).suffix.lower()
     if suffix not in SOURCE_SUFFIXES or new_text is None:
         return []
@@ -1224,7 +1232,10 @@ def check_change(path: str, old_text: str | None, new_text: str | None, warnings
     # Check proximity to each directive, not the entire diff hunk: a new-file hunk spans the whole file and would otherwise accept an unrelated distant comment. (GPT-6.1-Sol) -->
     if suffix in CPP_SUFFIXES | PY_SUFFIXES and not base_copy:
         for _start, _end, directives in import_include_changes(old_text, new_text, suffix):
-            for action, line, _kind, target, _raw in directives:
+            for action, line, _kind, target, raw in directives:
+                # <!-- custom: A directive removed from one changed file and added, word for word, to another moved with its code and is no new dependency: splitting SASPilotCommands.py by topic moved function-local imports such as "import BugPath" with their functions, and each counted as removed there (2026-11-28). (Claude code Opus 5.5) -->
+                if raw in moved_directives[0 if action == "added" else 1]:
+                    continue
                 position = line if action == "added" else map_old_line_to_new(line, opcodes)
                 nearby = nearby_added_custom(added_custom, position, position, radius=5)
                 if not nearby:
@@ -1316,6 +1327,17 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
     renamed = renamed_paths(repo, base)
     upstream_parents = merged_parents(repo, base)
     base_game_paths = base_game_manifest_paths(repo)
+    # <!-- custom: The import and include lines removed and added across all changed files, so a directive that moved from one file to another is told apart from a new or dropped dependency (see check_change). (Claude code Opus 5.5) -->
+    moved_directives = (set(), set())
+    for path in changed_paths(repo, base):
+        suffix = Path(path).suffix.lower()
+        if suffix not in CPP_SUFFIXES | PY_SUFFIXES:
+            continue
+        old = git_text(repo, base, renamed.get(path, path)) or ""
+        new = current_text(repo, path) or ""
+        for _start, _end, directives in import_include_changes(old, new, suffix):
+            for action, _line, _kind, _target, raw in directives:
+                moved_directives[0 if action == "removed" else 1].add(raw)
     for path in changed_paths(repo, base):
         old = git_text(repo, base, renamed.get(path, path))
         new = current_text(repo, path)
@@ -1345,7 +1367,7 @@ def check(repo: Path, base_ref: str | None, event_name: str | None = None, warni
                         return True
             return False
         base_copy = old is None and path in base_game_paths and has_base_game_copy_header(new, base_game_paths[path])
-        errors.extend(check_change(path, old, new, warnings, restored_comment, base_copy))
+        errors.extend(check_change(path, old, new, warnings, restored_comment, base_copy, moved_directives))
     return errors, count
 
 

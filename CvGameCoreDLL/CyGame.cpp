@@ -13,7 +13,10 @@
 #include "CvInfo_Organization.h" // <!-- custom: WorldBuilder history records stable religion/corporation XML type tokens; GC.getInfo requires the complete organization info types here. (ChatGPT-5.6-Sol) -->
 #include "CvDLLPythonIFaceBase.h" // <!-- custom: Needed for the concrete Python-interface method used by the rejected-offer bridge; CvDLLUtilityIFaceBase only forward-declares this type. (ChatGPT-5.6-Sol) -->
 #include "SASGameRecordLog.h" // <!-- custom: Bridge resolved Python diplomacy-UI events and post-handler session diagnostics into the factual game record; AI valuation remains elsewhere. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
-#include "CvPlayer.h" // <!-- custom: addSASTeamReplayMessage reads players through GET_PLAYER, which CvGameAI.h only forward-declares; without it cl.exe /Zs reported C3861 "'GET_PLAYER': identifier not found". On the SASPilot branch its popup wrappers had already brought this include, so the binding first compiled there without it. (Claude code Opus 5.5) -->
+#include "CvPlayer.h" // <!-- custom: The SASPilot popup wrappers call CvPlayer through GET_PLAYER; without this include the first build failed with C3861 "'GET_PLAYER': identifier not found", as CvGameAI.h only forward-declares the player classes. (Claude code Fable 5.2) -->
+#include "CvDLLButtonPopup.h" // <!-- custom: The held-popup list SASPilot reads and switches lives with the popup launcher. (Claude code Fable 5.2) -->
+#include "CvPopupInfo.h" // <!-- custom: getSASPilotPopups reads each popup's type, data and text, which needs the complete CvPopupInfo type. (Claude code Fable 5.2) -->
+#include "CvDLLWidgetData.h" // <!-- custom: executeSASPilotWidget runs a widget's click action through CvDLLWidgetData::getInstance; without this include the syntax check failed with C3861 "'getInstance': identifier not found". (Claude code Opus 5.5) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Python supplies BUG's resolved user root and can request a live shared BBAI/SASGameRecord buffer flush without going through the EXE logger. (ChatGPT-5.6-Sol) -->
 
 namespace
@@ -1656,6 +1659,201 @@ bool CyGame::isEventActive(int /*EventTriggerTypes*/ eTrigger)
 void CyGame::doControl(int iControl)
 {
 	m_kGame.doControl((ControlTypes) iControl);
+}
+
+// <!-- custom: One popup per line for SASPilot, tab-separated: HELD, DISPLAYED or QUEUED, type name, type number, data1, data2, data3, flags, option1, option2, Python button count, Python module, on-clicked callback, text.
+// A delimited string keeps the binding to one call; tabs and line breaks inside the text become spaces.
+// Held popups come first. (Claude code Fable 5.2 + Claude code Opus 5.5) -->
+// <!-- custom: The second field is the held popup's ID, -1 for displayed and queued ones, which 'answer' takes. (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+static void appendSASPilotPopupRow(CvWString& szOut, CvPopupInfo const& kInfo, wchar const* szState, int iId)
+{
+	CvWString szText = kInfo.getText();
+	// <!-- custom: A vote's popup carries no text; the window shows the resolution from the triggered vote, so give that, such as who is to be elected or what is to be forced. (Claude code Opus 5.5) -->
+	if (kInfo.getButtonPopupType() == BUTTONPOPUP_DIPLOVOTE && szText.empty())
+	{
+		VoteTriggeredData const* pVoteTriggered = GC.getGame().getVoteTriggered(kInfo.getData1());
+		if (pVoteTriggered != NULL)
+			szText = pVoteTriggered->kVoteOption.szText;
+	}
+	for (size_t i = 0; i < szText.length(); i++)
+	{
+		if (szText[i] == L'\t' || szText[i] == L'\n' || szText[i] == L'\r')
+			szText[i] = L' ';
+	}
+	// <!-- custom: The field before the text is the buttons a held popup can be answered with, as "id=NAME" joined by commas; empty for displayed and queued ones and for types 'answer' does not take. (Claude code Fable 5.2 + GPT-6.1-Sol) -->
+	std::string const szButtons = (iId < 0 ? std::string() : getSASPilotPopupButtons(kInfo));
+	szOut += CvWString::format(L"%s\t%d\t%S\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%S\t%S\t%S\t%s\n", szState, iId, getSASButtonPopupTypeName(kInfo.getButtonPopupType()), (int)kInfo.getButtonPopupType(), kInfo.getData1(), kInfo.getData2(), kInfo.getData3(), kInfo.getFlags(), (int)kInfo.getOption1(), (int)kInfo.getOption2(), kInfo.getNumPythonButtons(), kInfo.getPythonModule().c_str(), kInfo.getOnClickedPythonCallback().c_str(), szButtons.c_str(), szText.c_str());
+}
+
+std::wstring CyGame::getSASPilotPopups()
+{
+	CvWString szOut;
+	PlayerTypes const eActive = m_kGame.getActivePlayer();
+	if (eActive == NO_PLAYER)
+		return szOut;
+	// <!-- custom: Take the holdable popups out of the queue, then drop held popups that no longer apply, as OnFocus would. (Claude code Opus 5.5) -->
+	GET_PLAYER(eActive).takeSASPilotQueuedPopups();
+	pruneSASPilotHeldPopups();
+	for (int i = 0; i < getNumSASPilotHeldPopups(); i++)
+		appendSASPilotPopupRow(szOut, getSASPilotHeldPopup(i), L"HELD", getSASPilotHeldPopupId(i));
+	CvPopupQueue displayed;
+	gDLL->UI().getDisplayedButtonPopups(displayed);
+	for (CvPopupQueue::const_iterator it = displayed.begin(); it != displayed.end(); ++it)
+		appendSASPilotPopupRow(szOut, **it, L"DISPLAYED", -1);
+	CvPopupQueue const& kQueued = GET_PLAYER(eActive).getPopups();
+	for (CvPopupQueue::const_iterator it = kQueued.begin(); it != kQueued.end(); ++it)
+		appendSASPilotPopupRow(szOut, **it, L"QUEUED", -1);
+	return szOut;
+}
+
+void CyGame::closeSASPilotPopups(int iButtonPopupType, int iData1)
+{
+	PlayerTypes const eActive = m_kGame.getActivePlayer();
+	if (eActive != NO_PLAYER)
+		GET_PLAYER(eActive).closeSASPilotPopups((ButtonPopupTypes)iButtonPopupType, iData1);
+}
+
+bool CyGame::answerSASPilotPopup(int iHeldId, int iButton, std::wstring szEditBox)
+{
+	PlayerTypes const eActive = m_kGame.getActivePlayer();
+	if (eActive == NO_PLAYER)
+		return false;
+	return GET_PLAYER(eActive).answerSASPilotPopup(iHeldId, iButton, CvWString(szEditBox));
+}
+
+void CyGame::setSASPilotPopupsHeld(bool bHeld)
+{
+	::setSASPilotPopupsHeld(bHeld);
+}
+
+bool CyGame::isSASPilotPopupsHeld()
+{
+	return ::isSASPilotPopupsHeld();
+}
+
+std::string CyGame::getSASPilotPlotsJson(int iX, int iY, int iRadius, int iFogTeam)
+{
+	return ::getSASPilotPlotsJson(iX, iY, iRadius, iFogTeam);
+}
+
+std::string CyGame::getSASPilotTradeItemsJson(int iGiver, int iReceiver, int iKindOnly)
+{
+	return ::getSASPilotTradeItemsJson(iGiver, iReceiver, iKindOnly);
+}
+
+std::string CyGame::getSASPilotEspionageJson(int iPlayer, int iUnit)
+{
+	return ::getSASPilotEspionageJson(iPlayer, iUnit);
+}
+
+std::string CyGame::getSASPilotCityBuildsJson(int iPlayer, int iCity)
+{
+	return ::getSASPilotCityBuildsJson(iPlayer, iCity);
+}
+
+std::string CyGame::getSASPilotUnitsJson(int iPlayer, int iFogTeam)
+{
+	return ::getSASPilotUnitsJson(iPlayer, iFogTeam);
+}
+
+std::string CyGame::getSASPilotPathJson(int iPlayer, int iUnit, int iX, int iY, int iFlags)
+{
+	return ::getSASPilotPathJson(iPlayer, iUnit, iX, iY, iFlags);
+}
+
+std::string CyGame::getSASPilotMessagesJson(int iPlayer, int iSinceTurn)
+{
+	return ::getSASPilotMessagesJson(iPlayer, iSinceTurn);
+}
+
+std::string CyGame::getSASPilotCitySitesJson(int iPlayer, int iUnit)
+{
+	return ::getSASPilotCitySitesJson(iPlayer, iUnit);
+}
+
+// <!-- custom: For SASPilot's 'city detail=conditions'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotCityConditionsJson(int iPlayer, int iCity)
+{
+	return ::getSASPilotCityConditionsJson(iPlayer, iCity);
+}
+
+// <!-- custom: For SASPilot's 'finance detail=sources'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotFinanceJson(int iPlayer)
+{
+	return ::getSASPilotFinanceJson(iPlayer);
+}
+
+// <!-- custom: For SASPilot's 'finance detail=sources'; see CvGameInterface.cpp. (Claude code Opus 5.5) -->
+std::string CyGame::getSASPilotTradeJson(int iPlayer, int iWithPlayer)
+{
+	return ::getSASPilotTradeJson(iPlayer, iWithPlayer);
+}
+
+std::string CyGame::proposeSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive)
+{
+	return ::proposeSASPilotDeal(iPlayer, iOther, szWeGive, szTheyGive);
+}
+
+bool CyGame::tableSASPilotDeal(int iPlayer, int iOther, std::string szWeGive, std::string szTheyGive)
+{
+	return ::tableSASPilotDeal(iPlayer, iOther, szWeGive, szTheyGive);
+}
+
+std::string CyGame::joinSASPilotGroup(int iPlayer, int iUnit, int iHeadUnit)
+{
+	return ::joinSASPilotGroup(iPlayer, iUnit, iHeadUnit);
+}
+
+bool CyGame::dropSASPilotPopup(int iHeldId, int iButtonPopupType, int iData1, int iData3, std::wstring szText)
+{
+	PlayerTypes const eActive = m_kGame.getActivePlayer();
+	if (eActive == NO_PLAYER || iButtonPopupType < 0 || iButtonPopupType >= NUM_BUTTONPOPUP_TYPES)
+		return false;
+	return GET_PLAYER(eActive).dropSASPilotPopup(iHeldId, (ButtonPopupTypes)iButtonPopupType, iData1, iData3, CvWString(szText));
+}
+
+bool CyGame::chooseSASPilotFreeTech(int iTech, int iHeldId)
+{
+	return ::chooseSASPilotFreeTech(iTech, iHeldId);
+}
+
+// <!-- custom: The active player's isChoosingFreeTech, which Python has no getter for.
+// After 'freetech' took a chooser on display, the chooser stayed in the window offering every tech, as the DLL cannot close a displayed popup, so 'todo' kept listing a free tech as owed (2026-11-13); the count the game itself checks says whether one is. (Claude code Opus 5.5) -->
+bool CyGame::isSASPilotChoosingFreeTech()
+{
+	PlayerTypes const eActive = m_kGame.getActivePlayer();
+	return (eActive != NO_PLAYER && GET_PLAYER(eActive).isChoosingFreeTech());
+}
+// <!-- custom: A click on a typed widget (pedia links, the slider buttons, a city's build buttons and the like) reaches CvDLLWidgetData::executeAction from the EXE, which Python cannot call; SASPilotUI's 'uipress' needs it to click such widgets by name.
+// A widget type outside the enum is refused rather than indexed.
+// bAlt runs executeAltAction, a right click's action, such as the K-Mod slider buttons' jump to min or max. (Claude code Opus 5.5) -->
+bool CyGame::executeSASPilotWidget(int iWidgetType, int iData1, int iData2, bool bOption, bool bAlt)
+{
+	if (iWidgetType < 0 || iWidgetType >= NUM_WIDGET_TYPES)
+		return false;
+	CvWidgetDataStruct widgetData(iData1, iData2, bOption, (WidgetTypes)iWidgetType);
+	if (bAlt)
+		return CvDLLWidgetData::getInstance().executeAltAction(widgetData);
+	return CvDLLWidgetData::getInstance().executeAction(widgetData);
+}
+// <!-- custom: The hover text the window shows for a typed widget comes from CvDLLWidgetData::parseHelp, which the EXE calls on hover and Python cannot; SASPilotUI's 'uihover' reads it, so an agent sees the tooltip a player sees. (Claude code Opus 5.5) -->
+std::wstring CyGame::getSASPilotWidgetHelp(int iWidgetType, int iData1, int iData2, bool bOption)
+{
+	if (iWidgetType < 0 || iWidgetType >= NUM_WIDGET_TYPES)
+		return L"";
+	// <!-- custom: Codex's review found two hazards in a tooltip asked outside a real hover: the city tooltips dereference GET_PLAYER(iData1).getCity(iData2) unchecked, so a recorded cell for a city since lost would crash, and the scoreboard tooltips set the active player's scoreboard expanded (advc.085).
+	// So the city is checked first, and parseHelp skips the expansion during this query (CvDLLWidgetData::m_bSASPilotHelpQuery): putting the flag back afterwards, the first fix, still restarted its timers (Codex's next review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if (iWidgetType == WIDGET_ZOOM_CITY || iWidgetType == WIDGET_EXAMINE_CITY)
+	{
+		if (iData1 < 0 || iData1 >= MAX_PLAYERS || GET_PLAYER((PlayerTypes)iData1).getCity(iData2) == NULL)
+			return L"";
+	}
+	CvWidgetDataStruct widgetData(iData1, iData2, bOption, (WidgetTypes)iWidgetType);
+	CvWStringBuffer szBuffer;
+	CvDLLWidgetData::m_bSASPilotHelpQuery = true;
+	CvDLLWidgetData::getInstance().parseHelp(szBuffer, widgetData);
+	CvDLLWidgetData::m_bSASPilotHelpQuery = false;
+	return szBuffer.getCString();
 }
 // advc.095:
 void CyGame::setCityBarWidth(bool bWide)

@@ -80,6 +80,16 @@ class CvInfoScreen:
 		# </advc.077>
 
 		self.screenId = screenId
+		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
+		# <!-- custom: Read here, when the screen object is made, rather than in initText, which runs only when the screen opens: SASPilot's 'timeline' reads the records through this object with the screen never opened, and failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" once the Greatest Civilizations ranking added that setting there.
+		# They are session settings, independent of the layout initText also sizes. See KI#1101.2. (Claude code Opus 5.5) -->
+		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON > 0)
+		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_CACHE_ON > 0)
+		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_TOP_CIVS_ON > 0)
+		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASSessionTunables.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH
+		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_X_GRID_LINES
+		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_Y_GRID_LINES
 		self.DEMO_SCREEN_NAME = "DemographicsScreen"
 		self.TOP_CITIES_SCREEN_NAME = "TopCitiesScreen"
 
@@ -103,9 +113,18 @@ class CvInfoScreen:
 		# K-Mod
 		self.iLanguageLoaded = -1
 
-		# <!-- custom: Score Tab registration in the Info screen tab bar/order. (GPT-5.3-Codex) -->
-		self.PAGE_NAME_LIST = ["TXT_KEY_INFO_GRAPH", "TXT_KEY_GAME_SCORE", "TXT_KEY_SAS_INFO_TIMELINE", "TXT_KEY_DEMO_SCREEN_TITLE", "TXT_KEY_WONDERS_SCREEN_TOP_CITIES_TEXT", "TXT_KEY_INFO_SCREEN_STATISTICS_TITLE"]
-		self.PAGE_DRAW_LIST = [self.drawGraphTab, self.drawScoreTab, self.drawTimelineTab, self.drawDemographicsTab, self.drawTopCitiesTab, self.drawStatsTab]
+		# <!-- custom: The tabs' text keys and order come from CvScreenEnums.ADVISOR_TABS, the shared tab registry, and each draw function is matched by the tab's key rather than by position, so the two lists cannot pair a label with another tab's page.
+		# Tab numbers given from outside (such as the scoreboard's power ratio opening Score) still follow the registry's order. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = CvScreenEnums.getAdvisorTabTextKeys("info")
+		drawByKey = {
+			"GRAPH": self.drawGraphTab,
+			"SCORE": self.drawScoreTab,
+			"TIMELINE": self.drawTimelineTab,
+			"DEMOGRAPHICS": self.drawDemographicsTab,
+			"TOP_CITIES": self.drawTopCitiesTab,
+			"STATISTICS": self.drawStatsTab,
+		}
+		self.PAGE_DRAW_LIST = [drawByKey[szKey] for szKey in CvScreenEnums.getAdvisorTabKeys("info")]
 
 		self.PAGE_LINK_WIDTH = [] # game text is not available at the time this function is called, so we can't calculate the widths yet.
 		# K-Mod end
@@ -119,12 +138,13 @@ class CvInfoScreen:
 		self.iNumWondersPermanentWidgets = 0
 
 		# <!-- custom: Score Tab ID insertion; all later tab IDs shift by +1. (GPT-5.3-Codex) -->
-		self.iGraphID = 0
-		self.iScoreID = 1
-		self.iTimelineID = 2
-		self.iDemographicsID = 3
-		self.iTopCitiesID = 4
-		self.iStatsID = 5
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.iGraphID = CvScreenEnums.getAdvisorTabIndex("info", "GRAPH")
+		self.iScoreID = CvScreenEnums.getAdvisorTabIndex("info", "SCORE")
+		self.iTimelineID = CvScreenEnums.getAdvisorTabIndex("info", "TIMELINE")
+		self.iDemographicsID = CvScreenEnums.getAdvisorTabIndex("info", "DEMOGRAPHICS")
+		self.iTopCitiesID = CvScreenEnums.getAdvisorTabIndex("info", "TOP_CITIES")
+		self.iStatsID = CvScreenEnums.getAdvisorTabIndex("info", "STATISTICS")
 
 		# <!-- custom: move screen-independent Info Screen layout constants to init; updateRuntimeLayout now focuses on runtime-dependent geometry. (GPT-5.3-Codex) -->
 		# <!-- custom: X/Y margins are screen-independent constants set in init. (GPT-5.3-Codex) -->
@@ -454,15 +474,6 @@ class CvInfoScreen:
 		self.sDateWonders = BugUtil.getPlainText("TXT_KEY_WONDER_DATE")
 		self.sOwnerWonders = BugUtil.getPlainText("TXT_KEY_WONDER_OWNER")
 		self.sCityWonders = BugUtil.getPlainText("TXT_KEY_WONDER_CITY")
-
-		# <!-- custom: not strictly for text but use this to compute cheaply our sas defines once -->
-		self.IS_SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_LOG_BUTTON_ON > 0)
-		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
-		self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_CACHE_ON > 0)
-		self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON = (SASSessionTunables.SAS_INFO_UI_TIMELINE_TOP_CIVS_ON > 0)
-		self.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH = SASSessionTunables.SAS_INFO_UI_SCORE_MAX_RENDER_THRESH
-		self.iSAS_INFO_UI_GRAPH_X_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_X_GRID_LINES
-		self.iSAS_INFO_UI_GRAPH_Y_GRID_LINES = SASSessionTunables.SAS_INFO_UI_GRAPH_Y_GRID_LINES
 
 	def reset(self):
 
@@ -937,18 +948,30 @@ class CvInfoScreen:
 				return self.timelineCacheEntries
 
 		# Rebuild cache
+		# <!-- custom: The filter loop moved into getTimelineRecords, which returns raw fields, so SASPilot's timeline command reads the same entries as this tab rather than parsing formatted text or copying the filter; this method only formats them. (Claude code Opus 5.5) -->
 		entries = []
+		for iTurnMsg, szEventDate, szText, eColor, iPlayer, eMessageType, bMetPlayer, bPublic in self.getTimelineRecords(replayInfo):
+			entries.append(localText.changeTextColor(SASTextScale.sasFontTagLabel + szEventDate + u": " + szText + SASTextScale.SAS_FONT_TAG_CLOSE, eColor))
 
+		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
+			# Store in instance vars (faster than dict)
+			self.timelineCacheEntries = entries
+			self.timelineCacheActivePlayer = self.iActivePlayer
+			self.timelineCacheBRevealAll = self.bRevealAll
+			self.timelineCacheNumMessages = iNumMessages
+			self.timelineCacheGameTurn = iGameTurn
+		return entries
+
+	def getTimelineRecords(self, replayInfo):
+		# <!-- custom: The Timeline entries from the perspective of self.iActivePlayer / iActiveTeam / bRevealAll, newest first, as (turn, date, uncoloured text, colour, replay player, message type, player met, public announcement) tuples.
+		# A public announcement is a religion or corporation founding or a world wonder, reworded to its faraway-land text where the tab does so; the player is the replay's own, so a caller must not name an unmet one. (Claude code Opus 5.5) -->
+		records = []
+		# <!-- custom: Read here: the 2026-11-20 merge of main brought main's Greatest Civilizations filter, written inside buildTimelineCache where iNumMessages is defined, into this method, twice, and pressing the Timeline tab raised "global name 'iNumMessages' is not defined" (found by SASPilotUISweep.py). See KI#1101. (Claude code Opus 5.5) -->
+		iNumMessages = replayInfo.getNumReplayMessages()
 		if iNumMessages <= 0:
-			if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
-				self.timelineCacheEntries = entries
-				self.timelineCacheActivePlayer = self.iActivePlayer
-				self.timelineCacheBRevealAll = self.bRevealAll
-				self.timelineCacheNumMessages = iNumMessages
-				self.timelineCacheGameTurn = iGameTurn
-			return entries
+			return records
 
-		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player.
+		# <!-- custom: SAS_INFO_UI_TIMELINE_TOP_CIVS_ON 0 hides the Greatest Civilizations rankings (CvTopCivs.py): each title row and the rank rows written just before it in the same turn by the same player, as SASPilot's 'topcivs' groups them.
 		# The title is matched in the current language, so rows saved in another language stay listed; a known limit kept for simplicity, as SAS adds English text only (Codex's review, 2026-11-19). (Claude code Opus 5.5) -->
 		dHiddenMessages = {}
 		if not self.IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON:
@@ -1094,17 +1117,8 @@ class CvInfoScreen:
 					if szCityName:
 						szText = szText.replace(szCityName, self.TEXT_TIMELINE_UNKNOWN_CITY)
 
-			szFormattedText = localText.changeTextColor(SASTextScale.sasFontTagLabel + szEventDate + u": " + szText + SASTextScale.SAS_FONT_TAG_CLOSE, eColor)
-			entries.append(szFormattedText)
-
-		if self.IS_SAS_INFO_UI_TIMELINE_CACHE_ON:
-			# Store in instance vars (faster than dict)
-			self.timelineCacheEntries = entries
-			self.timelineCacheActivePlayer = self.iActivePlayer
-			self.timelineCacheBRevealAll = self.bRevealAll
-			self.timelineCacheNumMessages = iNumMessages
-			self.timelineCacheGameTurn = iGameTurn
-		return entries
+			records.append((iTurnMsg, szEventDate, szText, eColor, iPlayer, eMessageType, bMetPlayer, szHiddenReligionText is not None))
+		return records
 
 	def drawTimelineTab(self):
 		screen = self.getScreen()
@@ -3936,33 +3950,10 @@ class CvInfoScreen:
 
 	# STATISTICS
 
-	def drawStatsTab(self):
-		screen = self.getScreen()
-
+	def collectStatsData(self):
+		# <!-- custom: Split from drawStatsTab on 2026-11-28, so SASPilot's 'statistics' reads the counts this tab draws from the same code, on a copy of this screen set to the player. (Claude code Opus 5.5) -->
 		iNumUnits = gc.getNumUnitInfos()
 		iNumBuildings = gc.getNumBuildingInfos()
-
-		self.iNumUnitStatsChartCols = 5
-		self.iNumBuildingStatsChartCols = 2
-
-		self.iNumUnitStatsChartRows = iNumUnits
-		self.iNumBuildingStatsChartRows = iNumBuildings
-
-# CALCULATE STATS
-
-		iMinutesPlayed = CyGame().getMinutesPlayed()
-		iHoursPlayed = iMinutesPlayed / 60
-		iMinutesPlayed = iMinutesPlayed - (iHoursPlayed * 60)
-
-		szMinutesString = str(iMinutesPlayed)
-		if (iMinutesPlayed < 10):
-			szMinutesString = "0" + szMinutesString
-		szHoursString = str(iHoursPlayed)
-		if (iHoursPlayed < 10):
-			szHoursString = "0" + szHoursString
-
-		szTimeString = szHoursString + ":" + szMinutesString
-
 		iNumCitiesBuilt = CyStatistics().getPlayerNumCitiesBuilt(self.iActivePlayer)
 
 		iNumCitiesRazed = CyStatistics().getPlayerNumCitiesRazed(self.iActivePlayer)
@@ -3996,6 +3987,36 @@ class CvInfoScreen:
 		for pUnit in apUnitList:
 			iType = pUnit.getUnitType()
 			aiUnitsCurrent[iType] += 1
+		return (iNumCitiesBuilt, iNumCitiesRazed, iNumReligionsFounded, aiUnitsBuilt, aiUnitsKilled, aiUnitsLost, aiBuildingsBuilt, aiUnitsCurrent)
+
+	def drawStatsTab(self):
+		screen = self.getScreen()
+
+		iNumUnits = gc.getNumUnitInfos()
+		iNumBuildings = gc.getNumBuildingInfos()
+
+		self.iNumUnitStatsChartCols = 5
+		self.iNumBuildingStatsChartCols = 2
+
+		self.iNumUnitStatsChartRows = iNumUnits
+		self.iNumBuildingStatsChartRows = iNumBuildings
+
+# CALCULATE STATS
+
+		iMinutesPlayed = CyGame().getMinutesPlayed()
+		iHoursPlayed = iMinutesPlayed / 60
+		iMinutesPlayed = iMinutesPlayed - (iHoursPlayed * 60)
+
+		szMinutesString = str(iMinutesPlayed)
+		if (iMinutesPlayed < 10):
+			szMinutesString = "0" + szMinutesString
+		szHoursString = str(iHoursPlayed)
+		if (iHoursPlayed < 10):
+			szHoursString = "0" + szHoursString
+
+		szTimeString = szHoursString + ":" + szMinutesString
+
+		(iNumCitiesBuilt, iNumCitiesRazed, iNumReligionsFounded, aiUnitsBuilt, aiUnitsKilled, aiUnitsLost, aiBuildingsBuilt, aiUnitsCurrent) = self.collectStatsData()
 
 		# <!-- custom: Improvements column removed from the Stats tab. Rationale: this tab tracks save-persistent history counters (Units Built/Killed/Lost, Buildings Built — all from CyStatistics). The Improvements column was a snapshot ("Current", live plot iteration) — inconsistent with the rest of the table and not from CyStatistics (BTS has no getPlayerNumImprovementsBuilt). Concrete example of the inconsistency: build a Farm on a plot, replace it with a Cottage, then replace it back with a Farm — Units/Buildings tables would show Built=2 for an analogous build/destroy/rebuild, but the Improvements column showed Current=1 (one Farm on the map right now), giving "total Farms 1" instead of "total Farms built 2". Current-state info is now covered by World Advisor's Territory tab — a better home: more exhaustive and thematically grouped with other current-geography views. (Claude code Opus 4.7) -->
 

@@ -6,6 +6,18 @@ AdvCiv-SAS is available at the [ModDB website](https://www.moddb.com/mods/advciv
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
 
+An important milestone is the addition of SASPilot, a new Civ4 CLI API that allows local agents (e.g. Claude Code, Codex) to control Civ 4 and analyze its game state perfectly, without having to rely on tedious and unclear UI. The video demos also feature autonomous peer-agentic ping-pong coding. Conceptual inspiration from [noreff's CivAI](https://github.com/noreff/civai). TODO writeup.
+
+It also helps debugging: its `py` command runs Python live inside the running game, for example to time a scoreboard redraw or check which screen is open.
+
+It also tests what play rarely reaches: its commands ask the game about every unit and mission, in combinations a player's clicks never send. On 2026-11-20 its `unit` command found an inherited vanilla bug, an airlift check that read past the map for a unit in a city ([KI#1091.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)).
+
+Its in-game side is [`SASPilot.py`](/Assets/Python/SASPilot.py), which answers the agents' requests; the commands it runs and the agents' client live in [`SASPilot/`](/SASPilot/README.md).
+
+<a href="https://www.youtube.com/watch?v=c8Ob1knQ09s"><img src="/_1_AdvCiv-SAS/Images/LLM/youtube_video_peer_agent_saspilot_codex_claude_code.png" alt="youtube_video_peer_agent_saspilot_codex_claude_code.png" width="640"></a>
+
+Parts [1](https://www.youtube.com/watch?v=hr-L3UdaKVk) and [3](https://www.youtube.com/watch?v=A1Yi7047ZI8) are currently also available on YouTube.
+
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable).
 
 As for in particular UI in Sevopedia, which now adjusts dynamically depending on current resolution without needing a restart anymore, notably but not only:
@@ -81,6 +93,7 @@ Python-written rows in logs such as PythonDbg.log, PythonErr.log and PythonErr2.
 Additional LLM/agent instrumentation extends this "open brain" view: users and AI assistants can observe game activity and compilation, then connect what happened to the source and DLL being tested. Runtime diagnostics are default-off, with separate switches for source and screenshot observation:
 
 - `SASRuntimeStatus.json` gives the latest observed game/session and autoplay state, together with the identity of the DLL reporting it.
+- `SASPilot_*.jsonl` keeps every request an agent sent through SASPilot, with its reason and result, and `SASPilotConsole_*.log` what the console watching it printed ([Logging Inventory](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
   - `SASRuntimeSourceChanges_*.jsonl` records live saves/edits to Python/XML, map scripts, themes and mod settings; `SASRuntimeSourceWatch_*.json` reports watcher health and host versions. A disk change does not prove an engine reload; the source watcher runs only when enabled alongside runtime diagnostics.
 - `SASRuntimeHistory_*.jsonl` keeps a timed history of game creation, save loading and autoplay activity, including why autoplay stopped, across games and loads while Civ4 stays open.
 - `SASRuntimeExit_*.json` helps catch failures missed by in-game hooks, such as crashes after live Python/XML edits or DLL/EXE failures. A hidden Windows watcher records recognized runtime-error or crash-dump dialogs while Civ4 is still alive, then its eventual exit time/code.
@@ -113,6 +126,8 @@ For local AI/LLM agents in particular:
   - [`run_autoplay.py`](/LLM_Helpers/README.md#run_autoplaypy) launches a save, or a new game with a chosen map and leaders, autoplays the requested turns, reports how the run ended and closes Civ4; [SASAutoplayRequest.py](/Assets/Python/SASAutoplayRequest.py) starts the autoplay inside the game.
   - Several Civ4 instances can run at once, each started from a command line with Civ4's `multiple` argument, with its own autoplay and its own logs ([README_Multiple_Instances.md](/_1_AdvCiv-SAS/Docs/README_Multiple_Instances.md)).
   - [`desktop_windows.py`](/LLM_Helpers/README.md#desktop_windowspy) takes screenshots of the game window, even under other windows, and clicks in it, so an agent can see what the game shows. See [Running Civ4 from the command line](/README.md#running-civ4-from-the-command-line).
+    - This is notably helpful because Windowed Civ4 at the monitor's own resolution, such as 1920 x 1080 on a 1920 x 1080 screen, runs past the screen's bottom with its title bar and frame, so part of the game is hidden and Civ4's Print Screen saves nothing ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7)).
+      - Maximizing fits it but scales the picture, cutting pixel rows from small text. `desktop_windows.py borderless --pid <pid>` instead drops the title bar and frame and fits the game to the monitor pixel for pixel, with Print Screen working (2026-11-28); SASPilot's `resolution` command does it by itself.
 - Agents also hand work to each other. The [chat export helpers](/LLM_Helpers/README.md#chat_exports) turn Claude Code, Codex and ChatGPT chats into readable text, so one agent can pick up another's reasoning, for example Codex reviewing a change Claude Code made, and the [light-source ZIP](/README.md#light-source-zip) gives agents without the game, such as ChatGPT, the source and its history.
   - Agents can also message each other's apps directly with [`agent_message.py`](/LLM_Helpers/README.md#agent_messagepy), following the [message convention](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#message-convention), so a peer-agent review round-trip needs no files passed by hand; the [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md) covers how.
     - With `--wait-reply`, the sender sleeps until the other agent answers and is woken with its reply, in either direction, so two agents can keep a [continuous back-and-forth](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md#continuous-back-and-forth-between-agents) without the user prompting each round, for as many rounds as wanted (tested on 2026-11-11 between Claude Code and Codex).
@@ -608,9 +623,11 @@ We added in AdvCiv-SAS a new Timeline Tab in the Info Screen:
 - added optional caching (default as of now enabled, recommended) so it is more efficient and less computationally costly. Performance cost of this new tab measured to be none (2.33 seconds for 110 late game turns vs 2.35 seconds: within margin of error)
 - Done with the help of GPT-5.2-Codex, Claude code Sonnet 4.5, and Claude code Opus 4.5, thanks a lot!
 
-Note: a hybrid DLL compute + Python caching version was tried but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
+Note: a hybrid DLL compute + Python caching version was tried in the [history-tab-dll-implementation branch](https://github.com/wonderingabout/AdvCiv-SAS/tree/history-tab-dll-implementation) but load times of the Timeline Tab were not much faster at a glance if at all so preferred the Python version for simplicity.
 
 A full DLL caching + compute was tried but load times were noticeably slower than the full Python version, so dropped as well.
+
+Both were visual impressions, not measured. The [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot_Performance.md#the-same-question-for-the-timeline-tab-january-2026) compares them with the measured Python-or-DLL test of the agent pilot and the later finding that the tab's time went into the EXE building its table.
 
 <img src="/_1_AdvCiv-SAS/Images/advisors/1.518_info_screen%20(3).JPG" alt="1.518_info_screen (3).JPG" width="250"></img>
 

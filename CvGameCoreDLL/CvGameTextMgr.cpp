@@ -557,6 +557,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 		szString.append(L", ");
 		szString.append(gDLL->getText("TXT_KEY_UNIT_HELP_IMMOBILE", pUnit->getImmobileTimer()));
 	}
+	// <!-- custom: The state of a unit as text, in the one-line plot hover and the unit hover of the plot list alike: our own units only, as the game shows the states of rival units nowhere. (Claude code Opus 5.5) -->
+	static const bool bSAS_PLOT_HELP_UNIT_STATE_ON = GC.getDefineBOOL("SAS_PLOT_HELP_UNIT_STATE_ON");
+	if (bSAS_PLOT_HELP_UNIT_STATE_ON && pUnit->isActiveTeam())
+		setSASUnitStateHelp(szString, *pUnit);
 
 	/*if (!bOneLine) {
 		if (pUnit->getUnitCombatType() != NO_UNITCOMBAT) {
@@ -1374,6 +1378,89 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 /*	advc.004: Based on code cut from setUnitHelp.
 	Avoids showing units that are very slightly damaged at full strength
 	or units that are barely alive at 0 strength. */
+// <!-- custom: The window showed the state of a unit only as small marks in the plot list and through the buttons of the selected unit, so finding which units were fortified, asleep or on a move meant selecting each; in the islands replay (2026-11-15) the 'units' list of SASPilot lacked it too, and the user asked for the state as text for players and pilot alike.
+// In the terms of Civ4: automation (AutomateTypes), then the activity of the group, or the mission it is carrying out when it has none to show; commands such as Promote or Upgrade are one-off actions, not states.
+// The build of a Worker already shows with its turns before this, so MISSION_BUILD is skipped.
+// Fortify and sleep share ACTIVITY_SLEEP; CvUnit::canSleep refuses fortifiable units, so a sleeping fortifiable unit is fortified.
+// These comments avoid possessive apostrophes: with five such lines here, fastdep crashed before cl.exe ran. See KI#38.5. (Claude code Opus 5.5) -->
+void CvGameTextMgr::setSASUnitStateHelp(CvWStringBuffer& szString, CvUnit const& kUnit)
+{
+	CvSelectionGroup const* pGroup = kUnit.getGroup();
+	if (pGroup == NULL)
+		return;
+	char const* szAutomateKey = NULL;
+	switch (pGroup->getAutomateType())
+	{
+	case AUTOMATE_BUILD: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_BUILD"; break;
+	case AUTOMATE_NETWORK: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_NETWORK"; break;
+	case AUTOMATE_CITY: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_CITY"; break;
+	case AUTOMATE_EXPLORE: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_EXPLORE"; break;
+	case AUTOMATE_RELIGION: szAutomateKey = "TXT_KEY_SAS_UNIT_STATE_AUTOMATE_RELIGION"; break;
+	default: break;
+	}
+	if (szAutomateKey != NULL)
+	{
+		szString.append(L", ");
+		szString.append(gDLL->getText(szAutomateKey));
+	}
+	CvWString szActivity;
+	switch (pGroup->getActivityType())
+	{
+	case ACTIVITY_SLEEP:
+		if (kUnit.isFortifyable())
+			szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_FORTIFIED", kUnit.getFortifyTurns());
+		else szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_SLEEP");
+		break;
+	// <!-- custom: CvSelectionGroup::startMission also sets ACTIVITY_HOLD when the group has no moves left for its new mission, so in the islands replay a Worker moving to 98,24 read "Skipping turn"; with a mission queued, the mission below shows instead. (Claude code Opus 5.5) -->
+	case ACTIVITY_HOLD:
+		if (pGroup->headMissionQueueNode() == NULL)
+			szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_HOLD");
+		break;
+	case ACTIVITY_HEAL: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_HEAL"); break;
+	case ACTIVITY_SENTRY: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_SENTRY"); break;
+	case ACTIVITY_INTERCEPT: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_INTERCEPT"); break;
+	case ACTIVITY_PATROL: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PATROL"); break;
+	case ACTIVITY_PLUNDER: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PLUNDER"); break;
+	case ACTIVITY_BOARDED: szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_BOARDED"); break;
+	// <!-- custom: ACTIVITY_AWAKE and ACTIVITY_MISSION: the head mission below, if any. (Claude code Opus 5.5) -->
+	default: break;
+	}
+	if (szActivity.empty() && kUnit.getBuildType() == NO_BUILD)
+	{
+		CLLNode<MissionData> const* pNode = pGroup->headMissionQueueNode();
+		if (pNode != NULL)
+		{
+			MissionTypes const eMission = pNode->m_data.eMissionType;
+			// <!-- custom: The head mission target: the first version took the last destination of the queue (lastMissionPlot), so Move To A then Route To B read as moving to B (Codex's review). (Claude code Opus 5.5 + GPT-6.1-Sol) -->
+			CvPlot const* pDest = getSASHeadMissionPlot(*pGroup, getActiveTeam());
+			// <!-- custom: A destination that is a city the team knows of is named too, the commonest target, as the user suggested (2026-11-15); bonus or territory would make the one-line hover too long. (Claude code Opus 5.5) -->
+			CvCity const* pDestCity = NULL;
+			if (pDest != NULL && pDest->isCity() && pDest->getPlotCity()->isRevealed(getActiveTeam()))
+				pDestCity = pDest->getPlotCity();
+			if (eMission == MISSION_MOVE_TO && pDestCity != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_MOVE_TO_CITY", pDest->getX(), pDest->getY(), pDestCity->getNameKey());
+			else if (eMission == MISSION_MOVE_TO && pDest != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_MOVE_TO", pDest->getX(), pDest->getY());
+			else if (eMission == MISSION_ROUTE_TO && pDestCity != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_ROUTE_TO_CITY", pDest->getX(), pDest->getY(), pDestCity->getNameKey());
+			else if (eMission == MISSION_ROUTE_TO && pDest != NULL)
+				szActivity = gDLL->getText("TXT_KEY_SAS_UNIT_STATE_ROUTE_TO", pDest->getX(), pDest->getY());
+			else if (eMission != MISSION_BUILD)
+				szActivity = GC.getInfo(eMission).getDescription();
+		}
+	}
+	if (!szActivity.empty())
+	{
+		szString.append(L", ");
+		szString.append(szActivity);
+	}
+	if (kUnit.isPromotionReady())
+	{
+		szString.append(L", ");
+		szString.append(gDLL->getText("TXT_KEY_SAS_UNIT_STATE_PROMOTION_READY"));
+	}
+}
+
 void CvGameTextMgr::setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit, /* <advc.048c> */ int iHP)
 {
 	if (iHP < 0)
@@ -13233,6 +13320,23 @@ namespace
 }
 
 
+// <!-- custom: Adds one tooltip line to SASPilot's list while it asks for one; the window's tooltips leave the list NULL.
+// See setSASHelpRecord. (Claude code Opus 5.5) -->
+void CvGameTextMgr::recordSASHelp(char const* szSource, int iAmount, int iTurns, int iType, char const* szTypeKind, int iCount)
+{
+	if (m_pSASHelpRecord == NULL)
+		return;
+	SASHelpLine kLine;
+	kLine.szSource = szSource;
+	kLine.iAmount = iAmount;
+	kLine.iTurns = iTurns;
+	kLine.iType = iType;
+	kLine.szTypeKind = szTypeKind;
+	kLine.iCount = iCount;
+	m_pSASHelpRecord->push_back(kLine);
+}
+
+
 void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 {
 	if (kCity.badHealth() <= 0)
@@ -13241,6 +13345,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = kCity.getFreshWaterBadHealth();
 		if (iHealth < 0)
 		{
+			recordSASHelp("FRESH_WATER", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FROM_FRESH_WATER", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13257,6 +13362,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 			bool bOnlyFeatures;
 			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, -1,
 					bOnlyFeatures); // </advc.901>
+			recordSASHelp("SURROUNDINGS", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_HEALTH", -iHealth,
 					/* <advc.901> */ (eFeature == NO_FEATURE ?
 					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
@@ -13272,6 +13378,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iBadHealth = kCity.getEspionageHealthCounter();
 		if (iBadHealth > 0)
 		{
+			recordSASHelp("ESPIONAGE", iBadHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_ESPIONAGE", iBadHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13280,6 +13387,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = kCity.getPowerBadHealth();
 		if (iHealth < 0)
 		{
+			recordSASHelp("POWER", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POWER", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13288,6 +13396,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = kCity.getBonusBadHealth();
 		if (iHealth < 0)
 		{
+			recordSASHelp("BONUSES", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BONUSES", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13296,6 +13405,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = kCity.totalBadBuildingHealth();
 		if (iHealth < 0)
 		{
+			recordSASHelp("BUILDINGS", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_BUILDINGS", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13308,6 +13418,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 			// <advc.004g>
 			szBuffer.append(CvWString::format(L"%d%c ", -iHealth,
 					gDLL->getSymbolID(UNHEALTHY_CHAR)));
+			recordSASHelp("TRAIT", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
 			szBuffer.append(NEWLINE);
 		}
@@ -13316,6 +13427,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = kCity.getExtraHealth();
 		if (iHealth < 0)
 		{
+			recordSASHelp("EXTRA", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_UNHEALTH_EXTRA", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13324,6 +13436,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iHealth = GC.getInfo(kCity.getHandicapType()).getHealthBonus();
 		if (iHealth < 0)
 		{
+			recordSASHelp("HANDICAP", -iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_HANDICAP", -iHealth));
 			szBuffer.append(NEWLINE);
 		}
@@ -13332,6 +13445,7 @@ void CvGameTextMgr::setBadHealthHelp(CvWStringBuffer &szBuffer, CvCity const& kC
 		int iBadHealth = kCity.unhealthyPopulation();
 		if (iBadHealth > 0)
 		{
+			recordSASHelp("POPULATION", iBadHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_HEALTH_FROM_POP", iBadHealth));
 			// K-Mod, 29/dec/10: added modifier text
 			if (kCity.getUnhealthyPopulationModifier() != 0)
@@ -13357,6 +13471,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = kCity.getFreshWaterGoodHealth();
 		if (iHealth > 0)
 		{
+			recordSASHelp("FRESH_WATER", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_HEALTH_FROM_FRESH_WATER", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13373,6 +13488,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 			bool bOnlyFeatures;
 			FeatureTypes eFeature = getSurroundingHealthFeature(kCity, 1,
 					bOnlyFeatures); // </advc.901>
+			recordSASHelp("SURROUNDINGS", iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_FEAT_GOOD_HEALTH", iHealth,
 					/* <advc.901> */ (eFeature == NO_FEATURE ?
 					(bOnlyFeatures ? L"TXT_KEY_MISC_FEATURES" :
@@ -13388,6 +13504,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = kCity.getPowerGoodHealth();
 		if (iHealth > 0)
 		{
+			recordSASHelp("POWER", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_GOOD_HEALTH_FROM_POWER", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13397,6 +13514,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = kCity.getBonusGoodHealth();
 		if (iHealth > 0)
 		{
+			recordSASHelp("BONUSES", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_GOOD_HEALTH_FROM_BONUSES", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13406,6 +13524,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = kCity.totalGoodBuildingHealth();
 		if (iHealth > 0)
 		{
+			recordSASHelp("BUILDINGS", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_GOOD_HEALTH_FROM_BUILDINGS", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13419,6 +13538,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 			// <advc.004g>
 			szBuffer.append(CvWString::format(L"+%d%c ",
 					iHealth, gDLL->getSymbolID(HEALTHY_CHAR)));
+			recordSASHelp("TRAIT", iHealth);
 			szBuffer.append(gDLL->getText("TXT_KEY_FROM_TRAIT")); // </advc.004g>
 			szBuffer.append(NEWLINE);
 		}
@@ -13427,6 +13547,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = kCity.getExtraHealth();
 		if (iHealth > 0)
 		{
+			recordSASHelp("EXTRA", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_HEALTH_EXTRA", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13436,6 +13557,7 @@ void CvGameTextMgr::setGoodHealthHelp(CvWStringBuffer &szBuffer, CvCity const& k
 		int iHealth = GC.getInfo(kCity.getHandicapType()).getHealthBonus();
 		if (iHealth > 0)
 		{
+			recordSASHelp("HANDICAP", iHealth);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_MISC_GOOD_HEALTH_FROM_HANDICAP", iHealth));
 			szBuffer.append(NEWLINE);
@@ -13657,6 +13779,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("OVERCROWDING", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_OVERCROWDING", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13670,6 +13793,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("NO_MILITARY_PROTECTION", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_MILITARY_PROTECTION", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13683,6 +13807,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("FOREIGN_CULTURE", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_OCCUPIED", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13696,6 +13821,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("RELIGION_FIGHT", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_RELIGION_FIGHT", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13709,6 +13835,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("HURRY", iAnger, kCity.getHurryAngerTimer());
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_OPPRESSION", iAnger,
 					kCity.getHurryAngerTimer())); // advc.188
 			szBuffer.append(NEWLINE);
@@ -13723,6 +13850,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("DRAFT", iAnger, kCity.getConscriptAngerTimer());
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DRAFT", iAnger,
 					kCity.getConscriptAngerTimer())); // advc.188
 			szBuffer.append(NEWLINE);
@@ -13737,6 +13865,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("DEFY_RESOLUTION", iAnger, kCity.getDefyResolutionAngerTimer());
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DEFY_RESOLUTION", iAnger,
 					kCity.getDefyResolutionAngerTimer())); // advc.188
 			szBuffer.append(NEWLINE);
@@ -13751,6 +13880,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("WAR_WEARINESS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_WAR_WEAR", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13769,6 +13899,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("GLOBAL_WARMING", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_GLOBAL_WARMING", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13780,6 +13911,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("VASSAL", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_UNHAPPY_VASSAL", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13790,6 +13922,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("ESPIONAGE", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_ESPIONAGE", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13805,6 +13938,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("CIVIC", iAnger, -1, eLoopCivic, "civic");
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_DEMAND_CIVIC", iAnger,
 					GC.getInfo(eLoopCivic).getTextKeyWide()));
 			szBuffer.append(NEWLINE);
@@ -13816,6 +13950,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("LARGEST_CITY", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BIG_CITY", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13826,6 +13961,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("MILITARY_PRESENCE", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_MILITARY_PRESENCE", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13836,6 +13972,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("STATE_RELIGION", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_STATE_RELIGION", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13847,6 +13984,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("BUILDINGS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BUILDINGS", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13858,6 +13996,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iAnger > 0)
 		{
 			// advc.059: Text key was ..._FEATURES
+			recordSASHelp("SURROUNDINGS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_SURROUNDINGS", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13868,6 +14007,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("BONUSES", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BONUS", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13878,6 +14018,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int const iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("RELIGIONS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_RELIGIOUS_FREEDOM", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13888,6 +14029,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int const iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("COMMERCE", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BAD_ENTERTAINMENT", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13898,6 +14040,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("AREA_BUILDINGS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BUILDINGS", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13908,6 +14051,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("PLAYER_BUILDINGS", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_BUILDINGS", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13919,6 +14063,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("EXTRA", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_ARGH", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13929,6 +14074,7 @@ void CvGameTextMgr::setAngerHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		int iAnger = iNewAnger - iOldAnger + std::min(0, iOldAnger);
 		if (iAnger > 0)
 		{
+			recordSASHelp("HANDICAP", iAnger);
 			szBuffer.append(gDLL->getText("TXT_KEY_ANGER_HANDICAP", iAnger));
 			szBuffer.append(NEWLINE);
 		}
@@ -13953,6 +14099,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("LARGEST_CITY", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_BIG_CITY", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -13962,6 +14109,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("MILITARY_PRESENCE", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_MILITARY_PRESENCE", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -13971,6 +14119,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("VASSAL", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_VASSAL", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -13980,6 +14129,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("STATE_RELIGION", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_STATE_RELIGION", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -13990,6 +14140,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("BUILDINGS", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_BUILDINGS", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14000,6 +14151,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		{
 			iTotalHappy += iHappy;
 			// advc.059: Text key was ..._FEATURES
+			recordSASHelp("SURROUNDINGS", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_SURROUNDINGS", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14009,6 +14161,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("BONUSES", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_BONUS", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14018,6 +14171,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("RELIGIONS", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_RELIGIOUS_FREEDOM", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14027,6 +14181,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("COMMERCE", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_ENTERTAINMENT", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14036,6 +14191,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("AREA_BUILDINGS", iHappy);
 			szBuffer.append(gDLL->getText(
 					"TXT_KEY_HAPPY_BUILDINGS_AREA", // advc.004g
 					iHappy));
@@ -14047,6 +14203,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("PLAYER_BUILDINGS", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_BUILDINGS", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14057,6 +14214,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("EXTRA", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_YEAH", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -14068,6 +14226,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 
 		int iHappy = iTEMP_HAPPY;
 		iTotalHappy += iHappy;
+		recordSASHelp("TEMPORARY", iHappy, kCity.getHappinessTimer());
 		szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_TEMP", iHappy,
 				kCity.getHappinessTimer()));
 		szBuffer.append(NEWLINE);
@@ -14077,6 +14236,7 @@ void CvGameTextMgr::setHappyHelp(CvWStringBuffer &szBuffer, CvCity const& kCity)
 		if (iHappy > 0)
 		{
 			iTotalHappy += iHappy;
+			recordSASHelp("HANDICAP", iHappy);
 			szBuffer.append(gDLL->getText("TXT_KEY_HAPPY_HANDICAP", iHappy));
 			szBuffer.append(NEWLINE);
 		}
@@ -17303,6 +17463,10 @@ void CvGameTextMgr::buildFinanceInflationString(CvWStringBuffer& szBuffer, Playe
 	//if (iInflationRate != 0)
 	{
 		int iPreInflation = kPlayer.calculatePreInflatedCosts();
+		// <!-- custom: The Finance tab's inflation line for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+		recordSASHelp("PRE_INFLATION_COSTS", iPreInflation);
+		recordSASHelp("INFLATION_RATE", iInflationRate);
+		recordSASHelp("INFLATION_COST", iPreInflation * iInflationRate / 100);
 		CvWString szTmp; // advc.086: Get rid of newline set in XML
 		szTmp.append(NEWLINE);
 		szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_INFLATION",
@@ -17343,6 +17507,19 @@ void CvGameTextMgr::buildFinanceUnitCostString(CvWStringBuffer& szBuffer, Player
 		iMilitaryCost = round(iMilitaryCost * iInflFactor, 100);
 		iHandicap = round(iHandicap * iInflFactor, 100);
 	}	// K-Mod end
+	// <!-- custom: The unit cost tooltip's figures for SASPilot's 'finance detail=sources', paid and free units apart; see recordSASHelp. (Claude code Opus 5.5) -->
+	recordSASHelp("UNIT_COST", iUnitCost, -1, -1, NULL, iUnits);
+	recordSASHelp("FREE_UNITS", iFreeUnits);
+	if (iMilitaryCost != 0)
+	{
+		recordSASHelp("MILITARY_UNIT_COST", iMilitaryCost, -1, -1, NULL, iMilitaryUnits);
+		recordSASHelp("FREE_MILITARY_UNITS", iFreeMilitaryUnits);
+	}
+	if (iExtraCost != 0)
+		recordSASHelp("EXTRA_UNIT_COST", iExtraCost);
+	if (iHandicap != 0)
+		recordSASHelp("HANDICAP_UNIT_COST", iHandicap);
+	recordSASHelp("UNIT_COST_TOTAL", iCost);
 	CvWString szTmp; // advc.086
 	szTmp.append(NEWLINE);
 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_UNIT_COST",
@@ -17387,6 +17564,12 @@ void CvGameTextMgr::buildFinanceAwaySupplyString(CvWStringBuffer& szBuffer, Play
 	iHandicap = intdiv::round(iHandicap * iInflFactor, 100);
 	// K-Mod end
 
+	// <!-- custom: The supply tooltip's figures for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+	recordSASHelp("SUPPLY_BASE_COST", iBaseCost, -1, -1, NULL, kPlayer.getNumOutsideUnits());
+	recordSASHelp("FREE_OUTSIDE_UNITS", kPlayer.getNumOutsideUnits() - iPaidUnits);
+	if (iHandicap != 0)
+		recordSASHelp("SUPPLY_HANDICAP_COST", iHandicap);
+	recordSASHelp("SUPPLY_TOTAL", iCost);
 	CvWString szHandicap;
 	if (iHandicap != 0)
 	{	// K-Mod (handicap modifiers are now rolled into the other costs)
@@ -17448,6 +17631,12 @@ void CvGameTextMgr::buildFinanceCityMaintString(CvWStringBuffer& szBuffer, Playe
 
 	int iNumCityMaint = (kPlayer.getTotalMaintenance() * rInflationFactor).round() -
 			iDistanceMaint - iColonyMaint - iCorpMaint;
+	// <!-- custom: The city maintenance tooltip's parts for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+	recordSASHelp("DISTANCE_MAINTENANCE", iDistanceMaint);
+	recordSASHelp("NUMBER_OF_CITIES_MAINTENANCE", iNumCityMaint);
+	recordSASHelp("COLONY_MAINTENANCE", iColonyMaint);
+	recordSASHelp("CORPORATION_MAINTENANCE", iCorpMaint);
+	recordSASHelp("CITY_MAINTENANCE_TOTAL", (kPlayer.getTotalMaintenance() * iInflationFactorTimes100) / 100);
 	CvWString szTmp; // advc.086
 	szTmp.append(NEWLINE);
 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CITY_MAINT_COST",
@@ -17474,6 +17663,8 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
 		CivicTypes eCivic = kPlayer.getCivics(eLoopCivicOption);
 		if (NO_CIVIC != eCivic)
 		{
+			// <!-- custom: Each civic's upkeep for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+			recordSASHelp("CIVIC_UPKEEP", intdiv::round(kPlayer.getSingleCivicUpkeep(eCivic) * iInflFactor, 100), -1, eCivic, "civic");
 			CvWString szTemp;
 			szTemp.Format(L"%d%c: %s",
 					// K-Mod:
@@ -17482,6 +17673,7 @@ void CvGameTextMgr::buildFinanceCivicUpkeepString(CvWStringBuffer& szBuffer, Pla
 			szCivicOptionCosts += NEWLINE + szTemp;
 		}
 	}
+	recordSASHelp("CIVIC_UPKEEP_TOTAL", intdiv::round(kPlayer.getCivicUpkeep() * iInflFactor, 100));
 	CvWString szTmp; // advc.086
 	szTmp.append(NEWLINE);
 	szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_CIVIC_UPKEEP_COST",
@@ -17506,6 +17698,8 @@ void CvGameTextMgr::buildFinanceForeignIncomeString(CvWStringBuffer& szBuffer, P
 		CvPlayer const& kOtherPlayer = *it;
 		if (kPlayer.getGoldPerTurnByPlayer(kOtherPlayer.getID()) != 0)
 		{
+			// <!-- custom: Gold per turn from or to each player for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+			recordSASHelp("DEAL_GOLD", kPlayer.getGoldPerTurnByPlayer(kOtherPlayer.getID()), -1, kOtherPlayer.getID(), "player");
 			CvWString szTemp;
 			szTemp.Format(L"%d%c: %s", kPlayer.getGoldPerTurnByPlayer(
 					kOtherPlayer.getID()), GC.getInfo(COMMERCE_GOLD).getChar(),
@@ -17515,6 +17709,8 @@ void CvGameTextMgr::buildFinanceForeignIncomeString(CvWStringBuffer& szBuffer, P
 	}
 	if (!szPlayerIncome.empty())
 	{
+		// <!-- custom: The tooltip's total, the player's whole gold per turn from deals. (Claude code Opus 5.5) -->
+		recordSASHelp("DEAL_GOLD_TOTAL", kPlayer.getGoldPerTurn());
 		CvWString szTmp; // advc.086
 		szTmp.append(NEWLINE);
 		szTmp.append(gDLL->getText("TXT_KEY_FINANCE_ADVISOR_FOREIGN_INCOME",
@@ -20824,6 +21020,8 @@ void CvGameTextMgr::buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, 
 				kPlayer.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD);
 		if (iGold != 0)
 		{
+			// <!-- custom: Gold from each specialist type for SASPilot's 'finance detail=sources'; see recordSASHelp. (Claude code Opus 5.5) -->
+			recordSASHelp("SPECIALIST_GOLD", iGold, -1, eLoopSpecialist, "specialist", aiSpecialistCounts.get(eLoopSpecialist));
 			/*if(bFirst) {
 				szBuffer.append(NEWLINE);
 				bFirst = false;
@@ -20835,6 +21033,7 @@ void CvGameTextMgr::buildFinanceSpecialistGoldString(CvWStringBuffer& szBuffer, 
 			iTotal += iGold;
 		}
 	}
+	recordSASHelp("SPECIALIST_GOLD_TOTAL", iTotal);
 	szBuffer.append(gDLL->getText(
 			"TXT_KEY_BUG_FINANCIAL_ADVISOR_SPECIALIST_TOTAL_GOLD", iTotal));
 }
@@ -20911,26 +21110,31 @@ void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePla
 			bool bCanTrade = true;
 			if(!kWithPlayer.isAlive())
 			{
+				recordSASHelp("BLOCKED_DEAD", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_DEAD"));
 				return;
 			}
 			if(!kPlayer.canTradeNetworkWith(eWithPlayer))
 			{
+				recordSASHelp("BLOCKED_NETWORK_NOT_CONNECTED", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_NETWORK_NOT_CONNECTED"));
 				bCanTrade = false;
 			}
 			if(!GET_TEAM(kPlayer.getTeam()).isFreeTrade(kWithPlayer.getTeam()))
 			{
+				recordSASHelp("BLOCKED_CLOSED_BORDERS", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_CLOSED_BORDERS"));
 				bCanTrade = false;
 			}
 			if(kPlayer.isNoForeignTrade())
 			{
+				recordSASHelp("BLOCKED_NO_FOREIGN_TRADE_US", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_YOU"));
 				bCanTrade = false;
 			}
 			if(kWithPlayer.isNoForeignTrade())
 			{
+				recordSASHelp("BLOCKED_NO_FOREIGN_TRADE_THEM", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_FOREIGN_THEM"));
 				bCanTrade = false;
 			}
@@ -20946,6 +21150,7 @@ void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePla
 			}
 			if(!bAnyCityKnown)
 			{
+				recordSASHelp("BLOCKED_NO_KNOWN_CITIES", 1);
 				szBuffer.append(gDLL->getText("TXT_KEY_BUG_CANNOT_TRADE_NO_KNOWN_CITIES"));
 				bCanTrade = false;
 			} // </advc.124>
@@ -20982,6 +21187,8 @@ void CvGameTextMgr::buildTradeString(CvWStringBuffer& szBuffer, PlayerTypes ePla
 		szBuffer.append(gDLL->getText("TXT_KEY_BUG_AVERAGE_TRADE_YIELD", szAverage.GetCString()));
 	}*/
 	// <advc.086> Shorter:
+	// <!-- custom: The routes' commerce and count for SASPilot's 'finance detail=sources', and the blockers above when there are none; see recordSASHelp. (Claude code Opus 5.5) -->
+	recordSASHelp("TRADE_ROUTES", iTotalYield, -1, -1, NULL, iTotalRoutes);
 	szBuffer.append(NEWLINE);
 	szBuffer.append(gDLL->getText("TXT_KEY_BUG_COMMERCE_FROM_ROUTES", iTotalYield, iTotalRoutes));
 	// </advc.086>

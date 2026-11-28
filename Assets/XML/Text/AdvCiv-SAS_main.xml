@@ -25,6 +25,83 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 		<Tag>TXT_KEY_SAS_PLOT_HELP_COORDINATES</Tag>
 		<English>%d1,%d2</English>
 	</TEXT>
+	<!-- custom: A unit's state in its hover help (setSASUnitStateHelp, SAS_PLOT_HELP_UNIT_STATE_ON): automation, activity or mission, and a ready promotion. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_AUTOMATE_BUILD</Tag>
+		<English>Automated</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_AUTOMATE_NETWORK</Tag>
+		<English>Automated (trade network)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_AUTOMATE_CITY</Tag>
+		<English>Automated (city)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_AUTOMATE_EXPLORE</Tag>
+		<English>Exploring (automated)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_AUTOMATE_RELIGION</Tag>
+		<English>Spreading religion (automated)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_FORTIFIED</Tag>
+		<English>Fortified %d1 [NUM1:turn:turns]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_SLEEP</Tag>
+		<English>Sleeping</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_HOLD</Tag>
+		<English>Skipping turn</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_HEAL</Tag>
+		<English>Healing</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_SENTRY</Tag>
+		<English>Sentry</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_INTERCEPT</Tag>
+		<English>Intercepting</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_PATROL</Tag>
+		<English>Patrolling</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_PLUNDER</Tag>
+		<English>Blockading</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_BOARDED</Tag>
+		<English>On board</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_MOVE_TO</Tag>
+		<English>Moving to %d1,%d2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_ROUTE_TO</Tag>
+		<English>Building a route to %d1,%d2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_MOVE_TO_CITY</Tag>
+		<English>Moving to %d1,%d2 (%s3)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_ROUTE_TO_CITY</Tag>
+		<English>Building a route to %d1,%d2 (%s3)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_UNIT_STATE_PROMOTION_READY</Tag>
+		<English>Promotion ready</English>
+	</TEXT>
 	<!-- custom: Victory Settings reports the DLL's cached AI map-heaviness flags next to other map information. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_SAS_VICTORY_SETTINGS_AI_MAP_HEAVINESS</Tag>
@@ -40,6 +117,23 @@ AI, UI, logging, or other modifications first developed in AdvCiv-SAS (Simple Ad
 	<TEXT>
 		<Tag>TXT_KEY_MILITARY_STRATADV_RESOURCES</Tag>
 		<English>Bonuses</English>
+	</TEXT>
+	<!-- custom: The Domestic Advisor's Overview tab labels, which were English literals in CvDomesticAdvisor.py, for the shared tab registry CvScreenEnums.ADVISOR_TABS. See KI#1110. (Claude code Opus 5.5) -->
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW1_TAB</Tag>
+		<English>Overview 1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW2_TAB</Tag>
+		<English>Overview 2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW3_TAB</Tag>
+		<English>Overview 3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_DOMESTIC_ADVISOR_OVERVIEW4_TAB</Tag>
+		<English>Overview 4</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB</Tag>

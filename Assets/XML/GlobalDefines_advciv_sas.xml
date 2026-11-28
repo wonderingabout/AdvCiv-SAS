@@ -328,6 +328,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 		<DefineName>SAS_PLOT_HELP_COORDINATES_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
 	</Define>
+	<!-- custom: show our units' state as text in their hover help, in the plot hover and the plot list alike: automation, then fortified (with its turns), asleep, healing, sentry or the mission underway (such as moving to 63,46), then a ready promotion.
+	Without it the state shows only as small marks or through the selected unit's buttons.
+	1=enabled, 0=disabled. (Claude code Opus 5.5) -->
+	<Define>
+		<DefineName>SAS_PLOT_HELP_UNIT_STATE_ON</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
 
 
 
@@ -1857,7 +1864,7 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	Keep the newest Docs/revisions/SASGameRecord.md entry synchronized; build/source/DLL provenance separately describes whether a particular compiled binary is stale or came from another source state. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 	<Define>
 		<DefineName>SAS_SGR_REVISION</DefineName>
-		<iDefineIntVal>217</iDefineIntVal>
+		<iDefineIntVal>218</iDefineIntVal>
 	</Define>
 
 
@@ -1939,6 +1946,13 @@ The turn_define_gamespeed CI check also accepts the longer TURN(S)_NORMAL_GAMESP
 	<Define>
 		<DefineName>SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: 1 lets an external agent read and drive this game from the command line: SASPilot.py then serves JSON requests from the folder SASPilot/<process ID> beside CivilizationIV.ini, including arbitrary Python run inside the game.
+	0 (default) leaves it off for players; a launch whose ini= file has an [SASPilot] section with On = 1 switches it on for that process only, which is how SASPilot/SASPilotClient.py starts its games.
+	Read once, on the first game update. (Claude code Fable 5.2) -->
+	<Define>
+		<DefineName>SAS_PILOT_ON</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
 	</Define>
 
 

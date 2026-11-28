@@ -186,6 +186,20 @@ def window_point(pid, x, y):
 	return hwnd, left + x, top + y
 
 
+def client_offset(pid):
+	# <!-- custom: Where the game area starts inside pid's window, as a window-relative point: Civ4's own screenshots and its 1920 x 1080 layouts count from there, while click, hover and screenshot count from the window's corner, title bar and border included (3, 37 for a windowed 1920 x 1080 client on 2026-11-21). (Claude Code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	left, top, _right, _bottom = window_rect(hwnd)
+	origin = wt.POINT(0, 0)
+	# <!-- custom: ClientToScreen's result is checked, as a failure left the point at 0, 0 and gave a wrong offset rather than an error (Codex's review of the main port). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	if not USER32.ClientToScreen(hwnd, ctypes.byref(origin)):
+		raise RuntimeError("ClientToScreen failed for process %d's window" % pid)
+	return origin.x - left, origin.y - top
+
+
 def window_pid(hwnd):
 	owner = wt.DWORD()
 	USER32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner))
@@ -253,7 +267,9 @@ def bring_to_front(hwnd, pid, allow_click=True):
 	return USER32.GetForegroundWindow()
 
 
-def click(pid, x, y, modifiers=(), double=False, give_back=False):
+def click(pid, x, y, modifiers=(), double=False, give_back=False, button="left"):
+	# <!-- custom: button picks the mouse button from DRAG_BUTTONS; a right click opens the Sevopedia from many Civ4 widgets, which agents could not test before (2026-11-20). (Claude code Opus 5.5) -->
+	_, button_down_flag, button_up_flag = DRAG_BUTTONS[button]
 	# <!-- custom: give_back returns the focus to the user's window after the click.
 	# Only the command line sets it: paste calls click first, and giving the focus back there made Ctrl+V land in the user's window on 2026-11-17. (Claude code Opus 5.5) -->
 	# <!-- custom: The caller can request a chord or double click so both forms use the same bounds and ownership checks. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
@@ -290,15 +306,15 @@ def click(pid, x, y, modifiers=(), double=False, give_back=False):
 			time.sleep(0.04)
 		# <!-- custom: double presses twice within the double-click time, as opening a city from its banner needs. (Claude Code Opus 5.5) -->
 		for _ in range(2 if double else 1):
-			USER32.mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+			USER32.mouse_event(button_down_flag, 0, 0, 0, 0)
 			button_down = True
 			time.sleep(0.05)
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 			button_down = False
 			time.sleep(0.05)
 	finally:
 		if button_down:
-			USER32.mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+			USER32.mouse_event(button_up_flag, 0, 0, 0, 0)
 		for modifier in reversed(pressed):
 			key_event(modifier, up=True)
 	# <!-- custom: key, type and paste gave the focus back to the user's window, but click left the target in front, so a user working in VS Code during an agent's clicks found Civ4 in front (2026-11-17).
@@ -401,10 +417,12 @@ KEYEVENTF_KEYUP = 0x0002
 VK_CONTROL = 0x11
 # <!-- custom: Each key is (virtual key, modifiers); ctrl+enter queues a message in the Claude app or Codex while it works ("Ctrl+Enter to queue for later"); ctrl+a then backspace clears a box the agent filled itself. (Claude Code Opus 5.5) -->
 KEYS = {"enter": (0x0D, ()), "esc": (0x1B, ()), "ctrl+enter": (0x0D, (VK_CONTROL,)), "ctrl+a": (ord("A"), (VK_CONTROL,)), "backspace": (0x08, ()),
-	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ())}
+	"left": (0x25, ()), "up": (0x26, ()), "right": (0x27, ()), "down": (0x28, ()), "pgup": (0x21, ()), "pgdn": (0x22, ()), "home": (0x24, ()), "end": (0x23, ()),
+	# <!-- custom: Print Screen makes Civ4 save its own screenshot of the game area, in the format the INI names (JPG by default), to ScreenShots (2026-11-21, for the docs' screenshots). (Claude Code Opus 5.5) -->
+	"printscreen": (0x2C, ())}
 KEYEVENTF_EXTENDEDKEY = 0x0001
 # <!-- custom: Arrow, page, home, end, insert and delete keys sit on the extended keyboard, so their events need KEYEVENTF_EXTENDEDKEY, or a program reading scan codes sees the number pad's keys instead. (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
-EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2D, 0x2E}
+EXTENDED_KEYS = {0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x2C, 0x2D, 0x2E}
 
 
 def clipboard_text():
@@ -1225,10 +1243,105 @@ def place_frame(pid, left, top, right, bottom):
 	return place_window(hwnd, left, top, right, bottom)
 
 
+# <!-- custom: The title bar and the resizable frame, the two window styles a borderless window drops: WS_CAPTION and WS_THICKFRAME. See KI#7. (Claude code Opus 5.5) -->
+FRAME_STYLES = 0xC00000 | 0x40000
+# <!-- custom: The window property that keeps which of FRAME_STYLES the window had, so --off gives back exactly those: Civ4's window has no WS_THICKFRAME, and the first --off, adding both, left a 1920 x 1080 game in a 1942 x 1136 window instead of 1926 x 1120 (2026-11-28). See KI#7. (Claude code Opus 5.5) -->
+FRAME_PROPERTY = "SASFrameStyles"
+
+
+def monitor_rect(hwnd):
+	# <!-- custom: The whole monitor holding most of the window, taskbar included, where monitors() gives work areas without it: a borderless game covers the whole monitor. See KI#7. (Claude code Opus 5.5) -->
+	class MONITORINFO(ctypes.Structure):
+		_fields_ = [("cbSize", wt.DWORD), ("rcMonitor", wt.RECT), ("rcWork", wt.RECT), ("dwFlags", wt.DWORD)]
+
+	make_dpi_aware()
+	info = MONITORINFO()
+	info.cbSize = ctypes.sizeof(MONITORINFO)
+	if not USER32.GetMonitorInfoW(USER32.MonitorFromWindow(hwnd, 2), ctypes.byref(info)):
+		raise OSError("GetMonitorInfo failed")
+	return info.rcMonitor.left, info.rcMonitor.top, info.rcMonitor.right, info.rcMonitor.bottom
+
+
+def client_rect(hwnd):
+	# <!-- custom: The game picture inside the window, as left, top, width and height counted from the window's corner, so a point can be taken from the picture's centre whether the window has a frame or not. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	client = wt.RECT()
+	if not USER32.GetClientRect(hwnd, ctypes.byref(client)):
+		raise OSError("GetClientRect failed")
+	origin = wt.POINT(0, 0)
+	if not USER32.ClientToScreen(hwnd, ctypes.byref(origin)):
+		raise OSError("ClientToScreen failed")
+	left, top, _right, _bottom = window_rect(hwnd)
+	return origin.x - left, origin.y - top, client.right, client.bottom
+
+
+def is_borderless(hwnd):
+	# <!-- custom: Whether the window lacks both of FRAME_STYLES, as borderless leaves it. See KI#7. (Claude code Opus 5.5) -->
+	USER32.GetWindowLongW.restype = ctypes.c_long
+	return not (USER32.GetWindowLongW(hwnd, -16) & FRAME_STYLES)
+
+
+def borderless(pid, on=True):
+	# <!-- custom: Drop a window's title bar and frame and place it on its whole monitor, or (on=False) give them back around the same picture size.
+	# Why: windowed Civ4 at the monitor's own resolution, such as 3840 x 2160 on a 3840 x 2160 monitor, runs past the screen's bottom with its title bar and frame, 3846 x 2200 there, so the player misses the bottom and Civ4's Print Screen saves nothing (KI#7).
+	# Maximizing fits it but scales the picture: at 4K, the Sevopedia's city list lost pixel rows, half the "m" of Bombay.
+	# Borderless, tested the same day (2026-11-28), kept the picture 1:1, saved Print Screen and covered the taskbar's strip; the game went on running and took its frame back without trouble. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	hwnd = find_window(pid)
+	if hwnd is None:
+		raise RuntimeError("no visible window for process %d" % pid)
+	USER32.GetWindowLongW.restype = ctypes.c_long
+	# <!-- custom: A maximized window is restored first, as moving it while maximized keeps the maximized size. (Claude code Opus 5.5) -->
+	# <!-- custom: The style is read after the restore: read before it, it still had WS_MAXIMIZE, which writing it back set again (Codex's review, 2026-11-28).
+	# Each step's result is checked and the window measured at the end, as the first version returned the old rectangle as success when SetPropW or SetWindowPos failed. See KI#7. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	USER32.ShowWindow(hwnd, 9)
+	style = USER32.GetWindowLongW(hwnd, -16)
+	if on:
+		left, top, right, bottom = monitor_rect(hwnd)
+		if style & FRAME_STYLES and not USER32.SetPropW(hwnd, FRAME_PROPERTY, style & FRAME_STYLES):
+			raise OSError("SetPropW failed, so --off could not give back the frame; the window is unchanged")
+		USER32.SetWindowLongW(hwnd, -16, style & ~FRAME_STYLES)
+		if not USER32.SetWindowPos(hwnd, None, left, top, right - left, bottom - top, 0x0020 | 0x0004):
+			raise OSError("SetWindowPos failed")
+		# <!-- custom: The picture is checked too, as an exact outer rectangle can still hold an inset picture (Codex's second review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		if not is_borderless(hwnd) or window_rect(hwnd) != (left, top, right, bottom) or client_rect(hwnd) != (0, 0, right - left, bottom - top):
+			raise OSError("the window is %s with style 0x%08x, not borderless on its monitor %s" % (window_rect(hwnd), USER32.GetWindowLongW(hwnd, -16) & 0xFFFFFFFF, (left, top, right, bottom)))
+		return window_rect(hwnd)
+	# <!-- custom: The frame goes back around the current picture, which fit_client keeps the same size, and the window keeps its top-left corner.
+	# Only the styles the window had come back, from FRAME_PROPERTY, which is then removed; a window borderless before this helper knew it gets a title bar alone. See KI#7. (Claude code Opus 5.5) -->
+	(_x, _y, width, height) = client_rect(hwnd)
+	kept = USER32.GetPropW(hwnd, FRAME_PROPERTY) or 0xC00000
+	# <!-- custom: The frame bits are set to exactly the saved ones, as OR-ing them in kept any the EXE had added meanwhile (Codex's second review, 2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	USER32.SetWindowLongW(hwnd, -16, (style & ~FRAME_STYLES) | (kept & FRAME_STYLES))
+	if not USER32.SetWindowPos(hwnd, None, 0, 0, 0, 0, 0x0020 | 0x0004 | 0x0001 | 0x0002):
+		raise OSError("SetWindowPos failed")
+	rect = fit_client(hwnd, width, height)
+	if is_borderless(hwnd) or client_rect(hwnd)[2:] != (width, height):
+		raise OSError("the frame did not come back around a %d x %d picture: window %s, picture %s" % (width, height, rect, client_rect(hwnd)[2:]))
+	USER32.RemovePropW(hwnd, FRAME_PROPERTY)
+	return rect
+
+
+def fit_client(hwnd, width, height):
+	# <!-- custom: Size a window so its picture is width x height, by measuring the frame rather than computing it: AdjustWindowRectEx gave frame sizes for an unscaled display, and on the user's 150% one a framed 1920 x 1080 game came out with a 1933 x 1096 picture (2026-11-28).
+	# Two passes at most: set, measure the picture, correct by the difference.
+	# The window keeps its top-left corner. See KI#7. (Claude code Opus 5.5) -->
+	make_dpi_aware()
+	for _attempt in range(2):
+		(left, top, right, bottom) = window_rect(hwnd)
+		(_x, _y, picture_width, picture_height) = client_rect(hwnd)
+		if (picture_width, picture_height) == (width, height):
+			break
+		USER32.SetWindowPos(hwnd, None, left, top, right - left + width - picture_width, bottom - top + height - picture_height, 0x0004)
+	return window_rect(hwnd)
+
+
 def place_window(hwnd, left, top, right, bottom):
 	# <!-- custom: place_frame by window handle, for a window no process ID names reliably: a classic console window belongs to its console host, so SASPilotConsole.py passes GetConsoleWindow()'s handle (Codex's review, 2026-11-14). (Claude Code Opus 5.5 + GPT-6.1-Sol) -->
 	make_dpi_aware()
-	USER32.ShowWindow(hwnd, 9)
+	# <!-- custom: Restored only when minimized or maximized, the case a move needs it for: SW_RESTORE also activates, so the SASPilot console, laid out while the game waited to press Enter on its keep dialog, took the focus from it (2026-11-28). (Claude code Opus 5.5) -->
+	if USER32.IsIconic(hwnd) or USER32.IsZoomed(hwnd):
+		USER32.ShowWindow(hwnd, 9)
 	frame = wt.RECT()
 	ctypes.windll.dwmapi.DwmGetWindowAttribute(hwnd, 9, ctypes.byref(frame), ctypes.sizeof(frame))
 	outer = window_rect(hwnd)
@@ -1358,7 +1471,7 @@ def main():
 	shot.add_argument("--pid", type=int, required=True)
 	shot.add_argument("--out", required=True)
 	shot.add_argument("--method", choices=("window", "screen"), default="window", help="window: PrintWindow, works while covered; screen: bring to front and grab the screen area")
-	press = sub.add_parser("click", help="left-click a window-relative point (physical pixels, as in screenshots)")
+	press = sub.add_parser("click", help="click a window-relative point (physical pixels, as in screenshots), with the left button unless --button says otherwise")
 	press.add_argument("--pid", type=int, required=True)
 	press.add_argument("x", type=int, nargs="?")
 	press.add_argument("y", type=int, nargs="?")
@@ -1366,6 +1479,7 @@ def main():
 	press.add_argument("--layout", help="desktop usage layout from app_layouts.json")
 	press.add_argument("--with", dest="modifiers", action="append", choices=("ctrl", "shift", "alt"), default=[], help="hold this key during the click; repeat for several")
 	press.add_argument("--double", action="store_true", help="double-click")
+	press.add_argument("--button", choices=sorted(DRAG_BUTTONS), default="left", help="the mouse button, such as right for a Sevopedia link's right click")
 	point = sub.add_parser("hover", help="move the pointer to a window-relative point without clicking or focusing, e.g. to show a tooltip")
 	point.add_argument("--pid", type=int, required=True)
 	point.add_argument("--front", action="store_true", help="bring the window forward first, through its title bar; Civ4's plot help needs it")
@@ -1432,6 +1546,9 @@ def main():
 	keep.add_argument("name", nargs="?", default="default", help="the layout's name (default 'default')")
 	keep.add_argument("--apps", nargs="+", choices=sorted(POSITION_APPS), default=sorted(POSITION_APPS), help="save: which windows (default all three)")
 	sub.add_parser("monitors", help="list each monitor's work area, the screen minus the taskbar, numbered from the left")
+	edges = sub.add_parser("borderless", help="drop the window's title bar and frame and place it on its whole monitor, so a game at the monitor's own resolution fits it pixel for pixel and Civ4's Print Screen works (KI#7); --off gives them back")
+	edges.add_argument("--pid", type=int, required=True)
+	edges.add_argument("--off", action="store_true", help="give the title bar and frame back around the same picture size")
 	place = sub.add_parser("move", help="place the window on one monitor's work area: the full area, or its left or right half")
 	place.add_argument("--pid", type=int, required=True)
 	place.add_argument("--monitor", type=int, default=1, help="1 is the leftmost monitor")
@@ -1475,7 +1592,7 @@ def main():
 		elif args.x is None or args.y is None:
 			sys.exit("%s needs x and y, or --point NAME" % args.command)
 		if args.command == "click":
-			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True))
+			print("clicked screen point %d,%d" % click(args.pid, args.x, args.y, tuple(MODIFIER_VKS[m] for m in args.modifiers), args.double, give_back=True, button=args.button))
 		else:
 			print("pointer at screen point %d,%d" % hover(args.pid, args.x, args.y, args.front))
 	elif args.command == "drag":
@@ -1559,6 +1676,8 @@ def main():
 			print(format_json(restore_positions(args.name), indent=1))
 		else:
 			print(format_json(load_positions(), indent=1, sort_keys=True))
+	elif args.command == "borderless":
+		print("window now at %s" % (borderless(args.pid, not args.off),))
 	elif args.command == "move":
 		# <!-- custom: The user asked that the tools never shrink a window to unreadable, after a SASPilot console was squeezed into a sliver (2026-11-20); refuse a size below 640 x 400 rather than place it.
 		# Growing a window, such as a 1920 x 1080 Civ4 to fill a 4K monitor, is useful: on 2026-11-20 the user's 4K view showed the few px left between advisors and the scoreboard, which took the scoreboard's width from 395 to 393, and windows close to the 4K screen's size measured how the main-menu setup screens scale for the EXE patch of KI#1082 (2026-11-12).

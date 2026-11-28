@@ -31,6 +31,7 @@ Built and tested by Claude Code Opus 5.5 on 2026-11-10, from a plan drafted with
 - Launch Civ4 into a save made with this mod, or start a new game with a chosen map, size, speed, difficulty, era and leaders.
 - Run AI Auto Play for a requested number of turns, optionally in Debug Mode so a watching user sees the whole map.
 - Tell how the run ended: completed, ended early, never started, stalled, crashed or timed out.
+- Read and drive a running game as JSON, without the window: SASPilot, added on 2026-11-13, has its own [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md).
 - Take screenshots of the game window, even while other windows cover it, and click in it.
 - Close Civ4 and collect the run's logs and saves.
 - Run two or more clients at once, each with its own logs.
@@ -99,6 +100,7 @@ python LLM_Helpers/game_runs/run_autoplay.py --new-game --map Pangaea --world-si
 - `--new-game` sets the INI's `QuickStart = 1`, which starts a game straight from the INI's `[GAME]` settings, without menus.
 - `--map` (script name without `.py`), `--world-size`, `--speed`, `--handicap`, `--era`, `--climate` and `--sea-level` override the user's last settings. Other settings, such as the game options string, come from the user's INI.
   - That string, `GameOptions`, has one digit per option in `CIV4GameOptionInfos.xml` order. On 2026-11-13 the user's INI had only digit 23 set, `GAMEOPTION_NO_EVENTS`: the user tests with random events off, as they add variation between runs that says nothing about the AI. Unattended new games inherit it; keep it on for benchmarks and comparisons.
+  - `SASPilotClient.py ping` lists a running game's enabled options as `gameOptions`, to confirm what a run really used; [`start_game.py --option`](/LLM_Helpers/README.md#start_gamepy) turns others on.
 - `--fixed-seeds` sets `SyncRandSeed` and `MapRandSeed` to `1`. Two such games on Standard Pangaea matched at every RNG and state checkpoint over 60 turns, so a repeatable benchmark needs no save.
 - `--leaders` names a leader for each civilization slot in order, with `-` keeping the random one. Each leader brings the first playable civilization that lists it; a requested leader already drawn for another slot is swapped with it.
   - Tested on 2026-11-10: `LEADER_ALEXANDER,-,LEADER_MANSA_MUSA,LEADER_GANDHI` gave Alexander, a random leader, Mansa Musa and Gandhi, and SGR recorded the three as chosen rather than random.
@@ -208,6 +210,10 @@ Each client's files carry its process ID, so they cannot collide:
 - Still shared, because Civ4's EXE owns them ([KI#1081](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1081)): autosaves in `Saves/single/auto`, where same-turn names overwrite each other; `PythonDbg.log` and `PythonErr.log`, so a run's `pythonErrors` can include another client's lines; and the user's BUG settings. A request error names its `RunId`, so a runner counts only its own.
 
 ## Screenshots and clicks
+
+Inside a game, prefer SASPilot's `ui*` commands to these points: since 2026-11-20 they open screens and press buttons, tabs, table cells and Sevopedia entries by name, with no coordinates or screenshots, and keep working at any resolution; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui).
+
+The points and maps below stay useful outside a game, such as the main menu and the setup screens, where SASPilot does not run, and for checking what a player sees.
 
 ```bash
 python LLM_Helpers/desktop/desktop_windows.py list
@@ -385,6 +391,8 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - No option or Python call hides the minimap's white camera frame: `setShowInterface(INTERFACE_MINIMAP_ONLY)` hides the rest of the interface, `CONTROL_BARE_MAP` hides units and symbols.
     - Planned instead: capture the minimap three times with the camera in different places (click the minimap) and keep each pixel's median, which drops the frame even over snow; merge as PNG, compress only the final `.dds`.
   - Ctrl+W opens WorldBuilder from a game. Its tool icons sit in two rows of six at the top right, about y 63 and 98, x 1718 to 1893, 35 px apart, beside the Units, Buildings and Technologies panel at the top left.
+    - Through SASPilot, `control control=CONTROL_WORLD_BUILDER` first shows an "Are you sure?" panel at the top right, whose "Enter WorldBuilder" sat at (1700, 180) in the 1080p window on 2026-11-13; SASPilot lets this confirmation through, as it comes from a person's choice.
+      - The same control again leaves WorldBuilder without asking, and the fog comes back. WorldBuilder shows the whole map, rivals' cities included.
     - Their tooltips, recorded as the `worldbuilder` screen in `civ4_ui_map.json`: Enter erase mode, Change All Plots, Save, Load, Exit World Builder on the top row after Enter landmark mode, and Edit Unit, Edit City, Player, Map, Reveal Tile and Diplomacy modes below. What each mode opens is recorded there too.
     - Tooltips appeared only with Civ4 in front and a few seconds' dwell: `hover_tooltips.py --front --wait 4` showed all twelve, while hovers from `capture_screens.py`, which does not bring the window forward, showed none (2026-11-12).
     - Change All Plots opens a modal panel: until its Cancel is clicked, other icons, hovers and tooltips do nothing.
@@ -418,7 +426,8 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
   - Your Details takes the keyboard: letters typed elsewhere land in its Leader Name box, so click through it only while the user is idle.
 - Civ4 remembers Custom Game settings for the user's next game. Note them before changing any, and set them back afterwards.
 - Other resolutions (2026-11-12, testing the setup-screen EXE patch of [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)): set `ScreenWidth`, `ScreenHeight` and `FullScreen` in `CivilizationIV.ini` for the run and restore the file afterwards. The named points fit only 1920x1080, so read positions off a screenshot.
-  - To change the resolution during a game instead (2026-11-24, testing [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) and [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)): Ctrl+O opens the Options (Alt+O did nothing), then its Graphics tab, then the Screen Resolution dropdown; choosing an item asks "Do you wish to keep this resolution?", and Yes, then Exit, close it.
+  - With a SASPilot client, `SASPilotClient.py resolution size=1920x1080` changes the resolution during play with no clicks, answering the EXE's keep dialog with Enter, which also works by hand (2026-11-28); see [Game settings](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#game-settings).
+  - To change the resolution during a game by clicks instead (2026-11-24, testing [KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2) and [KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)): Ctrl+O opens the Options (Alt+O did nothing), then its Graphics tab, then the Screen Resolution dropdown; choosing an item asks "Do you wish to keep this resolution?", and Yes, then Exit, close it.
     - The dialog is centred: in a 2566x1480 window the Graphics tab sat at `1020,508`, the dropdown at `1235,612`, Yes at `1346,754` and Exit at `1356,1010`; in a 1926x1120 window at `700,328`, `910,430`, `1026,574` and `1034,828`.
     - The dropdown's list often opened only on a second click, and a click while it was open closed it, so take a `--method screen` screenshot after each click; a window screenshot did not show the open list. The list scrolls with `scroll`, 26 px per row.
     - It is not reliable: in the last of six games that day, the list never opened, after seven clicks on its text and arrow and a reopened Options, while the tooltip showed each time; pressing Up scrolled the map instead. [`start_game.py --size`](/LLM_Helpers/README.md#start_gamepy) then starts a game at the other size.
@@ -431,7 +440,7 @@ Tested on 2026-11-11 with the game windowed at 1920x1080, in a 1926x1120 window 
     - Maximize it first instead: start the game at 3840x2060, then `desktop_windows.py move --pid <pid> --monitor 1 full` fits it to the monitor's work area (3844x2102 with its borders), where every control can be clicked. Otherwise lower the INI size well under the screen's.
     - `full` only resizes the window, though: on 2026-11-24, while an agent tested the Sevopedia at 4K with it, the user noticed the window was not really maximized and showed the difference, a 3838x2062 game area against 3840x2066 with the title bar's maximize button.
       - Tests should see the screen a player gets, so at the user's request `move --pid <pid> maximize` now does a real Windows maximize on the chosen monitor, at any monitor size; it was checked from a 1920x1080 window to a 3840x2066 client area, with Windows reporting the window as maximized.
-    - Civ4's own Print Screen saves nothing while the window runs past the screen's edge or onto a second monitor ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24), so maximize such a game before taking `Civ4ScreenShot` images, or use `desktop_windows.py screenshot`.
+    - Civ4's own Print Screen saves nothing while the window runs past the screen's edge or onto a second monitor ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24), so make such a game borderless with `desktop_windows.py borderless` before taking `Civ4ScreenShot` images, which keeps its text sharp where maximizing scales it (2026-11-28), or use `desktop_windows.py screenshot`.
   - A 1920x1080 fullscreen game could be clicked through, at the screenshot's own coordinates, but ignored `desktop_windows.py close` while still responding, so the agent stopped its own process with `Stop-Process`.
   - Walking Simple Game at 2560x1380 and 3840x2060 (2026-11-12, for the globe patch of [KI#1082](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1082)), positions were read off one screenshot per step, with `capture_screens.py --keep-open` and then `--pid`:
     - Map rows are 24 px apart at every size: Arboria at `225,147` in a 2566x1420 window and at `330,144` in a maximized 3844x2102 one, so row N is at that y plus 24 x N. OK sits at `2493,1395` and `3772,2076`; at 4K, Single Player and then Simple Game are both at `1920,1060`.

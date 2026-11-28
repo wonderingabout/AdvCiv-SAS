@@ -114,6 +114,19 @@ Only the listed collections use this convention; other compact fields retain the
 
 ## History (latest first)
 
+### Revision 218 - SAS practical 6961 (SASPilot branch)
+
+- **Date:** 2026-11-27
+- **Git commit:** `6f723c12598532ff9f502174d9f247026fe042e0`
+- **Functional:** No (comments only)
+- **Change:** No change to the record: custom comments that mention SASGameRecord, in `CvPlayer.h`, `SASPilotClient.py` and `SASPilotCommands.py`, were reflowed one sentence per line for the CI comment check, with their wording unchanged, and comments in SASGameRecord-related files renamed the retired "the pilot" to SASPilot.
+  - First made as revision 202 in commit `f005c06cce13db7a64971009789ca770b6acd3c5` (2026-11-15) on the SASPilot branch, then 204 when main was merged into it on 2026-11-17 (`b57f87e3382783e7d19020606d64edd11fdb0851`), as main had used 202 and 203 meanwhile.
+  - That 204 also held the branch's revision check judging a merge against its higher parent; main took that rule as its own 204 on 2026-11-18, so merging main again that day made this entry 205, keeping the branch, squashed when it lands, one revision above main.
+  - Merging main on 2026-11-19, which had used 205 to 208 meanwhile, made it 209.
+  - Merging main on 2026-11-20, which used 209 for the Greatest Civilizations rows first made here, made it 210; those rows are now main's revision 209, below.
+  - Merging main on 2026-11-27, which used 210 to 216 meanwhile, made it 217.
+  - Merging main again on 2026-11-27, which used 217 for moving `SAS_SGR_BUG_STRING_VALS_ON` to `SASSessionTunables.py`, made it 218.
+
 ### Revision 217 - SAS practical 6888
 
 - **Date:** 2026-11-27

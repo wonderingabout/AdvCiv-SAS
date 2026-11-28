@@ -72,7 +72,7 @@ A window-only capture can miss a transient tooltip, so check the image after hov
 - Save `screenshot` captures as PNG, though heavier: a 1926 x 1120 Civ4 window took 2.9 MB, against 262 KB for Civ4's own Print Screen JPG of the same screen (2026-11-22).
   - A PNG can be converted to JPG later for sharing, such as on a Known Issue's Drive folder, but a JPG cannot get back what it lost (the user).
   - The window capture also sends the game nothing, while Print Screen is a key press the game handles.
-  - Civ4's Print Screen saves a `Civ4ScreenShotNNNN.JPG` only while its window lies entirely on the primary monitor: not on a second monitor, straddling onto one, or past the screen's bottom edge ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24).
+  - Civ4's Print Screen saves a `Civ4ScreenShotNNNN.JPG` only while its window lies entirely on the primary monitor: not on a second monitor, straddling onto one, or past the screen's bottom edge ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7), checked 2026-11-24); `desktop_windows.py borderless` fits a screen-sized game without scaling it (2026-11-28).
     - So a game smaller than the screen, such as 1440p on 4K, needs nothing; a game as large as the screen overflows at the bottom, likely because Civ4's window is not borderless: its title bar and frame add to its size, so maximize it first with `desktop_windows.py move --pid <pid> maximize`.
   - For an image tracked in the repository, such as an advisor or game screenshot in `_1_AdvCiv-SAS/Images`, convert the PNG to JPG before committing, as most images there are, and keep the PNG locally to process again later if needed: every committed version stays in Git's history for good.
 - Take a fresh screenshot right before each click. On 2026-11-10 the user closed a panel in Codex between a screenshot and a click, so the chat moved and the click selected a word instead of expanding a section.
@@ -471,7 +471,7 @@ Observed on 2026-11-11 on the user's Pro plan, with both the 5-hour and weekly l
   - **Full reset,** expiring Dec 10.
   - **Fable reset,** expiring Nov 17. It refills the 5-hour limit and the Fable allowance and gives back what Fable used of the weekly limit, without resetting the whole week.
   - Each has a "Reset for free" button. Resets are rare, so using one is the user's call: an agent can say when one would help, for example when it or Codex is near a limit with work in flight.
-- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SAS Pilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room.
+- **Fable usage, 2026-11-13:** While Fable 5.2 was working on SASPilot, the user reported that the 5-hour meter was nearly full while the weekly meters still had room.
   - In **Settings > Usage**, check **Current session**, the overall weekly usage, and the Fable weekly allowance if your plan shows one. During the launch offer, Fable could have its own weekly cap within the overall allowance.
   - A Fable reset restores the Fable portion of weekly usage and refills the shared 5-hour window where applicable.
   - See [Claude Fable 5.2 launch offers](https://support.claude.com/en/articles/17506494-claude-fable-5-2-launch-offers) and [How usage limits work](https://support.claude.com/en/articles/11647753-how-do-usage-and-length-limits-work).

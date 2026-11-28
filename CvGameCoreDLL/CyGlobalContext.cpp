@@ -284,6 +284,12 @@ CvControlInfo* CyGlobalContext::getControlInfo(int i) const
 	return (i>=0 && i<NUM_CONTROL_TYPES) ? &GC.getInfo((ControlTypes)i) : NULL;
 }
 
+// <!-- custom: See the declaration: the mission an interface mode's plot click gives, for SASPilot's 'targets' command. (Claude code Opus 5.5) -->
+CvInterfaceModeInfo* CyGlobalContext::getInterfaceModeInfo(int i) const
+{
+	return (i>=0 && i<NUM_INTERFACEMODE_TYPES) ? &GC.getInfo((InterfaceModeTypes)i) : NULL;
+}
+
 CvMissionInfo* CyGlobalContext::getMissionInfo(int i) const
 {
 	return (i>=0 && i<NUM_MISSION_TYPES) ? &GC.getInfo((MissionTypes)i) : NULL;

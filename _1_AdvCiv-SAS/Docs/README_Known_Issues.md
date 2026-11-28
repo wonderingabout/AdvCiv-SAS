@@ -215,6 +215,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#123.4 - (Fixed inherited AdvCiv) The map's bonus bubbles drew at a size meant for another field of view: AdvCiv's size patch ran before the field of view for the resolution was set, so it used the XML's 42 when a game was loaded and the previous resolution's after a change in game](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)\
 [KI#123.5 - (Fixed incomplete inherited AdvCiv solution) Vanilla's Replay screen stays a 1024 x 768 box at any resolution; AdvCiv made it scale with the resolution, but laid it out only once per session: after 1920 x 1080 to 2560 x 1440, the reopened replay stayed at 1920 x 1080 until a tedious Civ4 restart](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)\
 [KI#123.6 - (Fixed inherited AdvCiv) Turning BUG's Scale Up HUD off kept the main interface scaled until a Civ4 restart: AdvCiv's advc.092 set its scale factors only while the option was on, so a game load or resolution change kept the previous build's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6)\
+[KI#123.7 - (Fixed inherited vanilla Civ4, exposed by SASPilot) A resolution change made without the Options screen raised a Python error: the screen's refresh after the change read names and widgets that only drawing the screen creates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7)\
 [KI#124 - (Fixed) Likely Base AdvCiv issue: map-view unit bar overflows into hovered/expanded scoreboard](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-124)\
 [KI#125 - (Fixed) Base AdvCiv issue: Sevopedia Back/Next history is lost on exit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-125)\
 [KI#126 - (Fixed) Sevopedia footer navigation controls looked active even when they had no effect](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-126)\
@@ -1314,7 +1315,7 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1091.2 - (Fixed inherited vanilla Civ4, BtS and AdvCiv Python bindings) Ten more Python wrappers crashed on None where the native function takes NULL](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.2)\
 [KI#1091.3 - (Fixed inherited vanilla Civ4 bug) Asking from Python whether a unit could airlift, air bomb or nuke, with no target, read past the map: SASPilot's `unit` raised "unidentifiable C++ exception" for a Paratrooper in a city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1091.3)\
 [KI#1092 - (Fixed AdvCiv-SAS bug) The Military Advisor's Summary counted only direct upgrades, so units the game lets upgrade through a chain, such as an Archer to Musketman, were left out](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1092)\
-[KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
+[KI#1093 - (Fixed AdvCiv-SAS bug; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1093)\
 [KI#1094 - (Fixed AdvCiv-SAS bug) Asking an AI for peace while either side is a victory-denial threat: the AI offered a peace treaty and said it was accepted, but CvDeal silently dropped it and the war went on](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1094)\
 [KI#1095 - (Fixed inherited AdvCiv bug) advc.056 marked the player slots it adds after a WorldBuilder file with fewer players as `neverAlive`, but its reader checks `bNeverAlive`, so those slots were never skipped](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1095)\
 [KI#1096 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch) SASPilot's `save` to `...\update_T0.CivBeyondSwordSave` failed with "truncated \UXXXXXXXX escape", while `...\preserve_T0` worked: the request reader took the path's `\u` for a unicode escape](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1096)\
@@ -1324,7 +1325,8 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1098.3 - (Fixed SAS dead stores, and inherited BtS, K-Mod and BUG ones, guarded by CI) Python layout values were set, then set again before anything read them: SAS's Sevopedia Terrain page wrote H_RELEVANT_UNITS twice from the same sum, and SAS's full-screen layouts left vanilla's 1024 x 768 values unread in three screens' `__init__`, as BtS had in Dawn of Man's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098.3)\
 [KI#1099 - (Guarded by CI, inherited BtS code fixed by AdvCiv) Non-standard C++ that VC2003 accepts, such as CyPlayer::disbandUnit returning a void call or NULL through ?:, kept the DLL from building with a standard-conforming compiler](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1099)\
 [KI#1100 - (Fixed AdvCiv-SAS bug) The World Advisor's Changes tab listed an Advanced Start Automate row above the buys it made, as its row was written once the AI had spent the points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1100)\
-[KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
+[KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)\
+[KI#1101.2 - (Fixed AdvCiv-SAS slip, SASPilot branch only) SASPilot's `timeline` failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" whenever the Info Screen had not been opened that session, as the Greatest Civilizations filter's setting was read only when the screen opens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101.2)\
 [KI#1102 - (Open, a Steam client bug outside the mod's code) A closed Civ4 sometimes never finishes exiting, as Steam's steamclient.dll waits forever while unloading, so Steam still sees the game running and the shortcut starts nothing](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)\
 [KI#1103 - (AdvCiv-SAS design rule) Layouts give 1920 x 1080 at font 3 and 2560 x 1440 up to font 4 their full room; the rare 1920 x 1080 at font 4 gets workarounds instead of taking room from every layout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103)\
 [KI#1103.2 - (Fixed SAS) The scoreboard's left edge moved whenever an advisor opened or closed, even at 1920 x 1080 and font 3: it cut leader names to the advisors' space only while one was open, so on the map it kept its full width, 10 to 60 px wider in debug mode](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1103.2)\
@@ -1339,7 +1341,9 @@ Note 5: despite the name, this is not only a list of defects. An entry records a
 [KI#1107.2 - (Fixed AdvCiv-SAS bug, Debug Mode only) SAS's move onto the SASVisualUtils cache had broken GameFontDisplay.py's lookup of each glyph's religion, corporation or bonus with .index() on the cache's tuples, which Python 2.4 lacks, hidden behind KI#1107's empty table until its fix let rows draw](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1107.2)\
 [KI#1108 - (Gated inherited AdvCiv) Default builds compiled the unused implementation of ReproTest.cpp, base AdvCiv's reproducibility test, though its ENABLE_REPRO_TEST switch is off by default](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108)\
 [KI#1108.2 - (Fixed inherited BtS) The Foreign Advisors rebuilt BtS's tech prerequisite graph, TechTree, on every opening and tab click, pairing each of the 92 techs, as in BtS, base AdvCiv and, as of now, SAS, with every tech, 92 x 92 = 8,464 pairs, a count growing with the square of a mod's techs, though it was unread even in BtS's own Foreign Advisor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1108.2)\
-[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)
+[KI#1109 - (Fixed inherited AdvCiv regression) Setting a string define from Python stored a bool instead: after `setDefineSTRING`, the next `getDefineSTRING` of that define raised "unidentifiable C++ exception", as AdvCiv's FVariableSystem refactor had no `char const*` setter, so the value fell to `setValue(bool)`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1109)\
+[KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110)\
+[KI#1110.2 - (Centralized SAS lists) The Sevopedia's item kinds were listed twice, for its links and for SASPilot, whose copy lacked unit categories, concepts, votes and event triggers, so `uiopen name=pedia item=UNITCOMBAT_RECON` failed although the Sevopedia has that page](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1110.2)
 
 <a id="ki-1"></a>
 
@@ -1646,6 +1650,35 @@ Update (2026-11-24): the rule is broader than a second screen. The user noticed 
 - Saved: a window fully on the primary monitor, at 1920 x 1080 and at 2560 x 1440, and one resized over the work area with `move full` or maximized with `move maximize`.
 - Not saved: a window fully on the second monitor, one straddling onto it (2000 to 5844 px with the second monitor from 3840 px), and one running past the primary monitor's bottom edge, where no monitor is.
 - So Civ4 saves a screenshot only while its window lies entirely on the primary monitor. A game as large as the screen, such as 4K on a 4K monitor, overflows at the bottom unless maximized, likely because Civ4's window is not borderless: its title bar and frame add to its size; a smaller one, such as 1440p there, needs nothing.
+
+Update (2026-11-28): fitting the window has a cost, so no option is free. Switched to 3840 x 2160 during play with SASPilot's `resolution` command, on the same 3840 x 2100 work area:
+
+- As it is, the window was 3846 x 2200: the text stays sharp, pixel for pixel, but about 100 pixels of the game run below the screen, so a person watching misses them and Print Screen saves nothing.
+- Fitted to the work area, as maximizing or the SASPilot console's start-up layout does, it was 3844 x 2102: the 2160 lines of the game picture are scaled into about 2062, some 5% smaller, so the text is softer; screenshots work. The Game Runs Guide's 2026-11-20 note saw the same stretching, with blurry text, when a game window was resized to 1920 x 1080.
+- The same holds at any game resolution equal to the monitor's, such as 1080p on a 1080p monitor, not only at 4K.
+- Agents' window captures (`desktop_windows.py screenshot`, PrintWindow) show the whole game either way, the part below the screen included, so the choice matters for a person watching and for Civ4's own screenshots.
+- Tried the same day, with Print Screen pressed through `desktop_windows.py` in each state and a window capture of the scoreboard compared side by side:
+  - Native, 3846 x 2200: sharp text; Print Screen saved nothing.
+  - Maximized, 3846 x 2106: the scoreboard's text about 5% smaller and a little softer and thinner, still readable; Print Screen saved.
+  - Borderless, the title bar and frame removed through the window's style and the window placed at the monitor's exact 3840 x 2160: the picture 1:1, as sharp as native; Print Screen saved. The game kept running and went back to its normal style and to 1920 x 1080 afterwards.
+  - Repeated with a Sevopedia page open, whose small text shows it more clearly (the user's suggestion): India's history read the same in native and borderless, and smaller and a little softer maximized; Print Screen gave the same results.
+  - The borderless window also covers the taskbar's strip: a capture of the screen's bottom 180 pixels, with the taskbar at the bottom, showed the game's own Sevopedia footer (BACK, NEXT, EXIT) and no taskbar, so the whole game was in view.
+- So the rule is about the player's screen, not 4K: whenever the game's window does not fit the monitor's work area, a borderless window at the monitor's size keeps both the sharp text and Civ4's screenshots, where maximizing keeps only the screenshots.
+  - The worst spot was small text: maximized, the Sevopedia's city list lost whole pixel rows, half the "m" of Bombay and the middle of Madras (first image, zoomed twice); the second shows India's history and the third the scoreboard, native, maximized and borderless in each.
+  - Each crop is taken at the same place in the game picture. The first crops took the same fractions of each window, but a framed window starts its picture 3 pixels right and 37 down, under its title bar, so the borderless crop began 37 pixels further down the game and seemed to show less text (the user noticed); a comparison of framed and borderless captures must offset by the frame, as `desktop_windows.client_rect` gives it.
+  - The labels sit on a purple strip with white text, a colour neither the game's panels nor a window's frame use, so no strip reads as part of what is compared: on white it looked like the title bar the images are about, Windows' blue was too close to its own frames, the game's tan close to amber, and white on dark red hard to read (the user's review, 2026-11-28).
+
+<img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (1).PNG" alt="1.989_window_modes_4k_game_4k_screen (1).PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (2).PNG" alt="1.989_window_modes_4k_game_4k_screen (2).PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/ui_other/1.989_window_modes_4k_game_4k_screen (3).PNG" alt="1.989_window_modes_4k_game_4k_screen (3).PNG" width="250">
+
+- Workaround, the same day: [`desktop_windows.py borderless --pid <pid>`](/LLM_Helpers/README.md#desktop_windowspy) drops the window's title bar and frame and places it on its whole monitor; `--off` gives back the frame it had, around the same picture.
+  - SASPilot's `resolution` command does it by itself when the new size equals the monitor's, and gives the frame back at a smaller size: at 3840 x 2160 the window became exactly 3840 x 2160 and Print Screen saved, and back at 1920 x 1080 it was again the original 1926 x 1120.
+  - The first `--off` added a resizable frame Civ4's window never had, and sized the frame for an unscaled display, so on the user's 150% one the window came back 1942 x 1136; the frame styles are now kept on the window and the size measured.
+  - `SASPilotClient.py start --resolution` does the same for a game started at the monitor's size: started at 3840 x 2160, the window came up borderless at exactly 3840 x 2160, with no step by hand, and Print Screen saved.
+  - The SASPilot console no longer shrinks a game that fills its monitor, nor moves to the next monitor: it opens just behind the game and gives it the focus back, as it first opened in front of it, and the taskbar then showed over the game (the user).
+- Codex's (GPT-6.2-Sol) review the same day found three slips, fixed and retested at turn 307 of the Asoka save:
+  - `desktop_windows.py borderless` read the style before restoring the window, so a maximized window got `WS_MAXIMIZE` written back, and it reported the old rectangle as success when a Win32 call failed. It now reads the style after the restore, checks each call and the final geometry, and removes the saved frame property after `--off`.
+  - `resolution` returned before fitting the window when the mode was unchanged, and skipped a borderless window moved off its monitor. Both are fitted now: moved to (40,30), the window went back to (0,0,3840,2160), with no key pressed. A fitting failure at `start` is reported in the reply rather than raised, as the client would otherwise lose the PID of a running Civ4.
+  - The console counted a game as filling its monitor when it reached either dimension; it now needs the game's own monitor's full width and work-area height, so a tall narrow game keeps its console beside it.
 
 <a id="ki-7.2"></a>
 
@@ -3831,7 +3864,7 @@ See the [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_DLL
 
 Diagnosed and fixed with GPT-6.1-Sol (Codex) and ChatGPT-5.6-Sol, thanks.
 
-Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`), still on the SASPilot branch, to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
+Follow-up (2026-11-15): the same `0xC0000005` came back with no include involved. Adding the unit-state hover help (`setSASUnitStateHelp`) to `CvGameTextMgr.cpp` put five new comment lines with apostrophes in the file, such as `// A Worker's build already shows with its turns before this`, and `nmake fastdep` crashed again before `cl.exe` ran.
 
 Running `bin\fastdep.exe -q -O x <file>` on each edited translation unit isolated `CvGameTextMgr.cpp` in seconds; the other edited files passed.
 
@@ -11975,6 +12008,10 @@ Update (2026-11-24): five option tooltips still said a restart was needed, and n
 - The tech splash layout: base AdvCiv's "Restart required." was already stale there, as K-Mod's change hook, which AdvCiv routes through `BugScreenInit.py` (advc.009b), drops the splash screen, so the next one shown uses the new layout.
 - Scale Up HUD: the main interface reads it in `initState`, which runs on each game load and resolution change, so it takes effect then rather than after a restart; switching it off needed a restart until [KI#123.6](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.6).
 - Codex (GPT-6.2-Sol) reviewed the tooltips: it found KI#123.6, and corrected the tech splash hook's origin and the resolution wording.
+- Update (2026-11-28): with the screens following a resolution change, agents switch it during play too, through SASPilot's `resolution` command, so a test game no longer needs two launches to be checked at two sizes.
+  - The screens that follow: the Sevopedia ([KI#123.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.2)), the main interface ([KI#123.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.3)), the bonus bubbles ([KI#123.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.4)) and the Replay screen ([KI#123.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.5)).
+  - Its first use found [KI#123.7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123.7), the Options screen's refresh failing when the screen was never drawn.
+  - SASPilot's console now reopens at the new size, so its lines wrap rather than scroll sideways. The [Game settings](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#game-settings) section of the SASPilot guide covers both.
 
 <a id="ki-123.2"></a>
 
@@ -12072,6 +12109,27 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 - Found (2026-11-24) by Codex's (GPT-6.2-Sol) review of SAS's rewrite of that tooltip, under [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-123), to say the option applies at the next game load or resolution change: true when turning it on, not off.
 - Fixed (2026-11-24): `initState` resets the factors to 1.0 before each build, then scales only with the option on.
 - Tested the same day: a game loaded at 1920 x 1080 with the option on; the option turned off in the BUG menu, then the resolution changed in Options. The main interface rebuilt unscaled: the unit panel went from about 395 to 345 pixels wide, and the minimap and buttons shrank to match.
+
+<a id="ki-123.7"></a>
+
+## KI#123.7 - (Fixed inherited vanilla Civ4, exposed by SASPilot) A resolution change made without the Options screen raised a Python error: the screen's refresh after the change read names and widgets that only drawing the screen creates
+
+- The error, in `PythonErr.log` at 09:29:25 UTC on 2026-11-28:
+
+```text
+File "CvOptionsScreenCallbackInterface", line 31, in refresh
+File "CvOptionsScreen", line 92, in refreshScreen
+File "CvOptionsScreen", line 39, in getGameOptionsTabName
+AttributeError: CvOptionsScreen instance has no attribute 'szGameOptionsTabName'
+ERR: Python function refresh failed, module CvOptionsScreenCallbackInterface
+```
+
+- What it was: after a resolution change, the EXE calls `refresh()` in [CvOptionsScreenCallbackInterface.py](/Assets/Python/EntryPoints/CvOptionsScreenCallbackInterface.py), which calls `refreshScreen` in [CvOptionsScreen.py](/Assets/Python/Screens/CvOptionsScreen.py). That reads the tab names `initText` sets and the tab control `interfaceScreen` creates, both only when the screen is drawn.
+- Where it came from, checked in each layer's copy: vanilla Civ4's `refreshScreen` already read them with no guard, and Warlords, BtS (both in Civ4CE) and K-Mod kept it unchanged.
+  - Base AdvCiv added only its first line, `UserProfile = CyUserProfile()` for advc.076 (practical 1435, `56127bdb6d`, 2019-03-02), and SAS's commits only reflowed its spacing.
+  - In every layer a resolution change came only from that screen's dropdown, so the screen always existed. SASPilot's `resolution` command calls `CyUserProfile.setResolution` as the dropdown does, with the screen never opened, and the first switch of a client raised the error. The switch itself held.
+- Found by the user, who saw the error while the borderless work of [KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7) was being tested.
+- Fixed (2026-11-28): `refreshScreen` returns when the screen has no tab control yet, as there is nothing to refresh; the next opening draws it from the profile.
 
 <a id="ki-124"></a>
 
@@ -24682,6 +24740,10 @@ Fresh SAS32 save file 489 completed its autoplay smoke test after the DLL compil
 The exact notification and Timeline branches therefore remain source-verified rather than directly reproduced in this run.
 
 This is an inherited AdvCiv `advc.004u` information-visibility bug with an AdvCiv-SAS KI#204 persistence amplification. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol, thanks.
+
+- Checked again on 2026-11-15, as the user remembered general deaths missing from the Timeline even in debug mode: in a Huge Pangaea autoplay saved at turn 299 (SAS 6749), the replay held "The Great General Subutai (United States) has died in combat!" at turn 197, and the Info screen's Timeline listed it both without debug mode (624 entries, the United States met) and with everything revealed as debug mode does (688 entries).
+  - The Timeline still hides it when the general's owner is not met, as the text names the civilization.
+  - Which case the user had seen was not found; earlier games may predate this fix.
 
 <a id="ki-335"></a>
 
@@ -39486,7 +39548,7 @@ Found by Claude Code Opus 5.5 during a visual pass over the advisors that the us
 
 <a id="ki-1093"></a>
 
-## KI#1093 - (Fixed AdvCiv-SAS bug in SASPilot's code, on its own branch; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
+## KI#1093 - (Fixed AdvCiv-SAS bug; a pitfall for any Python inside Civ4) Inside Civ4, Python's time.time() moves in 128-second steps, so SASPilot's queued contact never expired and blocked every later contact
 
 - Direct3D sets the Civ4 process's floating point unit to single precision, so doubles computed there keep only about 24 bits: a timestamp near 1.79 billion seconds moves in steps of 128 seconds. In the running game, `time.time()` returned 1794652928.0 a minute after a contact was queued at the same value, and `1794652928.0 + 1.5` printed `1794652928.0`.
 - Found through the SASPilot work, on its own branch, at turn 291 of its modern-era baseline (2026-11-14): two `SASPilotClient.py price` calls during a war left a contact queued whose screen never opened, and `contact` then refused every new contact with "a contact is already queued", as the 10-second expiry in `SASPilotCommands._pendingContact` measured nothing.
@@ -39735,6 +39797,7 @@ warning: in the working copy of '_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
   - `CvPlot.cpp`'s two `iTurnsLeft++` look like one too, but in BtS the first sits in an `if` block and the second follows a blank line: one rounds the build time up and the other adds the current turn. AdvCiv dropped the braces, which put them side by side.
   - It and `CvXMLLoadUtilitySet.cpp`'s two `SetToParent` calls, as in BtS, each moving the XML cursor up one level, now carry a comment saying they are meant.
   - XML files are not checked: their lists repeat rows on purpose, such as several `<iCommerce>0</iCommerce>` or `<GoodyType>GOODY_TECH</GoodyType>` in a row, 213 and 17 times across the tracked XML, so a repeated row there is data, not a slip.
+- Update (2026-11-20): a 13-line block repeated whole, from a branch merge, slipped past this check, which compares single adjacent lines; see [KI#1101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101).
 
 <a id="ki-1098.2"></a>
 
@@ -39820,11 +39883,41 @@ Found by wonderingabout; fixed by Claude Code Opus 5.5.
 
 <a id="ki-1101"></a>
 
-## KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined" on the SASPilot branch; main is not affected
+## KI#1101 - (Fixed AdvCiv-SAS merge slip, SASPilot branch only) The Info Screen's Timeline tab raised "global name 'iNumMessages' is not defined", as a merge of main put its Greatest Civilizations filter, twice, into a method without that variable
 
-The merge of main into the SASPilot branch on 2026-11-20 put main's Greatest Civilizations filter into the branch's `CvInfoScreen.getTimelineRecords`, which lacks the variable it reads; it was fixed there, and the SASPilot branch's copy of this file holds the full entry.
+On 2026-11-20 the first full run of `SASPilotUISweep.py`, which presses every advisor's footer tabs through SASPilotUI, stopped at the Info Screen's Timeline tab:
 
-- main has no `getTimelineRecords`, so it is not affected; this short entry keeps the KI numbers continuous on main until the SASPilot branch is merged.
+```text
+uipress {'widget': 'InfoTabButton2'}: NameError: global name 'iNumMessages' is not defined
+```
+
+- main added the `SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` filter, which hides the Greatest Civilizations rankings, inside `CvInfoScreen.buildTimelineCache`, where `iNumMessages` is a local (`ec029819d`).
+  - The SASPilot branch had moved that method's filter loop into `getTimelineRecords`, so SASPilot's `timeline` command reads the same entries as the tab, and carried its own copy of the filter there (`7d42a5762`).
+  - The 2026-11-20 merge of main into the SASPilot branch (`8f24208b7`) kept both copies in `getTimelineRecords`, one after the other, where `iNumMessages` was never defined. The Timeline tab and the `timeline` command both failed from then on.
+- main is not affected: it has no `getTimelineRecords`.
+- Fixed by reading `iNumMessages` in `getTimelineRecords` and removing the second copy; the sweep then pressed every tab of the 13 advisors with no problem, on the turn-402 SAS24 Pangaea save.
+- The repeated block was 13 lines, so [KI#1098](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1098)'s check, which compares single adjacent lines, could not see it.
+
+Found by `SASPilotUISweep.py`; fixed by Claude Code Opus 5.5, the user asking for this entry.
+
+<a id="ki-1101.2"></a>
+
+## KI#1101.2 - (Fixed AdvCiv-SAS slip, SASPilot branch only) SASPilot's `timeline` failed with "CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'" whenever the Info Screen had not been opened that session, as the Greatest Civilizations filter's setting was read only when the screen opens
+
+On 2026-11-28, while deciding whether the Timeline's entries should join SASPilot's news, `timeline limit=6` on the turn-322 Asoka game raised:
+
+```text
+AttributeError: CvInfoScreen instance has no attribute 'IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON'
+  File "CvInfoScreen", line 976, in getTimelineRecords
+```
+
+- `timeline` reads the records through `CvInfoScreen.getTimelineRecords` on a copy of the screen object, so SASPilot and the tab share one filter (see [KI#1101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1101)).
+  - The screen sets its session settings, such as that switch, in `initText`, which runs only when the screen opens; `initText` also sizes the layout, so `timeline` could not call it and already set the one text it needed by hand.
+  - The Greatest Civilizations filter (`ec029819d`, merged into the SASPilot branch on 2026-11-20) added `IS_SAS_INFO_UI_TIMELINE_TOP_CIVS_ON` to `initText` and read it in `getTimelineRecords`, so `timeline` failed from then on in any session where the Info Screen was not opened first.
+  - The fix for KI#1101 did not show it, as `SASPilotUISweep.py` opens the screen before reading it.
+- Fixed by reading the six session settings, which do not depend on the layout, in the screen's `__init__` in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py), rather than setting one more attribute by hand in `timeline`, which the next setting added to `initText` would have broken again.
+
+Found and fixed by Claude Code Opus 5.5.
 
 <a id="ki-1102"></a>
 
@@ -40278,3 +40371,65 @@ Found by Claude Code Opus 5.5 while fixing KI#1107, and split from it at the use
 - Retested the same day with a Debug-opt DLL holding the fix: overriding `SAS_SGR_MAP_ASCII_GEOGRAPHY_SYMBOLS`, changing it, deleting the line, then setting a value with an escaped quote and deleting it again each logged `outcome=APPLIED`, the deletions restoring the XML's text, with `PythonErr.log` empty.
 
 Found and fixed by Claude Code Opus 5.5; Codex (GPT-6.2-Sol) reviewed the change set holding it and kept the fix in scope.
+
+<a id="ki-1110"></a>
+
+## KI#1110 - (Centralized inherited and SAS advisor tab lists, guarded by CI) The advisors' footer tabs lived in seven hard-coded shapes, so code needing every tab opened each screen and agents guessed tab numbers
+
+- Each tabbed advisor kept its own tab list in its own shape:
+  - the Military and Policy advisors a widget-ID list beside a list of labels, and Domestic its labels as English literals ("OVERVIEW 1" to "OVERVIEW 4");
+  - the World Advisor and the Info screen a list of text keys, with widget IDs and labels built while drawing (the Info screen's tab bar is K-Mod's rewrite);
+  - the Foreign Advisor two key sets in one class, and the Victory screen names built at draw time, with advc.703's Rise and Fall tab added only under that game option;
+  - and five of them their page numbers as literals repeating that order (`PAGE_OVERVIEW1 = 0`, `iTerritoryID = 2`...).
+- So code that needed every tab had to open each screen and read what it drew: SASPilot's `uitabs`, the UI sweep's hand-counted minimum per screen, and on 2026-11-22 the audit of which tabs have a command. Agents before `uitabs` guessed tab numbers, which the user found tedious.
+- Fix (the user's idea, 2026-11-22, modelled on `SevoScreenEnums`): [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py)'s `ADVISOR_TABS` lists every tabbed advisor in hotkey order (F1 to F9) with its control, and each tab's key, label text key and the game option it needs.
+  - The screens draw their labels from it (`getAdvisorTabLabels` and `getAdvisorTabTextKeys`, the first in [`SASUtils.py`](/Assets/Python/SASUtils.py)) and take their page numbers from it (`getAdvisorTabIndex`), resolved when each advisor is initialized, so per-frame code still compares integers; their widget names and input handling are unchanged.
+  - SASPilot's `uitabs all=1` reads it without opening a screen, with each tab's command; `uiopen tab=` takes a tab key; [`SASPilotTabAudit.py`](/SASPilot/SASPilotTabAudit.py) opens every tab by key; [`SASPilotUISweep.py`](/SASPilot/SASPilotUISweep.py) compares the drawn tabs with it instead of a hand count.
+  - [`advisor_tab_registry.py`](/.github/workflows/README.md#buildsourceadvisor_tab_registrypy) fails when a screen draws tabs without the registry or from a literal list, when a hotkey comment differs from `CIV4ControlInfos.xml`, when a label text key exists nowhere, or when SASPilot's command map misses a tab.
+- The November 22 candidate was tested in game at turn 307 of the ASOKA Huge save: every label matched the previous drawing, the sweep found 0 problems over 12 screens, and the audit opened all 35 tabs shown (the Rise and Fall tab is hidden there).
+
+Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5 and Codex (GPT-6.2-Sol), who reviewed it, 2026-11-22.
+
+- Rechecked on 2026-11-27 with a Debug-opt DLL in the play role with fog. The audit opened all 35 visible tabs in both Asoka's turn-307 Huge save at 1920 x 1080 and Hammurabi's SAS24 save at turn 403 at 2560 x 1440.
+  - On the Asoka save, the 14-screen sweep found no problems and the APIs matched the 143 Battles, 14 UN Members and 13 UN Resolutions rows.
+  - On the Hammurabi save, reading list boxes through `uiitems` found entries in 18 of the 21 Treaties lists. The audit had read them as tables and called them all empty.
+  - The Rise and Fall tab was hidden in both saves. Eight visible tabs still lack a dedicated command, including parts of World and the Info screen's Statistics.
+  - The first exhaustive Sevopedia sweep reached 721 pages before a claimed mailbox request timed out. Civ4 still answered later requests and logged no Python error.
+    - A test reproduced one way to leave that claim behind: a read error after renaming it into the running queue. The poll now reads first, then claims before dispatch, so a transient read can be retried without dispatching a withdrawn request.
+    - The rerun opened all 943 linked pages across 36 categories, with no sweep problems or Python errors.
+
+Rechecked, and the mailbox fixed, by Codex (GPT-6.2-Sol), 2026-11-27.
+
+<a id="ki-1110.2"></a>
+
+## KI#1110.2 - (Centralized SAS lists) The Sevopedia's item kinds were listed twice, for its links and for SASPilot, whose copy lacked unit categories, concepts, votes and event triggers, so `uiopen name=pedia item=UNITCOMBAT_RECON` failed although the Sevopedia has that page
+
+- Two lists named the XML tables the Sevopedia has a page per entry for:
+  - [`SevoPediaMain.py`](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py)'s `SAS_linkMatchDefs`, the count and info getters and the category that `link()` searches to follow a `<link>` in game text;
+  - [`SASPilotCommands.py`](/SASPilot/game/SASPilotCommands.py)'s `_PEDIA_KINDS`, written on 2026-11-28 for `types`, `pedia` and `uiopen name=pedia item=`, with the same getters plus an XML type prefix, the name of a `pediaJumpTo*` entry point and the categories a page lands in.
+- How the Sevopedia got there, the same step repeated as its tables were shared more widely:
+  - BUG's Sevopedia, as base AdvCiv has it, matched links in `link()` with an `if/elif` per category key (`PEDIA_MAIN_TECH`, `PEDIA_MAIN_UNIT`...), then one loop per XML table.
+  - SAS practical 5298 (`aca1924815`, 2026-01-05) made the categories one `SAS_CATEGORY_DEFS` table, with order, list, page and link key per row. The per-table loops became `SAS_linkMatchDefs`, so a category is added or moved in one row.
+  - Practical 5345 (`44f109a5ab`, 2026-01-16) added the traits row, so a trait name in game text opens its page.
+  - Practical 6687 (`70d73a41e1`, 2026-10-26) kept only what each consumer needs and built the link matching once per Sevopedia instance.
+  - On 2026-11-28 SASPilot wrote its own copy, which is the duplication this entry removes. The table moved out of the Sevopedia into `CvScreenEnums.py`, as the advisors' tabs had in KI#1110.
+- Each lacked kinds the other had: SASPilot had no `UNITCOMBAT_` or concepts, and `link()` has no eras or handicaps. Neither had votes or event triggers, whose pages the Sevopedia has.
+- Fix (the user's idea, 2026-11-28, after `ADVISOR_TABS` in KI#1110): [`CvScreenEnums.py`](/Assets/Python/Screens/CvScreenEnums.py)'s `PEDIA_ITEM_KINDS` holds one row per kind: prefix, getters, the category `pediaJump` takes, the categories the page may land in, and whether `link()` matches it.
+  - `link()` takes the rows it matches from there, the same 21 in the same order, checked against the old list, as the first match wins.
+  - SASPilot reads the table directly. It now jumps through `pediaJump` with the row's category, as each `pediaJumpTo*` entry point does when the Sevopedia is in use, so it keeps no list of entry point names.
+  - `CONCEPT_` starts the types of both concept tables, so SASPilot finds a type's table by the entry's own type rather than by its prefix alone, and `types kind=CONCEPT_` lists both tables, 103 types.
+  - The landing column exists because `pediaJump` moves a building into a Wonders category and a new concept that is a shortcut into Shortcuts.
+- Two other duplicated SASPilot lists went with it:
+  - The screens a player opens were one list in [`SASPilotUI.py`](/SASPilot/game/SASPilotUI.py) and their controls a second. The play role's allowed `screen` calls were a third, in `SASPilotCommands.py`. They are now one `_OPENERS` table (short name, show function, control), and the play role's list is derived from it.
+  - `uiitems` now gives each build button the order it pushes, such as `order=ORDER_TRAIN`, as `CvDLLWidgetData`'s `doTrain` to `doMaintain` do. [`SASPilotCityScreenAudit.py`](/SASPilot/SASPilotCityScreenAudit.py) filters on it instead of keeping its own list of the four widgets.
+- Tested on 2026-11-28 at turn 307 of the ASOKA Huge save, play role with fog, at 1920 x 1080:
+  - `uiopen name=pedia item=` landed on the expected category for 12 types: one of each new kind, both concept tables with `CONCEPT_SHORTCUTS_UNITS` under Shortcuts, `BUILDING_PYRAMID` under World Wonders, `BUILDING_PALACE` under National Wonders, and `ERA_ANCIENT` in the Era chart.
+  - `HANDICAP_NOBLE` and `BUILDINGCLASS_PALACE` were refused with their reasons.
+  - The Sevopedia's `link()`, called on Aggressive, Mysticism, Pyramids and Recon, opened the Traits, Techs, World Wonders and Unit Categories pages, from its 21 derived rows.
+  - The city screen audit passed on Aachen, with 45 build buttons found through `order`.
+  - The advisors opened by control or show function as before, and the play role still refused `screen name=showReplay`.
+- [`pedia_item_kinds.py`](/.github/workflows/README.md#buildsourcepedia_item_kindspy) guards the table from then on: a `pediaJumpTo*` entry point whose Sevopedia page has no row fails CI, the rule that would have caught the missing votes and event triggers, as does either consumer writing a list of its own.
+
+Raised by wonderingabout; implemented with the help of Claude Code Opus 5.5, 2026-11-28.
+
+- Update (2026-11-28, later the same day): `_PEDIA_KINDS`, with `types`, `pedia` and `info`, moved to [`SASPilotCatalog.py`](/SASPilot/game/SASPilotCatalog.py), the first part of `SASPilotCommands.py` moved out by topic; `pedia_item_kinds.py` reads it there.

@@ -4,6 +4,8 @@ Primary audience: coding agents (Claude Code, Codex, etc.) invoking these script
 
 This folder contains external development tools, mostly Python 3 scripts, for tasks outside Civ4's embedded Python runtime.
 
+SASPilot, which reads and drives a running game, has its own root folder, [`SASPilot/`](/SASPilot/README.md), since 2026-11-20.
+
 Platform-specific test programs live separately under [`tests/`](/tests/README.md); workflow-helper regression tests live under [`.github/workflows/tests/`](/.github/workflows/tests/README.md).
 
 These scripts are meant for LLM-assisted workflows, balancing workflows, code review, refactoring support, report generation, and other tooling.
@@ -38,12 +40,12 @@ Each folder names the job its helpers do, so a helper is found by what it is for
 | `diagnostics/` | SASGameRecord and BBAI log analysis: [`compare_sasgamerecord_rng.py`](#compare_sasgamerecord_rngpy), [`summarize_first_city_scouting.py`](#summarize_first_city_scoutingpy) and others, and [`toggle_dev_diagnostics.py`](#toggle_dev_diagnosticspy) with its [`define_values.py`](#define_valuespy) |
 | `dll_builds/` | building, checking and debugging the DLL from an agent's shell: [`build_dll.py`](#build_dllpy) and [`debug_dll.py`](#debug_dllpy) |
 | `exe_analysis/` | see the [EXE patches guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_EXE_Patches.md#helpers-in-llm_helpersexe_analysis) |
-| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy) and others |
+| `formatting/` | layout rewrites that keep behavior, in any language: [`reflow_custom_comments.py`](#reflow_custom_commentspy), [`collapse_cpp_signatures.py`](#collapse_cpp_signaturespy), [`collapse_multiline_calls.py`](#collapse_multiline_callspy), the [single-line passes](#cvmaininterface-cleanup-reference-scripts), [`fix_line_endings.py`](#fix_line_endingspy), [`rename_identifiers.py`](#rename_identifierspy), [`split_python_module.py`](#split_python_modulepy) and others |
 | `game_runs/` | running the game itself without a person at the keyboard, in the five groups below |
-| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open |
+| `game_runs/`: starting and playing | [`run_autoplay.py`](#run_autoplaypy) launches Civ4 into a save, autoplays and exits; [`start_game.py`](#start_gamepy) starts a turn-0 game with a chosen map, size and game options and leaves it open; reading and driving a running game as JSON is the job of [`SASPilot/`](/SASPilot/README.md) at the root |
 | `game_runs/`: screen map | the screen map `civ4_ui_map.json`, with [`set_dropdown.py`](#civ4_ui_mapjson-capture_dropdownspy-and-set_dropdownpy), which chooses a dropdown item by name, and `capture_dropdowns.py`, which captures their lists; [`map_sevopedia.py`](#map_sevopediapy) maps each Sevopedia page's panels and EXPAND buttons |
 | `game_runs/`: checking clicks | [`check_points.py`](#check_pointspy) clicks named Civ4 points and reports what changed; [`run_steps.py`](#run_stepspy) runs clicks, keys and hovers in order with a capture of each on one sheet |
-| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures |
+| `game_runs/`: captures | [`capture_screens.py`](#capture_screenspy) launches Civ4 itself, at any resolution or in fullscreen if asked, clicks through screens and saves full-size captures; [`doc_screenshots.py`](#doc_screenshotspy) retakes the docs' screenshots from a list |
 | `game_runs/`: art from the game | [`map_preview_dds.py`](#map_preview_ddspy) makes a map script's Simple Game preview from its minimap, with [`simple_game_scripts.py`](#simple_game_scriptspy) saying which scripts Simple Game lists |
 | `housekeeping/` | keeping the development computer tidy: [`archive_old_files.py`](#archive_old_filespy) moves a folder's older entries into a dated subfolder; [`redact_image.py`](#redact_imagepy) covers personal details in a screenshot; [`python_versions.py`](#python_versionspy) reports when the helpers can move to a newer Python |
 | `packaging/` | building context corpora, for a light-source ZIP or locally: [`make_light_source_zip.py`](#make_light_source_zippy), [`refresh_commit_diffs.py`](#refresh_commit_diffspy) and `light_source_python24_linux.py` |
@@ -161,6 +163,8 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
 - [`formatting/`](#formatting)
   - [UI-map JSON formatting](#ui-map-json-formatting)
     - [`json_format.py`](#json_formatpy)
+  - [Console colors](#console-colors)
+    - [`console_colors.py`](#console_colorspy)
   - [Source blank-line cleanup](#source-blank-line-cleanup)
   - [SAS header after a sweep](#sas-header-after-a-sweep)
     - [`add_sas_header.py`](#add_sas_headerpy)
@@ -179,6 +183,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`move_defines_to_tunables.py`](#move_defines_to_tunablespy)
     - [`fix_line_endings.py`](#fix_line_endingspy)
     - [`rename_identifiers.py`](#rename_identifierspy)
+    - [`split_python_module.py`](#split_python_modulepy)
   - [C++ source cleanup helpers](#c-source-cleanup-helpers)
     - [`reflow_cpp_logging_calls.py`](#reflow_cpp_logging_callspy)
     - [`collapse_cpp_log_guards.py`](#collapse_cpp_log_guardspy)
@@ -203,6 +208,7 @@ Helper names follow the same idea: `audit_first_city_scouting.py` became `summar
     - [`hover_tooltips.py`, `export_pedia_concepts.py` and `export_bug_options.py`](#hover_tooltipspy-export_pedia_conceptspy-and-export_bug_optionspy)
     - [`check_points.py`](#check_pointspy)
     - [`run_steps.py`](#run_stepspy)
+    - [`doc_screenshots.py`](#doc_screenshotspy)
     - [`capture_screens.py`](#capture_screenspy)
     - [`map_preview_dds.py`](#map_preview_ddspy)
     - [`simple_game_scripts.py`](#simple_game_scriptspy)
@@ -1059,7 +1065,7 @@ Stages a file with chosen regions taken from HEAD or dropped, leaving the workin
 - Added on 2026-11-19, when the SASPilot strategy commit had to leave out the Greatest Civilizations work in the same files, kept for its own commit; a scratch script did it first, and the user asked that such scripts join the repository.
 
 ```powershell
-python LLM_Helpers\commits\stage_partial.py Assets\Python\SASUtils.py --head "def getInfoTypeOrFail(tag):" "\n\n" --dry-run
+python LLM_Helpers\commits\stage_partial.py SASPilot\game\SASPilotCommands.py --head "def cmd_topcivs(args):" "\n\n\n" --dry-run
 ```
 
 ## `context/`
@@ -1089,9 +1095,11 @@ python LLM_Helpers\commits\stage_partial.py Assets\Python\SASUtils.py --head "de
     - Run it before saving Python or XML under `Assets`, which breaks a running game: on 2026-11-20 an agent edited advisor Python while the user's own client ran.
     - `--force` ends a client with `terminate_process()`, `TerminateProcess` on a handle of it, as `taskkill /F` left a client hung at exit ([KI#1102](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1102)) in place on 2026-11-26; `process_state()` reads running, exiting, gone or unknown from a handle, as the exit code alone made such a client look exited, and `terminate_process()` checks the process's image and creation time and a pending exit on the same handle before ending it, as a pid can be reused (Codex's review).
     - `stuck_civ4_processes()` lists such clients, and `civ4_processes()` leaves them out; see [A client that will not go away](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Game_Runs.md#a-client-that-will-not-go-away).
+  - `click --button right` right-clicks, as many Civ4 icons open their Sevopedia page on a right click; added on 2026-11-20, when it opened a leader's page from the Military Advisor's leader buttons, and showed that a list box row's right click reaches neither the DLL nor the screen.
   - `click` on an elevated window, such as the user's Task Manager, fails: Windows keeps a normal program's input out of it, and the tool says the target runs elevated (2026-11-26).
   - `hover` moves the pointer without clicking or taking focus, to reveal a tooltip. On 2026-11-10 it read the Codex app's usage reset times.
   - `move` places a window on a monitor: `full`, `maximize` (a real Windows maximize, added on 2026-11-24, as `full` only resizes the window), `left` or `right` half, `topleft` or `bottomleft` at its own size, or `beside --beside <pid>`; `positions save|restore|list <name>` keeps named layouts of the Claude app, the Codex app and Civ4 in `layouts/window_positions.json`, found by program name. Both added on 2026-11-14; see [Desktop Windows Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Desktop_Windows.md).
+  - `borderless --pid` drops a window's title bar and frame and places it on its whole monitor, and `--off` gives back the frame it had, around the same picture (2026-11-28): a game at its monitor's own resolution then fits it pixel for pixel and Civ4's Print Screen works, where maximizing scaled the picture and cut pixel rows from its text ([KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7)). SASPilot's `resolution` uses it.
   - `dump --pid` presses Full Dump at Civ4's crash prompt by its label, waits until the writer lets go of the file, checks the process ID the dump records and copies it to `Civ4BeyondSword_<pid>_<time>.dmp`, as every Civ4 writes the same file name ([KI#1089](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-1089)). Added on 2026-11-13; not yet tried on a real prompt.
   - `save-download` answers the Save As dialog the Claude app opens for each download from the agent's browser pane, which blocks the app until answered; run `wait-idle` before the click that starts the download, then `save-download --title https://drive.usercontent.google.com/ --expect Civ4ScreenShot5385.JPG` (any start of the dialog's title, the download's URL, and the file name the site shows). Added on 2026-11-23, tried with the user on single Drive files and a Drive folder ZIP.
     - It saves into `Downloads` (`--folder` for another) by the absolute path, so the clash check holds whatever folder the dialog opened in, and never replaces a file: a name already there gets the time, `Civ4ScreenShot5385_20261123T091130.JPG`, the user's idea. Success is that exact file arriving.
@@ -1236,9 +1244,13 @@ python LLM_Helpers/desktop/git_bash_history.py --vscode --since today
 - Tiles the same regions of several screenshots into one labelled PNG, so a capture series is read in one image instead of one full-size file each. `--region L,T,R,B` repeats to keep several parts of each capture side by side, such as a panel and the icons at the top right; `--columns` and `--scale` set the layout.
 - Written on 2026-11-12 while mapping WorldBuilder, after the same crop-and-tile code had been retyped for each round of `capture_screens.py` captures.
 - `--black-to-white MAX` paints pixels whose channels are all at most MAX white. The world-picker globe draws its own black inside a black panel, so on 2026-11-12 its size could not be judged until the user suggested painting the black white.
+- `--offset X,Y`, one per image, says where the game picture starts in each capture, so `--region` is counted in the picture; `--zoom N` enlarges pixel for pixel.
+  - Why: on 2026-11-28 the [KI#7](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-7) comparison of framed and borderless windows first cropped both at the same window spot. The title bar and border push a framed window's picture to (3,37), so the borderless crop seemed to show less game text, as the user noticed.
+  - The ad-hoc script that redid it became these two options. The same 4K captures now crop identically, pixel for pixel. `desktop_windows.client_rect` gives the offset of a live window.
 
 ```bash
 python LLM_Helpers/desktop/contact_sheet.py --out sheet.png --region 0,30,760,560 --region 1500,30,1926,300 --columns 3 a.png b.png c.png
+python LLM_Helpers/desktop/contact_sheet.py --out compare.png --region 3516,51,3823,403 --offset 3,37 --offset 0,0 --zoom 2 --columns 2 framed.png borderless.png
 ```
 
 #### `sound_check.py`
@@ -1267,7 +1279,7 @@ python LLM_Helpers/desktop/sound_check.py --seconds 6 --front 21184 --wave-png w
 <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_frames.PNG" alt="llm_screen_record_civ4_load_failed_frames.PNG" width="250"> <img src="/_1_AdvCiv-SAS/Images/LLM/desktop_windows/llm_screen_record_civ4_load_failed_popups.PNG" alt="llm_screen_record_civ4_load_failed_popups.PNG" width="250">
 
 ```bash
-python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python LLM_Helpers/game_runs/run_autoplay.py my_save --turns 1
+python LLM_Helpers/desktop/screen_record.py --out captures --seconds 16 -- python SASPilot/SASPilotClient.py --save my_save --no-wait start
 python LLM_Helpers/desktop/contact_sheet.py --out captures/sheet.png --columns 3 --scale 0.25 captures/frame_*.png
 ```
 
@@ -1490,6 +1502,15 @@ Which tracked JSON files it covers, reviewed on 2026-11-18:
   - `civ4_points.json` and `app_layouts.json` are edited by hand when a point is re-measured, one point per line, and only `app_layouts.json`'s `usage` section goes through this formatter.
     - The line-width mode at 250 would reproduce `civ4_points.json` except one block, so it could be checked too. The user let the agent decide, and Claude Code Opus 5.5 left it out: the command line has no width option, and a new flag plus a reflow would buy a check on one small file that agents edit one line at a time; `app_layouts.json` would lose its spread-out usage points and crops entirely.
   - `art_samples_fingerprint.json` belongs to `art_samples.py`, the DLL's `.build.json` to the PowerShell build wrapper, and the VS Code and Claude Code settings files to those apps.
+
+### Console colors
+
+#### `console_colors.py`
+
+[`console_colors.py`](/LLM_Helpers/formatting/console_colors.py) holds the colors our helpers use when printing for a person, by role: errors red, banners yellow, results sky blue, notes bold orchid, code light green, everything else in the console's own color. `enable()` switches a Windows console to virtual-terminal processing and leaves output to a pipe or file plain; `paint(text, role)` colors a string; `to_html(text)` turns colored text into a page in the same colors, for documentation.
+
+- It began in `SASPilotConsole.py` on 2026-11-14, where the user chose the roles and colors; the user then asked for it to be shared, so other helpers that print for a person read alike. Agents read the plain logs instead, whose fields match the roles (see the [SASPilot command log](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_Logging_Inventory.md#saspilot-command-log)).
+- A fresh Windows 10 console showed all five roles, the 256-color sky blue and light green included; a screenshot scaled to 0.6 washed the sky blue out to white, so check colors at full size.
 
 ### Source blank-line cleanup
 
@@ -1876,6 +1897,25 @@ Renames identifiers, such as SAS defines, in every tracked or new untracked text
 ```powershell
 python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ SAS_EXE_PATCH_SETUP_SCREEN_=SAS_EXE_P_MAIN_MENU_
 python LLM_Helpers\formatting\rename_identifiers.py SAS_EXE_PATCH_=SAS_EXE_P_ --write
+```
+
+#### `split_python_module.py`
+
+Moves a group of commands and the helpers only they use out of a large Python module into a sibling module, which reaches the rest through a prefix such as `saspilot.`, and checks that nothing was lost.
+
+- Written on 2026-11-28 while `SASPilotCommands.py`, over 8,000 lines, was split by topic into `SASPilotCatalog.py`, `SASPilotDiplomacy.py` and `SASPilotCities.py`; the steps began as scratchpad scripts and are kept here, as the next split needs them again.
+- `graph FILE city,produce,...` lists, from the commands named, the helpers only they use (the group), the names the group shares with the rest (left in place) and the moved names the rest still calls, with a JSON config for `move`.
+  - A moved command the rest still calls keeps working in SASPilot, whose loader adds a sibling's commands to the command module; a moved helper the rest calls would not, so it stays.
+- `move FILE CONFIG` moves each definition verbatim, with the comments directly above it and its `_HELP["name"]` line wherever that is, adds the prefix to the shared names and writes the new module under the config's header; `--dry-run` only counts.
+- `check BEFORE FILE MODULE` compares a copy of the module made before the move with the two files after, line for line once the prefix is removed, and lists the names the new module takes from the old one without the prefix.
+  - Where it tripped: the first name check counted only definitions and plain imports, so `getInfoTypeOrFail`, which `SASPilotCommands.py` has from `from SASUtils import getInfoTypeOrFail`, reached the game unresolved and `trainable` raised `NameError`; it counts from-imports and classes now, and replaying that move on a copy flags the name.
+- Guards added from Codex's reviews: names are changed only in code, not in strings or comments, nor after a dot, even with spaces between (`obj. shared` is an attribute); a definition's decorators move with it, as one left behind applied itself to the next function; a shared name the moved code also binds locally, such as a parameter, is refused, as the prefix would give `def cmd_b(old.shared)`, found by Python 2.4's own parser, since a line-by-line text match let a multiline tuple target through and the move changed game state; both results go through `compile()` with `--python` (by default Civ4's 2.4 at `C:/Python24`) before either is written, as its parser alone accepts a top-level `return`; and `graph` keeps a helper that another file in the folder reaches through the prefix, as the map's first graph would have moved `_yields`, which `SASPilotCities.py` calls.
+- The new module still needs its imports, its registration with the loader and a live test of its commands; CI tests that load the old module's scope may name a moved helper, as `test_saspilot_graphs.py` did `_addRelationLink`.
+
+```powershell
+python LLM_Helpers\formatting\split_python_module.py graph SASPilot\game\SASPilotCommands.py city,cities,produce
+python LLM_Helpers\formatting\split_python_module.py move SASPilot\game\SASPilotCommands.py cities.json --dry-run
+python LLM_Helpers\formatting\split_python_module.py check before\SASPilotCommands.py SASPilot\game\SASPilotCommands.py SASPilot\game\SASPilotCities.py
 ```
 
 ### C++ source cleanup helpers
@@ -2284,7 +2324,7 @@ Examples:
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --diff
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Known_Issues.md --in-place
 python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --in-place
-python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\README_Main_Changes_Guide.md --child-bullets --lines 443,449 --diff
+python LLM_Helpers\formatting\reflow_markdown_prose.py _1_AdvCiv-SAS\Docs\Modding_Resources\README_SASPilot_Playtests.md --child-bullets --lines 443,449 --diff
 ```
 
 ## `game_runs/`
@@ -2379,6 +2419,18 @@ python LLM_Helpers/game_runs/run_steps.py --pid 20608 --out steps.png --crop 0 3
 
 - In GPT-6.1-Sol's live check on 2026-11-12, this sequence opened Sevopedia from the main menu, filtered Units, selected the War Chariot and captured its tooltip. Replace the example PID with the target client's PID. The runner was added by Claude Code Opus 5.5.
 
+#### `doc_screenshots.py`
+
+- Taking the docs' screenshots by hand is preferred for now: choosing the save and the moment is what shows UI faults (the user, 2026-11-21). The list keeps the preferred saves and views, and the runner is for bulk refreshes when a change touches many shots, such as the commerce sliders' background.
+- Retakes the docs' screenshots listed in [`doc_screenshots.json`](/LLM_Helpers/game_runs/doc_screenshots.json): one Civ4 client per save role, each screen opened and each tab pressed by name through SASPilot, then Civ4's own Print Screen through `SASPilotClient.py shot`, written over the image in `_1_AdvCiv-SAS/Images`. Review the result with `git diff` before staging.
+  - Each list entry names its image, save role, screen, the tabs or buttons to press, an optional point to hover in the 1920 x 1080 game area (the real pointer goes there, so the game draws the tooltip, as the Relations tab's attitude breakdown needs) and presses that undo a toggle afterwards.
+  - The save roles (`t201`, `t301`, `sas48`) name local saves with a note on how to make a new one, as saves break across commits.
+- `--list` prints the list and what it does not cover yet; `--only '*military*'` and `--save t201` narrow it; `--dry-run` says what it would take.
+- Before each shot it waits until nobody has used the keyboard or mouse for 2 seconds, brings the window forward, places the pointer, then checks that the pointer stayed and that only that screen is open, without a city screen; otherwise it takes the shot again.
+  - Written on 2026-11-21 by Claude Code Opus 5.5, after the user moving the mouse during the first run clicked a city open and two shots showed its city screen.
+  - The first check also failed every time on its own: `shot`'s Print Screen brought the window forward by clicking its title bar, which moved the pointer, so the window is now brought forward before the pointer is placed.
+- The method, and why Civ4's own JPG rather than `desktop_windows.py screenshot`, are in the [SASPilot Guide](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screenshots-for-the-docs).
+
 #### `capture_screens.py`
 
 - Launches Civ4 into a mod itself, runs `point:SCREEN.CONTROL`, `click:X,Y`, `hover:X,Y`, `key:NAME` (such as `ctrl+w`), `shot:NAME` and `wait:SECONDS` steps, saves each `shot` as a full-size PNG, then closes its own client.
@@ -2457,6 +2509,7 @@ python LLM_Helpers/game_runs/start_game.py --option GAMEOPTION_ADVANCED_START
   - `--overlays DIR` saves each page with its found boxes numbered, to check the result; `--categories` limits the run.
 - It waits until the user has been idle before each click: on its first run the user's typing landed in the Sevopedia's search box once a click had brought Civ4 forward, and emptied the entry list.
 - The map also describes the page kinds and what EXPAND does, and names the unit page's panels as an example. Rerun it after a resolution or Sevopedia code change.
+- In a game, SASPilot's `uiopen pedia` and `uipress` reach the same entries and EXPAND buttons by name, with no coordinates, since 2026-11-20; see [Screens and buttons by name](/_1_AdvCiv-SAS/Docs/Modding_Resources/README_SASPilot.md#screens-and-buttons-by-name-saspilotui). The map stays for the Sevopedia opened from the main menu, where SASPilot does not run.
 - Each box or button is written on one line, such as `[377, 107, 1130, 290]`: plain indented JSON put every number on its own line, which made the file 1,492 lines long and hard to scan. On Codex's suggestion (2026-11-11) the writer keeps number lists together, and the file shrank to 476 lines with the same parsed data.
 
 ```bash

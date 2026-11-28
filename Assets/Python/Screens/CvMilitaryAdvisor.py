@@ -17,6 +17,8 @@ import SASVisualUtils as SASVisuals
 from SASUtils import *
 # <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml. (Claude code Opus 5.5) -->
 import SASSessionTunables
+# <!-- custom: CvScreenEnums holds ADVISOR_TABS, the shared tab registry this screen's tab text and page numbers come from. See KI#1110. (Claude code Opus 5.5) -->
+import CvScreenEnums
 
 PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
@@ -61,10 +63,11 @@ class CvMilitaryAdvisor:
 		# The same support/composition/deployment numbers live elsewhere in Civ4 (Finance hover, Composition tab) but are scattered and discoverable only by hover; this tab consolidates them for diagnosis at a glance.
 		# Each numeric label still binds the matching WIDGET_HELP_FINANCE_* widget where applicable so the engine's per-line breakdown hover stays available.
 		# Named "Summary" rather than "Overview" to avoid confusion with the Domestic Advisor's OVERVIEW 1-4 tabs. (Claude code Opus 4.7) -->
-		self.PAGE_SUMMARY = 0
-		self.PAGE_MAP = 1
-		self.PAGE_BATTLES = 2
-		self.PAGE_COMPOSITION = 3
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_SUMMARY = CvScreenEnums.getAdvisorTabIndex("military", "SUMMARY")
+		self.PAGE_MAP = CvScreenEnums.getAdvisorTabIndex("military", "MAP")
+		self.PAGE_BATTLES = CvScreenEnums.getAdvisorTabIndex("military", "BATTLES")
+		self.PAGE_COMPOSITION = CvScreenEnums.getAdvisorTabIndex("military", "COMPOSITION")
 		# <!-- custom: Apply the XML default on this advisor object's first opening, then retain the selected tab across close/reopen within the Civ4 session. See KI#129 (Update). (GPT-5.6-Sol) -->
 		self.iActivePage = None
 		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2", "MilitaryAdvisorTabButton3"]
@@ -233,11 +236,8 @@ class CvMilitaryAdvisor:
 		self.TEXT_ALL_UNITS = localText.getText("TXT_KEY_PEDIA_ALL_UNITS", ()).upper()
 		self.TEXT_UNIT_TOGGLE_ON = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_ON", ())
 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
-		self.TEXT_TAB_SUMMARY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_TAB", ()).upper()
-		self.TEXT_TAB_MAP = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_MAP_TAB", ()).upper()
-		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
-		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
-		self.PAGE_NAME_LIST = [self.TEXT_TAB_SUMMARY, self.TEXT_TAB_MAP, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
+		# <!-- custom: Tab labels come from CvScreenEnums.ADVISOR_TABS, the shared tab registry. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = getAdvisorTabLabels("military")
 		self.TEXT_SUMMARY_SUPPORT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_SUPPORT", ())
 		self.TEXT_SUMMARY_ARMY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_ARMY", ())
 		self.TEXT_SUMMARY_DEPLOYMENT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_SUMMARY_DEPLOYMENT", ())

@@ -53,6 +53,8 @@ import SASTextScale
 # Emit SHOW_REQUEST before drawing: a drawing failure otherwise loses its causal row, and interfaceScreen may return without actually opening.
 # This is intent, not visibility confirmation. (ChatGPT-5.6-Sol + GPT-6.1-Sol) -->
 import SASGameRecordActions
+# <!-- custom: SASPilot serves its agents' mailbox from screen updates; it returns at once unless SASPilot is on. (Claude code Opus 5.5) -->
+import SASPilot
 import SASPopupChoices # <!-- custom: The Python popup handlers use named IDs from the catalog that creates their buttons, avoiding a second numeric convention in gameplay dispatch. (GPT-6.1-Sol) -->
 # <!-- custom: SASSessionTunables holds the settings only Python reads, moved out of GlobalDefines_advciv_sas.xml, among them the informing screens' switches. (Claude code Opus 5.5) -->
 import SASSessionTunables
@@ -98,7 +100,14 @@ def initBugAdvisors():
 
 mainInterface = CvMainInterface.CvMainInterface()
 def showMainInterface():
-	mainInterface.interfaceScreen()
+	# <!-- custom: SASPilotUI records the main interface's widgets as this builds them, the only time the advisor, minimap and scoreboard buttons are created; rerunning this later to record them left the minimap blank (2026-11-20).
+	# Both calls return at once unless SASPilot is on. (Claude code Opus 5.5) -->
+	SASPilot.aroundMainInterfaceBuild(True)
+	# <!-- custom: The after call in finally, so a failing build does not leave the recorder on (Codex's review). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+	try:
+		mainInterface.interfaceScreen()
+	finally:
+		SASPilot.aroundMainInterfaceBuild(False)
 
 def reinitMainInterface():
 	mainInterface.initState()
@@ -1173,6 +1182,7 @@ def handleInput (argsList):
 	return 0
 
 def update (argsList):
+	SASPilot.onScreenUpdate()
 	# allows overides for mods
 	if (CvScreenUtilsInterface.getScreenUtils().update(argsList)):
 		return

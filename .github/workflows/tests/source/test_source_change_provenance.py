@@ -211,7 +211,8 @@ class SourceChangeProvenanceTests(unittest.TestCase):
     # <!-- custom: A Claude model named without its family fails in each language, while the full name and prose mentions pass. (Claude code Opus 5.5) -->
     def test_incomplete_model_credit(self):
         for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
-            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2"):
+            # <!-- custom: The versionless and nested-note cases are Codex's, from its review of the 2026-11-27 merge into the SASPilot branch. (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+            for credit in ("Claude code Opus 4.6 + Opus 5.5", "code Opus 5.5", "Sonnet 4.6", "GPT-6.2-Sol, fable 5.2", "Claude code Fable 5.2 + Opus", "GPT-6.2-Sol + code Sonnet", "Claude code Fable 5.2 + Opus 5.5 (review + test)"):
                 with self.subTest(path=path, credit=credit):
                     source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
                     self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))
@@ -269,6 +270,19 @@ class SourceChangeProvenanceTests(unittest.TestCase):
                 with self.subTest(path=path, credit=credit):
                     source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
                     self.assertFalse(any("names only the app or model family" in error for error in self.errors(path, "", source)))
+
+    # <!-- custom: A joined part naming a Claude model without the app fails in new prose; the full form and an unchanged old comment pass. (Claude code Opus 5.5) -->
+    def test_joined_claude_credit_names_the_app(self):
+        for path, prefix in (("LLM_Helpers/test.py", "# "), ("CvGameCoreDLL/Test.cpp", "// "), ("Assets/XML/Test.xml", "")):
+            for credit in ("Claude code Fable 5.2 + Opus 5.5", "Opus 5.5", "GPT-6.2-Sol + Sonnet 4.5", "Claude code Fable 5.2 + Opus 5.5 (review)"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertTrue(any("leaves out the model family" in error for error in self.errors(path, "", source)))
+                    self.assertEqual(self.errors(path, source, source), [])
+            for credit in ("Claude code Fable 5.2 + Claude code Opus 5.5", "GPT-6.1-Sol + Claude code Opus 5.5 + GPT-6.2-Sol", "Claude Sonnet 4.5 (summarized)", "Opus 5.5 reproduced this"):
+                with self.subTest(path=path, credit=credit):
+                    source = prefix + "<!-- custom: Explain this. (" + credit + ") -->\n"
+                    self.assertFalse(any("leaves out the model family" in error for error in self.errors(path, "", source)))
 
     # <!-- custom: Refining a generic family credit is more precise provenance, not a dropped contributor; the reverse remains a lossy rewrite. (ChatGPT-5.6-Sol) -->
     def test_generic_model_credit_can_be_refined_but_not_generalized(self):
@@ -372,6 +386,14 @@ class SourceChangeProvenanceTests(unittest.TestCase):
         good = "# <!-- custom: old_module is no longer used after inlining the conversion. (ChatGPT-5.6-Sol) -->\nvalue = 1\n"
         self.assertTrue(any("include/import change" in error for error in self.errors("LLM_Helpers/test.py", old, bad)))
         self.assertEqual(self.errors("LLM_Helpers/test.py", old, good), [])
+
+    # <!-- custom: A function-local import moved to another file with its function is no dependency change in either, as when SASPilotCommands.py was split by topic (2026-11-28); a removal not added elsewhere still needs its comment. (Claude code Opus 5.5) -->
+    def test_import_moved_to_another_file_needs_no_rationale(self):
+        old = "def f():\n\timport BugPath\n\treturn BugPath\n\nvalue = 1\n"
+        new = "value = 1\n"
+        moved = (set(["import BugPath"]), set(["import BugPath"]))
+        self.assertEqual([error for error in checker.check_change("SASPilot/game/Old.py", old, new, moved_directives=moved) if "include/import change" in error], [])
+        self.assertTrue(any("include/import change" in error for error in checker.check_change("SASPilot/game/Old.py", old, new)))
 
     def test_python_binding_requires_rationale_even_with_help_string(self):
         path = "CvGameCoreDLL/CyGameInterface.cpp"

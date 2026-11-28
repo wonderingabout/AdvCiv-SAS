@@ -60,6 +60,8 @@ EXPECTED_HANDS_FREE_VALUES = {
 	"SAS_FAST_SAVE_AUTOPLAY_STOP_ON": 1,
 	"SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON": 1,
 	"SAS_ASSERT_SILENT_ACTION": 1,
+	# <!-- custom: Not hands-free but checked the same way: SASPilotClient.py opens SASPilotConsole for every client unless a local edit sets 0 (2026-11-27). (Claude code Opus 5.5) -->
+	"SAS_PILOT_CONSOLE_ON": 1,
 }
 
 SHIPPED_VALUES = {**EXPECTED_GAME_RECORD_DEFAULTS, **EXPECTED_RUNTIME_DEFAULTS, **EXPECTED_HANDS_FREE_VALUES}
@@ -69,6 +71,8 @@ SHIPPED_VALUES = {**EXPECTED_GAME_RECORD_DEFAULTS, **EXPECTED_RUNTIME_DEFAULTS, 
 SESSION_TUNABLE_NAMES = ("SAS_SGR_BUG_STRING_VALS_ON", "SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_SPEED_ON", "SAS_FAST_SAVE_GAME_START_ON", "SAS_FAST_SAVE_AUTOPLAY_STOP_ON", "SAS_SCOREBOARD_AUTOCENTER_DEFAULT_ON")
 # <!-- custom: The informing screens' switches, which the toggle sets to 0 for development, in the same file. (Claude code Opus 5.5) -->
 SESSION_TUNABLE_NAMES += ("SAS_UI_DAWN_OF_MAN_ON", "SAS_UI_TECH_SPLASH_ON", "SAS_UI_ERA_MOVIE_ON", "SAS_UI_WONDER_MOVIE_ON", "SAS_UI_RELIGION_MOVIE_ON", "SAS_UI_PROJECT_MOVIE_ON", "SAS_UI_TOP_CIVS_ON")
+# <!-- custom: SASPilot's console switch, read by SASPilotClient.py through the toggle's reader (2026-11-27). (Claude code Opus 5.5) -->
+SESSION_TUNABLE_NAMES += ("SAS_PILOT_CONSOLE_ON",)
 
 # <!-- custom: The values toggle_dev_diagnostics.py "on" sets locally; CI never reads them.
 # They sit beside the shipped values so both settings of each switched define can be seen and changed in one place. (Claude code Opus 5.5) -->
@@ -93,4 +97,10 @@ DEVELOPMENT_VALUES = {
 	"SAS_UI_PROJECT_MOVIE_ON": 0,
 	# <!-- custom: The Greatest Civilizations screen, recorded as a Timeline row either way (2026-11-19). (Claude code Opus 5.5) -->
 	"SAS_UI_TOP_CIVS_ON": 0,
+}
+
+# <!-- custom: Settings that agent runs want besides the toggled ones, which SASPilotClient.py lists in its greeting: informational popups dismissed during autoplay.
+# Moved here from SASPilotClient.py on 2026-11-19. (Claude code Opus 5.5) -->
+AGENT_RUN_VALUES = {
+	"SAS_AIAUTOPLAY_DISMISS_INFO_POPUPS_ON": 1,
 }

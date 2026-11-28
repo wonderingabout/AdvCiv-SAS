@@ -7,6 +7,8 @@
 from CvPythonExtensions import *
 import CvUtil
 from SASUtils import *
+# <!-- custom: CvScreenEnums holds ADVISOR_TABS, the shared tab registry this screen's tab text and page numbers come from. See KI#1110. (Claude code Opus 5.5) -->
+import CvScreenEnums
 # <!-- custom: Route shared visual resources through the centralized SASVisualUtils namespace after retiring overlapping helper/cache imports; keep one canonical visual-resource boundary. (ChatGPT-5.6-Sol) -->
 import SASVisualUtils as SASVisuals
 import SASTextScale
@@ -64,15 +66,16 @@ class CvWorldAdvisorScreen:
 		self.ENV_Y_SPACING = 30
 		self.ENV_TEXT_MARGIN = 15
 
-		# <!-- custom: Keep Environment after the territory pages and put Changes last as the more specialized persisted setup/editor provenance view. (Claude code Opus 4.7 + ChatGPT-5.6-Sol) -->
-		self.PAGE_NAME_LIST = ["TXT_KEY_WORLD_ADVISOR_BFC1_TAB", "TXT_KEY_WORLD_ADVISOR_BFC2_TAB", "TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB", "TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB", "TXT_KEY_WORLD_ADVISOR_CHANGES_TAB"]
+		# <!-- custom: The tabs' text keys come from CvScreenEnums.ADVISOR_TABS, the shared tab registry, which also gives the page IDs below, by each tab's position. See KI#1110. (Claude code Opus 5.5) -->
+		self.PAGE_NAME_LIST = CvScreenEnums.getAdvisorTabTextKeys("world")
 		self.PAGE_LINK_WIDTH = []
-		self.iBFC1ID = 0
-		self.iBFC2ID = 1
-		self.iTerritoryID = 2
-		self.iEnvironmentID = 3
+		# <!-- custom: Page numbers are the tabs' positions in CvScreenEnums.ADVISOR_TABS, the shared tab registry, rather than literals that repeated its order. See KI#1110. (Claude code Opus 5.5) -->
+		self.iBFC1ID = CvScreenEnums.getAdvisorTabIndex("world", "BFC1")
+		self.iBFC2ID = CvScreenEnums.getAdvisorTabIndex("world", "BFC2")
+		self.iTerritoryID = CvScreenEnums.getAdvisorTabIndex("world", "TERRITORY")
+		self.iEnvironmentID = CvScreenEnums.getAdvisorTabIndex("world", "ENVIRONMENT")
 		# <!-- custom: Use Changes consistently for this tab's local state, helpers and localization keys; its save-owned history also includes Advanced Start. (GPT-6.1-Sol) -->
-		self.iChangesID = 4
+		self.iChangesID = CvScreenEnums.getAdvisorTabIndex("world", "CHANGES")
 		self.iActiveTab = self.iBFC1ID
 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
 		self.CHANGES_JUMP_COLUMN = -1
@@ -341,9 +344,12 @@ class CvWorldAdvisorScreen:
 		self.drawBFC1PlotTable(aszTableRows, aiPlotTotals)
 		self.drawBFC1TerrainFeatureTable(aszTableRows, aaiTerrainTotals, aaiFeatureTotals, aiTerrainColumns, aiFeatureColumns)
 
-	def collectBFC1Data(self):
+	def collectBFC1Data(self, bRevealDebug=None):
+		# <!-- custom: bRevealDebug is None on the screen, which follows Debug Mode as before; SASPilot passes False under its fog, as Codex found Debug Mode counting plots the team never revealed through 'bfc' and 'territory' (2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		player = gc.getPlayer(self.iActivePlayer)
-		bDebug = CyGame().isDebugMode()
+		bDebug = bRevealDebug
+		if bDebug is None:
+			bDebug = CyGame().isDebugMode()
 		iObserverTeam = self.getMapObserverTeam()
 		aszRows = []
 		# <!-- custom: Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal (GPT-5.5) -->
@@ -519,9 +525,12 @@ class CvWorldAdvisorScreen:
 		self.drawBFC2IconTable(aszRows, [(aiBonusColumns, gc.getBonusInfo, aaiBonusCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS)], self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
 		self.drawBFC2IconTable(aszRows, [(range(gc.getNumImprovementInfos()), gc.getImprovementInfo, aaiImprovementCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT), (range(gc.getNumRouteInfos()), gc.getRouteInfo, aaiRouteCounts, WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE)], self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
 
-	def collectBFC2Data(self):
+	def collectBFC2Data(self, bRevealDebug=None):
+		# <!-- custom: bRevealDebug is None on the screen, which follows Debug Mode as before; SASPilot passes False under its fog, as Codex found Debug Mode counting plots the team never revealed through 'bfc' and 'territory' (2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
 		player = gc.getPlayer(self.iActivePlayer)
-		bDebug = CyGame().isDebugMode()
+		bDebug = bRevealDebug
+		if bDebug is None:
+			bDebug = CyGame().isDebugMode()
 		iObserverTeam = self.getMapObserverTeam()
 		aszRows = []
 		aaiBonusCounts = []
@@ -623,6 +632,43 @@ class CvWorldAdvisorScreen:
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND", iX, iY)
 
 	def collectTerritoryData(self):
+		(aiPlotCounts, aaiTerrainCounts, aaiFeatureCounts, aaiRouteCounts, aaiBonusCounts, aaiImprovementCounts) = self.collectTerritoryCounts()
+		# <!-- custom: The rows' text, buttons and widgets come from initText, so they stay here, apart from the counting above. (Claude code Opus 5.5) -->
+		# <!-- custom: The Peak, Hill and River rows took no clicks; they now open their Sevopedia pages, River the Rivers concept, whose page needs the widget's data2, the rows' last value. (Claude code Opus 5.5) -->
+		aPlotRows = [
+			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1], -1],
+			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainPeak, aiPlotCounts[2][0], aiPlotCounts[2][1], -1],
+			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainHill, aiPlotCounts[3][0], aiPlotCounts[3][1], -1],
+			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1], -1],
+			[self.TEXT_RIVER, SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, aiPlotCounts[5][0], aiPlotCounts[5][1], self.iConceptRivers],
+			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1], -1],
+			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1], -1],
+			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1], -1],
+			]
+		# <!-- custom: Peak and Hill are plot-shape categories, not real terrain here: e.g. a Grassland Hill still has Grassland as getTerrainType().
+		# Keep them in Plots, not Terrain. (GPT-5.5) -->
+		aTerrainRows = []
+		for iTerrain in self.getTerrainColumnsWithoutPlotShapes():
+			self.appendTerritoryInfoRow(aTerrainRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
+		aFeatureRows = []
+		for iFeature in range(gc.getNumFeatureInfos()):
+			self.appendTerritoryInfoRow(aFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
+		aBonusRows = []
+		for iBonus in range(gc.getNumBonusInfos()):
+			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
+				self.appendTerritoryInfoRow(aBonusRows, gc.getBonusInfo(iBonus), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, aaiBonusCounts[iBonus])
+		aImprovementRows = []
+		for iImprovement in range(gc.getNumImprovementInfos()):
+			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
+		# <!-- custom: Route rows were plain text; the native route widget added in the DLL gives them the same hover and Sevopedia click as improvement rows. See KI#113. (GPT-6.1-Sol + Claude code Opus 5.5) -->
+		for iRoute in range(gc.getNumRouteInfos()):
+			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, aaiRouteCounts[iRoute])
+		return aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows
+
+	def collectTerritoryCounts(self, bRevealDebug=None):
+		# <!-- custom: bRevealDebug is None on the screen, which follows Debug Mode as before; SASPilot passes False under its fog, as Codex found Debug Mode counting plots the team never revealed through 'bfc' and 'territory' (2026-11-28). (Claude code Opus 5.5 + GPT-6.2-Sol) -->
+		# <!-- custom: Split from collectTerritoryData on 2026-11-28, so SASPilot's 'territory' reads the counts the tab draws on a copy of this screen, as 'timeline' does the Info Screen's: the rows need initText's texts and buttons, which a screen never opened lacks.
+		# Each count is [inside our cities' BFC, outside it]; the order of aiPlotCounts is in its comment below. (Claude code Opus 5.5) -->
 		aiBFCPlots = self.getTerritoryBFCPlotSet()
 		# <!-- custom: Plot count slots: 0=Total 1=Water 2=Peak 3=Hill 4=Flat 5=River 6=Lake 7=Coastal (GPT-5.5) -->
 		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
@@ -643,7 +689,9 @@ class CvWorldAdvisorScreen:
 			aaiImprovementCounts.append([0, 0])
 
 		cyMap = CyMap()
-		bDebug = CyGame().isDebugMode()
+		bDebug = bRevealDebug
+		if bDebug is None:
+			bDebug = CyGame().isDebugMode()
 		iObserverTeam = self.getMapObserverTeam()
 		for iPlot in range(cyMap.numPlots()):
 			pPlot = cyMap.plotByIndex(iPlot)
@@ -686,36 +734,7 @@ class CvWorldAdvisorScreen:
 				if iImprovement >= 0:
 					aaiImprovementCounts[iImprovement][iBucket] += 1
 
-		# <!-- custom: The Peak, Hill and River rows took no clicks; they now open their Sevopedia pages, River the Rivers concept, whose page needs the widget's data2, the rows' last value. (Claude code Opus 5.5) -->
-		aPlotRows = [
-			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1], -1],
-			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainPeak, aiPlotCounts[2][0], aiPlotCounts[2][1], -1],
-			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, self.iTerrainHill, aiPlotCounts[3][0], aiPlotCounts[3][1], -1],
-			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1], -1],
-			[self.TEXT_RIVER, SASVisuals.InterfaceArt.WORLDBUILDER_RIVER_PLACEMENT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT, aiPlotCounts[5][0], aiPlotCounts[5][1], self.iConceptRivers],
-			[self.TEXT_LAKE, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[6][0], aiPlotCounts[6][1], -1],
-			[self.TEXT_COASTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[7][0], aiPlotCounts[7][1], -1],
-			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1], -1],
-			]
-		# <!-- custom: Peak and Hill are plot-shape categories, not real terrain here: e.g. a Grassland Hill still has Grassland as getTerrainType().
-		# Keep them in Plots, not Terrain. (GPT-5.5) -->
-		aTerrainRows = []
-		for iTerrain in self.getTerrainColumnsWithoutPlotShapes():
-			self.appendTerritoryInfoRow(aTerrainRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
-		aFeatureRows = []
-		for iFeature in range(gc.getNumFeatureInfos()):
-			self.appendTerritoryInfoRow(aFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
-		aBonusRows = []
-		for iBonus in range(gc.getNumBonusInfos()):
-			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
-				self.appendTerritoryInfoRow(aBonusRows, gc.getBonusInfo(iBonus), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, aaiBonusCounts[iBonus])
-		aImprovementRows = []
-		for iImprovement in range(gc.getNumImprovementInfos()):
-			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
-		# <!-- custom: Route rows were plain text; the native route widget added in the DLL gives them the same hover and Sevopedia click as improvement rows. See KI#113. (GPT-6.1-Sol + Claude code Opus 5.5) -->
-		for iRoute in range(gc.getNumRouteInfos()):
-			self.appendTerritoryInfoRow(aImprovementRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_PEDIA_JUMP_TO_ROUTE, iRoute, aaiRouteCounts[iRoute])
-		return aPlotRows, aTerrainRows, aFeatureRows, aBonusRows, aImprovementRows
+		return (aiPlotCounts, aaiTerrainCounts, aaiFeatureCounts, aaiRouteCounts, aaiBonusCounts, aaiImprovementCounts)
 
 	def getTerrainColumnsWithoutPlotShapes(self):
 		aiTerrainColumns = []
@@ -1403,10 +1422,43 @@ class CvWorldAdvisorScreen:
 		print("HistoryVisibleEntries: %d" % iShown)
 		print("SAS_WORLD_ADVISOR_CHANGES_END")
 
+	def collectEnvironmentData(self):
+		# <!-- custom: Split from drawEnvironmentTab on 2026-11-28, so SASPilot's 'environment' gives the numbers this tab draws from the same code, on a copy of this screen set to the player, rather than a second copy of its formulas (change rate, responsibility, expected events). (Claude code Opus 5.5) -->
+		game = CyGame()
+		player = gc.getPlayer(self.iActivePlayer)
+		data = {}
+		data["globalWarmingIndex"] = game.getGlobalWarmingIndex()
+		data["globalWarmingChances"] = game.getGlobalWarmingChances()
+		data["gwEventTally"] = game.getGwEventTally()
+		data["severityRating"] = game.calculateGwSeverityRating()
+		data["population"] = player.calculatePollution(PollutionTypes.POLLUTION_POPULATION)
+		data["buildings"] = player.calculatePollution(PollutionTypes.POLLUTION_BUILDINGS)
+		data["resources"] = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
+		data["power"] = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
+		data["localPollution"] = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
+		data["localThreshold"] = game.calculateGwSustainabilityThreshold(self.iActivePlayer)
+		data["localDefence"] = game.calculateGwLandDefence(self.iActivePlayer)
+		data["globalPollution"] = game.calculateGlobalPollution()
+		data["globalDefence"] = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
+		data["threshold"] = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
+		if self.iGLOBAL_WARMING_RESTORATION_RATE is None:
+			self.iGLOBAL_WARMING_RESTORATION_RATE = gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE")
+			self.iGLOBAL_WARMING_PROB = gc.getDefineINT("GLOBAL_WARMING_PROB")
+		data["changeRate"] = data["globalPollution"] - data["globalDefence"] - data["threshold"] - data["globalWarmingIndex"] * self.iGLOBAL_WARMING_RESTORATION_RATE / 100
+		iResponsibility = 100 * (data["localPollution"] - data["localDefence"])
+		iResponsibility /= max(1, data["localThreshold"])
+		iResponsibility *= data["threshold"]
+		iResponsibility /= max(1, data["globalPollution"] - data["globalDefence"])
+		data["responsibility"] = iResponsibility
+		data["expectedEvents"] = 1.0 * data["globalWarmingChances"] * self.iGLOBAL_WARMING_PROB / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+		data["gwPercentAnger"] = player.getGwPercentAnger()
+		return data
+
 	def drawEnvironmentTab(self):
 		screen = self.getScreen()
 		game = CyGame()
 		player = gc.getPlayer(self.iActivePlayer)
+		data = self.collectEnvironmentData()
 
 		X_LEFT_PANEL = self.ENV_X_LEFT_PANEL
 		X_MIDDLE_PANEL = self.ENV_X_MIDDLE_PANEL
@@ -1422,10 +1474,9 @@ class CvWorldAdvisorScreen:
 		szTopPanel = self.getNextWidgetName()
 		screen.addPanel(szTopPanel, u"", "", True, True, X_LEFT_PANEL, Y_TOP_PANEL, X_RIGHT_PANEL + PANE_WIDTH - X_LEFT_PANEL, H_TOP_PANEL, PanelStyles.PANEL_STYLE_MAIN)
 
-		iGlobalWarmingIndex = game.getGlobalWarmingIndex()
-		iGlobalWarmingChances = game.getGlobalWarmingChances()
-		iGwEventTally = game.getGwEventTally()
-		iSeverityRating = game.calculateGwSeverityRating()
+		iGlobalWarmingIndex = data["globalWarmingIndex"]
+		iGwEventTally = data["gwEventTally"]
+		iSeverityRating = data["severityRating"]
 
 		# <!-- custom: The tab was plain text throughout (the user, 2026-11-21, Civ4ScreenShot0177): the title and the pollution, population, buildings, electricity and offsets rows now start with their game-font icon. (Claude code Opus 5.5) -->
 		szText = SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_GW_SEVERITY_RATING + ": "
@@ -1454,14 +1505,14 @@ class CvWorldAdvisorScreen:
 
 		# Left panel: domestic
 		yLocation = Y_LOCATION
-		iPopulation = player.calculatePollution(PollutionTypes.POLLUTION_POPULATION)
-		iBuildings = player.calculatePollution(PollutionTypes.POLLUTION_BUILDINGS)
-		iResources = player.calculatePollution(PollutionTypes.POLLUTION_BONUSES)
-		iPower = player.calculatePollution(PollutionTypes.POLLUTION_POWER)
-		iLocalPollution = player.calculatePollution(PollutionTypes.POLLUTION_ALL)
-		iLocalThreshold = game.calculateGwSustainabilityThreshold(self.iActivePlayer)
+		iPopulation = data["population"]
+		iBuildings = data["buildings"]
+		iResources = data["resources"]
+		iPower = data["power"]
+		iLocalPollution = data["localPollution"]
+		iLocalThreshold = data["localThreshold"]
 		iPollutionTypes = (iPopulation != 0) * PollutionTypes.POLLUTION_POPULATION | (iBuildings != 0) * PollutionTypes.POLLUTION_BUILDINGS | (iResources != 0) * PollutionTypes.POLLUTION_BONUSES | (iPower != 0) * PollutionTypes.POLLUTION_POWER
-		iLocalDefence = game.calculateGwLandDefence(self.iActivePlayer)
+		iLocalDefence = data["localDefence"]
 
 		yLocation += 1.5 * Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_ENV_POLLUTION + ":" + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_LEFT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, iPollutionTypes, -1)
@@ -1498,13 +1549,10 @@ class CvWorldAdvisorScreen:
 
 		# Middle panel: Global
 		yLocation = Y_LOCATION
-		iGlobalPollution = game.calculateGlobalPollution()
-		iGlobalDefence = game.calculateGwLandDefence(PlayerTypes.NO_PLAYER)
-		iThreshold = game.calculateGwSustainabilityThreshold(PlayerTypes.NO_PLAYER)
-		if self.iGLOBAL_WARMING_RESTORATION_RATE is None:
-			self.iGLOBAL_WARMING_RESTORATION_RATE = gc.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE")
-			self.iGLOBAL_WARMING_PROB = gc.getDefineINT("GLOBAL_WARMING_PROB")
-		iChangeRate = iGlobalPollution - iGlobalDefence - iThreshold - iGlobalWarmingIndex * self.iGLOBAL_WARMING_RESTORATION_RATE / 100
+		iGlobalPollution = data["globalPollution"]
+		iGlobalDefence = data["globalDefence"]
+		iThreshold = data["threshold"]
+		iChangeRate = data["changeRate"]
 
 		yLocation += 1.5 * Y_SPACING
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + SASVisuals.Font.UNHEALTHY_CHAR + u" " + self.TEXT_ENV_TOTAL_POLLUTION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_POLLUTION_SOURCE, PollutionTypes.POLLUTION_ALL, -1)
@@ -1519,10 +1567,7 @@ class CvWorldAdvisorScreen:
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_GW_CHANGE_RATE + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(max(0, iChangeRate)) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_MIDDLE_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 
-		iResponsibility = 100 * (iLocalPollution - iLocalDefence)
-		iResponsibility /= max(1, iLocalThreshold)
-		iResponsibility *= iThreshold
-		iResponsibility /= max(1, iGlobalPollution - iGlobalDefence)
+		iResponsibility = data["responsibility"]
 		if iGwEventTally >= 0 or CyGame().isDebugMode():
 			yLocation += 1.5 * Y_SPACING
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_RELATIVE_CONTRIBUTION + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_MIDDLE_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_RELATIVE_CONTRIBUTION, -1, -1)
@@ -1534,14 +1579,14 @@ class CvWorldAdvisorScreen:
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_GW_INDEX + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iGlobalWarmingIndex) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_INDEX, -1, -1)
 		yLocation += 1.5 * Y_SPACING
-		fExpectedEvents = 1.0 * iGlobalWarmingChances * self.iGLOBAL_WARMING_PROB / (10.0 * gc.getGameSpeedInfo(game.getGameSpeedType()).getVictoryDelayPercent())
+		fExpectedEvents = data["expectedEvents"]
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_EXPECTED_EVENTS + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + u"%0.1f" % fExpectedEvents + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 		if iGwEventTally >= 0:
 			yLocation += 1.5 * Y_SPACING
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_EVENT_TALLY + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + unicode(iGwEventTally) + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
-		iGwPercentAnger = player.getGwPercentAnger()
+		iGwPercentAnger = data["gwPercentAnger"]
 		if iGwPercentAnger >= 2:
 			yLocation += 1.5 * Y_SPACING
 			screen.setLabel(self.getNextWidgetName(), "Background", SASTextScale.sasFontTagLabel + self.TEXT_ENV_LOCAL_ANGER_LEVEL + SASTextScale.SAS_FONT_TAG_CLOSE, CvUtil.FONT_LEFT_JUSTIFY, X_RIGHT_PANEL + TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_HELP_GW_UNHAPPY, -1, -1)

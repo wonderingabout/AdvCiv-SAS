@@ -609,7 +609,7 @@ SAS_UI_DAWN_OF_MAN_ON = 1
 
 # <!-- custom: 1 shows the tech splash when a tech is acquired, as in base AdvCiv; 0 skips it.
 # The event log still says "You have discovered ...".
-# At turn 148 of a pilot playthrough (2026-11-13), a tech bought from an AI put its splash on display at once and the window waited on its Continue button; agents and unattended runs only click through these screens.
+# At turn 148 of a SASPilot playthrough (2026-11-13), a tech bought from an AI put its splash on display at once and the window waited on its Continue button; agents and unattended runs only click through these screens.
 # Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
 SAS_UI_TECH_SPLASH_ON = 1
 
@@ -634,3 +634,9 @@ SAS_UI_PROJECT_MOVIE_ON = 1
 # Either way its ranking is recorded as a Timeline row in the save, so nothing is lost; at turn 82 of the 2026-11-19 validation run it waited on its Exit button in an agent game.
 # Ships as 1; LLM_Helpers/diagnostics/toggle_dev_diagnostics.py on sets 0 locally. (Claude code Opus 5.5) -->
 SAS_UI_TOP_CIVS_ON = 1
+
+
+# <!-- custom: 1 opens SASPilotConsole beside each Civ4 that SASPilotClient.py drives, and reopens it at the next command if it was closed, so the user can follow what agents do; 0 opens none.
+# Read only by SASPilotClient.py, outside the game. It replaced the SAS_PILOT_WATCH=0 environment variable, which agents set by hand in interactive tests while the user watched (2026-11-20, then 2026-11-27, eleven times past its warning), and the user found no console.
+# Here, turning it off is an edit the user sees in git status, and hands_free_defaults.py keeps it at 1 in commits. (Claude code Opus 5.5) -->
+SAS_PILOT_CONSOLE_ON = 1

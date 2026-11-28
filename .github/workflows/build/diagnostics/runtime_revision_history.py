@@ -80,7 +80,8 @@ def qualifies(repo, parent, commit):
         return True
     for path in paths:
         # <!-- custom: LLM_Helpers/ holds local tooling the game never loads; toggle_dev_diagnostics.py naming SAS_RUNTIME_* defines was miscounted as a Runtime implementation change. (Claude code Opus 5.5) -->
-        if path.startswith(("tests/", ".github/", "LLM_Helpers/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
+        # <!-- custom: SASPilot/, moved out of LLM_Helpers on 2026-11-20, is skipped likewise: SASPilotClient.py names SAS_RUNTIME_* settings but implements no Runtime output. (Claude code Opus 5.5) -->
+        if path.startswith(("tests/", ".github/", "LLM_Helpers/", "SASPilot/")) or Path(path).suffix.lower() not in {".cpp", ".h", ".py", ".xml"}:
             continue
         args = ["git", "diff", "--unified=0", "--ignore-cr-at-eol", parent]
         if commit is not None:

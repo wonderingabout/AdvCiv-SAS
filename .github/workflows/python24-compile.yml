@@ -5,6 +5,7 @@ on:
     paths:
       - "Assets/Python/**.py"
       - "PrivateMaps/**.py"
+      - "SASPilot/game/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
       - ".github/workflows/lib/runtime_python.py"
@@ -17,6 +18,7 @@ on:
     paths:
       - "Assets/Python/**.py"
       - "PrivateMaps/**.py"
+      - "SASPilot/game/**.py"
       - ".github/workflows/python24-compile.yml"
       - ".github/workflows/build/python/python24_compile.py"
       - ".github/workflows/lib/runtime_python.py"

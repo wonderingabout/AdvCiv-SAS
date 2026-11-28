@@ -88,6 +88,17 @@ def check_helpers(root):
     return errors
 
 
+def check_saspilot(root):
+    # <!-- custom: SASPilot left LLM_Helpers for the root on 2026-11-20, taking its README section along as SASPilot/README.md; the same promise holds there, that every script and sequence is named in it. (Claude code Opus 5.5) -->
+    base = root / "SASPilot"
+    text = (base / "README.md").read_text(encoding="utf-8")
+    errors = []
+    for path in sorted(base.rglob("*")):
+        if path.suffix in HELPER_SUFFIXES and "__pycache__" not in path.parts and path.name not in text:
+            errors.append("%s: not described in SASPilot/README.md" % path.relative_to(root).as_posix())
+    return errors
+
+
 def check_guide_documented(root, name, start, end, found, section):
     errors = []
     guide, disclaimer = GUIDE_DOCUMENTED_FOLDERS[name]
@@ -188,7 +199,7 @@ def main():
     parser = argparse.ArgumentParser(description="Check that folder indexes (the LLM_Helpers, workflow and Modding Resources READMEs) list what their folders hold, in alphabetical order.")
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     args = parser.parse_args()
-    errors = check_helpers(args.repo_root) + check_workflows(args.repo_root) + check_guides(args.repo_root)
+    errors = check_helpers(args.repo_root) + check_saspilot(args.repo_root) + check_workflows(args.repo_root) + check_guides(args.repo_root)
     print("FAIL folder indexes" if errors else "PASS folder indexes")
     for error in errors:
         print("  - " + error)

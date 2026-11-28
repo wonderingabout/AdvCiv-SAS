@@ -153,7 +153,7 @@ class CvTopCivs:
 		szTypeRand = self.TypeList[randIndex]
 		szHistorianRand = self.HistorianList[gc.getGame().getSorenRandNum(len(self.HistorianList), "advc.038")]
 		# </advc.038>
-		# <!-- custom: The ranking is recorded whether or not the screen shows (printList: the replay rows the Timeline reads), and SAS_UI_TOP_CIVS_ON decides only whether it shows, as the user asked rather than drawing it and closing it again (2026-11-19 validation run).
+		# <!-- custom: The ranking is recorded whether or not the screen shows (printList: the replay rows the Timeline and SASPilot read), and SAS_UI_TOP_CIVS_ON decides only whether it shows, as the user asked rather than drawing it and closing it again (2026-11-19 validation run).
 		# During AI Auto Play the info-popup switch skips it too (KI#203).
 		# The advc.038 draws above stay first, so the game's random sequence is the same either way. (Claude code Opus 5.5) -->
 		global g_bTopCivsOn, g_bDismissInfoPopupsOn
@@ -276,7 +276,7 @@ class CvTopCivs:
 		iRanks = 8
 		if gc.getGame().countCivPlayersAlive() == iRanks + 1:
 			iRanks = iRanks - 1
-		# <!-- custom: Record what this screen lists, before the loop's early return, as replay messages visible only to the viewer's team, which the save keeps and the Timeline lists.
+		# <!-- custom: Record what this screen lists, before the loop's early return, as replay messages visible only to the viewer's team, which the save keeps and the Timeline and SASPilot list.
 		# One row per rank under a title row: a single row first ran past the Timeline's width, then lost the unknown civilizations' places, and a leader name alone can repeat or pair oddly with a civilization, so each met rank gives leader, civilization, player ID and team, and an unmet one the screen's own words (the user, 2026-11-19). (Claude code Opus 5.5) -->
 		iViewer = CyGame().getActivePlayer()
 		pViewerTeam = gc.getTeam(gc.getPlayer(iViewer).getTeam())
